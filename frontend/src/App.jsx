@@ -8,6 +8,17 @@ import Login from './components/auth/Login.jsx';
 import SecurityPinModal from './components/auth/SecurityPinModal.jsx';
 import ApiLoader from './components/ui/ApiLoader.jsx';
 
+// Clear any stale local dev URL that was saved while testing on local network.
+// If the stored URL points to localhost or a LAN IP, remove it so the app uses
+// the production Render backend (set via VITE_API_URL in Vercel env vars).
+(function clearStaleLocalUrl() {
+  const saved = localStorage.getItem('ganesha_api_url');
+  if (saved && (saved.includes('localhost') || saved.includes('192.168') || saved.includes('127.0.0'))) {
+    localStorage.removeItem('ganesha_api_url');
+  }
+})();
+
+
 async function ensureSession() {
   const stored = localStorage.getItem('ganesha_token');
   if (stored) {
