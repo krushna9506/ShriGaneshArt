@@ -64,13 +64,17 @@ const getInvoiceById = (invoiceId) => {
   const totalPaid = orderPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
   const balanceDue = Math.max(0, Number(invoice.total_amount || 0) - totalPaid);
 
+  const firstPayment = orderPayments[0];
+  const customerName = customer?.name || order?.customerName || firstPayment?.customerName || 'Walk-in Customer';
+
   return {
     ...invoice,
-    order,
-    customer,
+    order: order || { id: invoice.order_id, orderNumber: invoice.invoice_number, status: 'Cancelled', customerName },
+    customer: customer || { id: invoice.customer_id, name: customerName },
     payments: orderPayments,
     advance_paid: totalPaid,
-    balance_due: balanceDue
+    balance_due: balanceDue,
+    is_cancelled: !order || order.status === 'Cancelled'
   };
 };
 
@@ -86,12 +90,17 @@ const getAllInvoices = (filters = {}) => {
     const customer = customers.find(c => String(c.id) === String(invoice.customer_id || order?.customerId));
     const orderPayments = payments.filter(p => String(p.orderId) === String(invoice.order_id));
     const totalPaid = orderPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+    
+    const firstPayment = orderPayments[0];
+    const customerName = customer?.name || order?.customerName || firstPayment?.customerName || 'Walk-in Customer';
+
     return {
       ...invoice,
-      order,
-      customer,
+      order: order || { id: invoice.order_id, orderNumber: invoice.invoice_number, status: 'Cancelled', customerName },
+      customer: customer || { id: invoice.customer_id, name: customerName },
       advance_paid: totalPaid,
-      balance_due: Math.max(0, Number(invoice.total_amount || 0) - totalPaid)
+      balance_due: Math.max(0, Number(invoice.total_amount || 0) - totalPaid),
+      is_cancelled: !order || order.status === 'Cancelled'
     };
   });
 

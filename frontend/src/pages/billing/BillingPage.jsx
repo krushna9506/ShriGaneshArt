@@ -83,10 +83,23 @@ function BillingPage() {
               </thead>
               <tbody>
                 {(invoices.data || []).map((invoice) => (
-                  <tr key={invoice.id} className="border-t border-slate-100 text-slate-800 font-bold hover:bg-slate-50/50 transition-colors">
+                  <tr key={invoice.id} className={`border-t font-bold hover:bg-slate-50/50 transition-colors ${
+                    invoice.is_cancelled ? 'border-rose-100 bg-rose-50/10 text-rose-900' : 'border-slate-100 text-slate-800'
+                  }`}>
                     <td className="px-3 py-4 text-slate-900">{invoice.invoice_number}</td>
-                    <td className="px-3 py-4 text-slate-900">{invoice.customer?.name}</td>
-                    <td className="px-3 py-4 text-slate-600">{invoice.invoice_date}</td>
+                    <td className="px-3 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className={invoice.is_cancelled ? 'text-rose-950 font-extrabold' : 'text-slate-900 font-bold'}>
+                          {invoice.customer?.name || 'Walk-in Customer'}
+                        </span>
+                        {invoice.is_cancelled && (
+                          <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-rose-800 border border-rose-200 shrink-0">
+                            Cancelled / रद्द
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-3 py-4 text-slate-650">{invoice.invoice_date}</td>
                     <td className="px-3 py-4 text-slate-900">₹{Number(invoice.total_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                     <td className="px-3 py-4 text-rose-600 font-extrabold">₹{Number(invoice.balance_due || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                     <td className="px-3 py-4">
