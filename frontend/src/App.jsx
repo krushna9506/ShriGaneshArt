@@ -2468,19 +2468,23 @@ function PaymentsHistory() {
               <p className="text-center text-sm text-slate-500 py-6">No payments recorded yet.</p>
             ) : (
               [...payments].reverse().map((payment) => {
-                const order = orders.find((item) => String(item.id) === String(payment.orderId));
                 const notes = cleanNotes(payment.notes);
                 
                 return (
-                  <article key={payment.id} className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+                  <article key={payment.id} className={`rounded-3xl border p-5 shadow-sm hover:shadow-md transition-shadow ${payment.orderStatus === 'Cancelled' ? 'border-rose-100 bg-rose-50/20' : 'border-slate-100 bg-white'}`}>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         {/* Customer Name and Order Reference */}
-                        <h4 className="text-base font-bold text-slate-900">
-                          {order?.customerName || 'Walk-in Customer'}
+                        <h4 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                          {payment.customerName || 'Walk-in Customer'}
+                          {payment.orderStatus === 'Cancelled' && (
+                            <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-rose-800 border border-rose-200">
+                              Cancelled / रद्द
+                            </span>
+                          )}
                         </h4>
                         <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                          <span className="font-semibold text-amber-600">{order?.orderNumber || `Order #${payment.orderId}`}</span>
+                          <span className="font-semibold text-amber-600">{payment.orderNumber}</span>
                           <span>·</span>
                           <span>Date: {payment.paymentDate}</span>
                         </div>

@@ -24,7 +24,7 @@ const generateInvoice = (orderId) => {
 
   const subtotal = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const totalAmount = subtotal;
-  const invoiceNumber = generateInvoiceNumber(invoices);
+  const invoiceNumber = order.orderNumber;
 
   const orderPayments = payments.filter(p => String(p.orderId) === String(order.id));
   const totalPaid = orderPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);

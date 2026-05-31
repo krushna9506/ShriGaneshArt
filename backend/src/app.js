@@ -220,7 +220,19 @@ app.delete('/api/orders/:id', auth, (req, res) => {
   }
 });
 
-app.get('/api/payments', auth, (req, res) => res.json(payments));
+app.get('/api/payments', auth, (req, res) => {
+  const populated = payments.map((p) => {
+    const order = orders.find((o) => String(o.id) === String(p.orderId));
+    const customer = customers.find((c) => String(c.id) === String(order?.customerId || p.customerId));
+    return {
+      ...p,
+      customerName: order?.customerName || customer?.name || 'Walk-in Customer',
+      orderNumber: order?.orderNumber || `Order #${p.orderId}`,
+      orderStatus: order?.status || 'Active'
+    };
+  });
+  res.json(populated);
+});
 app.post('/api/payments', auth, (req, res) => {
   try {
     const result = recordPayment(req.body);

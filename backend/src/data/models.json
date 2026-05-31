@@ -7,8 +7,8 @@
     "material": "Clay",
     "price": 95,
     "totalStock": 80,
-    "soldStock": 0,
-    "remainingStock": 80,
+    "soldStock": 1,
+    "remainingStock": 79,
     "active": true
   },
   {
@@ -19,8 +19,8 @@
     "material": "Clay",
     "price": 95,
     "totalStock": 80,
-    "soldStock": 0,
-    "remainingStock": 80,
+    "soldStock": 2,
+    "remainingStock": 78,
     "active": true
   },
   {
@@ -31,8 +31,8 @@
     "material": "Clay",
     "price": 95,
     "totalStock": 80,
-    "soldStock": 0,
-    "remainingStock": 80,
+    "soldStock": 3,
+    "remainingStock": 77,
     "active": true
   },
   {
@@ -55,8 +55,8 @@
     "material": "Clay",
     "price": 105,
     "totalStock": 80,
-    "soldStock": 0,
-    "remainingStock": 80,
+    "soldStock": 1,
+    "remainingStock": 79,
     "active": true
   },
   {
@@ -67,8 +67,8 @@
     "material": "Clay",
     "price": 105,
     "totalStock": 80,
-    "soldStock": 0,
-    "remainingStock": 80,
+    "soldStock": 2,
+    "remainingStock": 78,
     "active": true
   },
   {
@@ -79,8 +79,8 @@
     "material": "Clay",
     "price": 145,
     "totalStock": 80,
-    "soldStock": 0,
-    "remainingStock": 80,
+    "soldStock": 3,
+    "remainingStock": 77,
     "active": true
   },
   {
@@ -103,8 +103,8 @@
     "material": "Clay",
     "price": 185,
     "totalStock": 60,
-    "soldStock": 0,
-    "remainingStock": 60,
+    "soldStock": 1,
+    "remainingStock": 59,
     "active": true
   },
   {
@@ -115,8 +115,8 @@
     "material": "Clay",
     "price": 185,
     "totalStock": 60,
-    "soldStock": 0,
-    "remainingStock": 60,
+    "soldStock": 2,
+    "remainingStock": 58,
     "active": true
   },
   {
@@ -127,8 +127,8 @@
     "material": "Clay",
     "price": 185,
     "totalStock": 60,
-    "soldStock": 0,
-    "remainingStock": 60,
+    "soldStock": 3,
+    "remainingStock": 57,
     "active": true
   },
   {
@@ -151,8 +151,8 @@
     "material": "Clay",
     "price": 230,
     "totalStock": 58,
-    "soldStock": 0,
-    "remainingStock": 58,
+    "soldStock": 1,
+    "remainingStock": 57,
     "active": true
   },
   {
@@ -163,8 +163,8 @@
     "material": "Clay",
     "price": 230,
     "totalStock": 60,
-    "soldStock": 0,
-    "remainingStock": 60,
+    "soldStock": 2,
+    "remainingStock": 58,
     "active": true
   },
   {
@@ -175,8 +175,8 @@
     "material": "Clay",
     "price": 230,
     "totalStock": 63,
-    "soldStock": 0,
-    "remainingStock": 63,
+    "soldStock": 3,
+    "remainingStock": 60,
     "active": true
   },
   {
@@ -199,8 +199,8 @@
     "material": "Clay",
     "price": 260,
     "totalStock": 60,
-    "soldStock": 0,
-    "remainingStock": 60,
+    "soldStock": 1,
+    "remainingStock": 59,
     "active": true
   },
   {
@@ -211,8 +211,8 @@
     "material": "Clay",
     "price": 260,
     "totalStock": 63,
-    "soldStock": 0,
-    "remainingStock": 63,
+    "soldStock": 2,
+    "remainingStock": 61,
     "active": true
   },
   {
@@ -223,8 +223,8 @@
     "material": "Clay",
     "price": 260,
     "totalStock": 59,
-    "soldStock": 0,
-    "remainingStock": 59,
+    "soldStock": 3,
+    "remainingStock": 56,
     "active": true
   },
   {
@@ -247,8 +247,8 @@
     "material": "Clay",
     "price": 330,
     "totalStock": 59,
-    "soldStock": 0,
-    "remainingStock": 59,
+    "soldStock": 1,
+    "remainingStock": 58,
     "active": true
   },
   {
@@ -259,8 +259,8 @@
     "material": "Clay",
     "price": 330,
     "totalStock": 59,
-    "soldStock": 0,
-    "remainingStock": 59,
+    "soldStock": 2,
+    "remainingStock": 57,
     "active": true
   },
   {
@@ -271,8 +271,8 @@
     "material": "Clay",
     "price": 330,
     "totalStock": 62,
-    "soldStock": 0,
-    "remainingStock": 62,
+    "soldStock": 3,
+    "remainingStock": 59,
     "active": true
   },
   {
@@ -295,8 +295,8 @@
     "material": "Clay",
     "price": 330,
     "totalStock": 56,
-    "soldStock": 0,
-    "remainingStock": 56,
+    "soldStock": 1,
+    "remainingStock": 55,
     "active": true
   },
   {
@@ -307,8 +307,8 @@
     "material": "Clay",
     "price": 390,
     "totalStock": 56,
-    "soldStock": 0,
-    "remainingStock": 56,
+    "soldStock": 2,
+    "remainingStock": 54,
     "active": true
   },
   {
@@ -319,8 +319,8 @@
     "material": "Clay",
     "price": 390,
     "totalStock": 58,
-    "soldStock": 0,
-    "remainingStock": 58,
+    "soldStock": 3,
+    "remainingStock": 55,
     "active": true
   },
   {
@@ -343,8 +343,8 @@
     "material": "Clay",
     "price": 435,
     "totalStock": 60,
-    "soldStock": 0,
-    "remainingStock": 60,
+    "soldStock": 1,
+    "remainingStock": 59,
     "active": true
   },
   {
@@ -355,8 +355,8 @@
     "material": "Clay",
     "price": 435,
     "totalStock": 59,
-    "soldStock": 0,
-    "remainingStock": 59,
+    "soldStock": 2,
+    "remainingStock": 57,
     "active": true
   },
   {
@@ -367,8 +367,8 @@
     "material": "Clay",
     "price": 435,
     "totalStock": 50,
-    "soldStock": 0,
-    "remainingStock": 50,
+    "soldStock": 3,
+    "remainingStock": 47,
     "active": true
   },
   {
@@ -391,8 +391,8 @@
     "material": "Clay",
     "price": 435,
     "totalStock": 62,
-    "soldStock": 0,
-    "remainingStock": 62,
+    "soldStock": 1,
+    "remainingStock": 61,
     "active": true
   },
   {
@@ -403,8 +403,8 @@
     "material": "Clay",
     "price": 530,
     "totalStock": 50,
-    "soldStock": 0,
-    "remainingStock": 50,
+    "soldStock": 2,
+    "remainingStock": 48,
     "active": true
   },
   {
@@ -415,8 +415,8 @@
     "material": "Clay",
     "price": 530,
     "totalStock": 40,
-    "soldStock": 0,
-    "remainingStock": 40,
+    "soldStock": 3,
+    "remainingStock": 37,
     "active": true
   },
   {
@@ -439,8 +439,8 @@
     "material": "Clay",
     "price": 530,
     "totalStock": 62,
-    "soldStock": 0,
-    "remainingStock": 62,
+    "soldStock": 1,
+    "remainingStock": 61,
     "active": true
   },
   {
@@ -451,8 +451,8 @@
     "material": "Clay",
     "price": 530,
     "totalStock": 59,
-    "soldStock": 0,
-    "remainingStock": 59,
+    "soldStock": 2,
+    "remainingStock": 57,
     "active": true
   },
   {
@@ -463,8 +463,8 @@
     "material": "Clay",
     "price": 610,
     "totalStock": 50,
-    "soldStock": 0,
-    "remainingStock": 50,
+    "soldStock": 3,
+    "remainingStock": 47,
     "active": true
   },
   {
@@ -487,8 +487,8 @@
     "material": "Clay",
     "price": 610,
     "totalStock": 40,
-    "soldStock": 0,
-    "remainingStock": 40,
+    "soldStock": 1,
+    "remainingStock": 39,
     "active": true
   },
   {
@@ -499,8 +499,8 @@
     "material": "Clay",
     "price": 760,
     "totalStock": 39,
-    "soldStock": 0,
-    "remainingStock": 39,
+    "soldStock": 2,
+    "remainingStock": 37,
     "active": true
   },
   {
@@ -511,8 +511,8 @@
     "material": "Clay",
     "price": 760,
     "totalStock": 40,
-    "soldStock": 0,
-    "remainingStock": 40,
+    "soldStock": 3,
+    "remainingStock": 37,
     "active": true
   },
   {
@@ -535,8 +535,8 @@
     "material": "Clay",
     "price": 760,
     "totalStock": 35,
-    "soldStock": 0,
-    "remainingStock": 35,
+    "soldStock": 1,
+    "remainingStock": 34,
     "active": true
   },
   {
@@ -547,8 +547,8 @@
     "material": "Clay",
     "price": 820,
     "totalStock": 50,
-    "soldStock": 0,
-    "remainingStock": 50,
+    "soldStock": 2,
+    "remainingStock": 48,
     "active": true
   },
   {
@@ -559,8 +559,8 @@
     "material": "Clay",
     "price": 820,
     "totalStock": 35,
-    "soldStock": 0,
-    "remainingStock": 35,
+    "soldStock": 3,
+    "remainingStock": 32,
     "active": true
   },
   {
@@ -583,8 +583,8 @@
     "material": "Clay",
     "price": 820,
     "totalStock": 35,
-    "soldStock": 0,
-    "remainingStock": 35,
+    "soldStock": 1,
+    "remainingStock": 34,
     "active": true
   },
   {
@@ -595,8 +595,8 @@
     "material": "MDF",
     "price": 920,
     "totalStock": 35,
-    "soldStock": 0,
-    "remainingStock": 35,
+    "soldStock": 2,
+    "remainingStock": 33,
     "active": true
   },
   {
@@ -607,8 +607,8 @@
     "material": "MDF",
     "price": 920,
     "totalStock": 40,
-    "soldStock": 0,
-    "remainingStock": 40,
+    "soldStock": 3,
+    "remainingStock": 37,
     "active": true
   },
   {
@@ -631,8 +631,8 @@
     "material": "MDF",
     "price": 960,
     "totalStock": 40,
-    "soldStock": 0,
-    "remainingStock": 40,
+    "soldStock": 1,
+    "remainingStock": 39,
     "active": true
   },
   {
@@ -643,8 +643,8 @@
     "material": "MDF",
     "price": 1050,
     "totalStock": 40,
-    "soldStock": 0,
-    "remainingStock": 40,
+    "soldStock": 2,
+    "remainingStock": 38,
     "active": true
   },
   {
@@ -655,8 +655,8 @@
     "material": "MDF",
     "price": 1150,
     "totalStock": 40,
-    "soldStock": 0,
-    "remainingStock": 40,
+    "soldStock": 3,
+    "remainingStock": 37,
     "active": true
   },
   {
@@ -679,8 +679,8 @@
     "material": "MDF",
     "price": 1600,
     "totalStock": 10,
-    "soldStock": 0,
-    "remainingStock": 10,
+    "soldStock": 1,
+    "remainingStock": 9,
     "active": true
   },
   {
@@ -691,8 +691,8 @@
     "material": "MDF",
     "price": 1700,
     "totalStock": 20,
-    "soldStock": 0,
-    "remainingStock": 20,
+    "soldStock": 2,
+    "remainingStock": 18,
     "active": true
   },
   {
@@ -703,8 +703,8 @@
     "material": "MDF",
     "price": 1600,
     "totalStock": 20,
-    "soldStock": 0,
-    "remainingStock": 20,
+    "soldStock": 3,
+    "remainingStock": 17,
     "active": true
   },
   {
