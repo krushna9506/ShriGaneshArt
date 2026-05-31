@@ -4,7 +4,10 @@ import axios from 'axios';
 const getBaseURL = () => {
   const customUrl = localStorage.getItem('ganesha_api_url');
   if (customUrl) return customUrl;
-  return import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '/api';
+  // Always ensure the base URL ends with /api
+  const raw = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || '';
+  if (!raw) return '/api';
+  return raw.endsWith('/api') ? raw : raw.replace(/\/$/, '') + '/api';
 };
 
 const api = axios.create({
