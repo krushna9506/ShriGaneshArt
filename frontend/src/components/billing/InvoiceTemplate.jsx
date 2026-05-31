@@ -176,7 +176,7 @@ function InvoiceTemplate({ invoice }) {
                     <div className="border border-rose-800 rounded-xl p-2 bg-rose-50/20 text-[10px] font-bold text-rose-800 print:bg-transparent print:border-rose-800">
                       <h4 className="font-extrabold text-rose-955 border-b border-rose-200 pb-0.5 mb-1 uppercase tracking-wider text-[9px]">भरणा तपशील / Payment Installments:</h4>
                       {invoice.payments && invoice.payments.length > 0 ? (
-                        <div className="space-y-0.5 max-h-16 overflow-y-auto">
+                        <div className="space-y-0.5">
                           {invoice.payments.map((p, idx) => (
                             <div key={idx} className="flex justify-between items-center text-slate-800 border-b border-rose-100 last:border-none pb-0.5 last:pb-0">
                               <span>{p.paymentDate || p.payment_date || '—'} · {p.mode}</span>

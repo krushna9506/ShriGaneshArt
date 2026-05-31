@@ -56,21 +56,21 @@ const initialModels = [
   { id: 43, code: 'A52', name: 'Ganesh Model A52', size: '16 inch', material: 'Clay', price: 760, totalStock: 40, soldStock: 0, remainingStock: 40, active: true },
   { id: 44, code: 'A51', name: 'Ganesh Model A51', size: '16 inch', material: 'Clay', price: 760, totalStock: 40, soldStock: 0, remainingStock: 40, active: true },
   { id: 45, code: 'A47', name: 'Ganesh Model A47', size: '16 inch', material: 'Clay', price: 760, totalStock: 35, soldStock: 0, remainingStock: 35, active: true },
-  { id: 46, code: 'लालबाग', name: 'लालबाग', size: '17 inch', material: 'Clay', price: 820, totalStock: 50, soldStock: 0, remainingStock: 50, active: true },
+  { id: 46, code: 'लालबाग (Lalbaug)', name: 'लालबाग (Lalbaug)', size: '17 inch', material: 'Clay', price: 820, totalStock: 50, soldStock: 0, remainingStock: 50, active: true },
   { id: 47, code: 'A46', name: 'Ganesh Model A46', size: '17 inch', material: 'Clay', price: 820, totalStock: 35, soldStock: 0, remainingStock: 35, active: true },
   { id: 48, code: '94', name: 'Ganesh Model 94', size: '17 inch', material: 'Clay', price: 820, totalStock: 34, soldStock: 0, remainingStock: 34, active: true },
   { id: 49, code: 'A48', name: 'Ganesh Model A48', size: '17 inch', material: 'Clay', price: 820, totalStock: 35, soldStock: 0, remainingStock: 35, active: true },
   { id: 50, code: 'A50', name: 'Ganesh Model A50', size: '19 inch', material: 'MDF', price: 920, totalStock: 35, soldStock: 0, remainingStock: 35, active: true },
   { id: 51, code: '14 B', name: 'Ganesh Model 14 B', size: '19 inch', material: 'MDF', price: 920, totalStock: 40, soldStock: 0, remainingStock: 40, active: true },
-  { id: 52, code: 'ओम', name: 'ओम', size: '19 inch', material: 'MDF', price: 960, totalStock: 34, soldStock: 0, remainingStock: 34, active: true },
+  { id: 52, code: 'ओम (Om)', name: 'ओम (Om)', size: '19 inch', material: 'MDF', price: 960, totalStock: 34, soldStock: 0, remainingStock: 34, active: true },
   { id: 53, code: '8 B', name: 'Ganesh Model 8 B', size: '19 inch', material: 'MDF', price: 960, totalStock: 40, soldStock: 0, remainingStock: 40, active: true },
-  { id: 54, code: 'विठ्ठल', name: 'विठ्ठल', size: '20 inch', material: 'MDF', price: 1050, totalStock: 40, soldStock: 0, remainingStock: 40, active: true },
+  { id: 54, code: 'विठ्ठल (Vitthal)', name: 'विठ्ठल (Vitthal)', size: '20 inch', material: 'MDF', price: 1050, totalStock: 40, soldStock: 0, remainingStock: 40, active: true },
   { id: 55, code: '12 B', name: 'Ganesh Model 12 B', size: '20 inch', material: 'MDF', price: 1150, totalStock: 40, soldStock: 0, remainingStock: 40, active: true },
   { id: 56, code: '92', name: 'Ganesh Model 92', size: '20 inch', material: 'MDF', price: 1150, totalStock: 30, soldStock: 0, remainingStock: 30, active: true },
-  { id: 57, code: 'नंदी', name: 'नंदी', size: '2 feet', material: 'MDF', price: 1600, totalStock: 10, soldStock: 0, remainingStock: 10, active: true },
-  { id: 58, code: 'लालबाग', name: 'लालबाग', size: '2 feet', material: 'MDF', price: 1700, totalStock: 20, soldStock: 0, remainingStock: 20, active: true },
-  { id: 59, code: '91 उंदीर', name: '91 उंदीर', size: '2 feet', material: 'MDF', price: 1600, totalStock: 20, soldStock: 0, remainingStock: 20, active: true },
-  { id: 60, code: 'दगडु', name: 'दगडु', size: '2 feet', material: 'MDF', price: 1700, totalStock: 10, soldStock: 0, remainingStock: 10, active: true },
+  { id: 57, code: 'नंदी (Nandi)', name: 'नंदी (Nandi)', size: '2 feet', material: 'MDF', price: 1600, totalStock: 10, soldStock: 0, remainingStock: 10, active: true },
+  { id: 58, code: 'लालबाग (Lalbaug)', name: 'लालबाग (Lalbaug)', size: '2 feet', material: 'MDF', price: 1700, totalStock: 20, soldStock: 0, remainingStock: 20, active: true },
+  { id: 59, code: '91 उंदीर (91 Undir)', name: '91 उंदीर (91 Undir)', size: '2 feet', material: 'MDF', price: 1600, totalStock: 20, soldStock: 0, remainingStock: 20, active: true },
+  { id: 60, code: 'दगडु (Dagdu)', name: 'दगडु (Dagdu)', size: '2 feet', material: 'MDF', price: 1700, totalStock: 10, soldStock: 0, remainingStock: 10, active: true },
 ];
 
 // ─── In-Memory Store Arrays (MUST be declared before any function calls) ─────
@@ -292,7 +292,7 @@ async function seedModelsToPostgres() {
       await pool.query(
         `INSERT INTO pg_models (id, code, name, size, material, price, total_stock, sold_stock, remaining_stock, active)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-         ON CONFLICT (id) DO NOTHING`,
+         ON CONFLICT (id) DO UPDATE SET code = EXCLUDED.code, name = EXCLUDED.name`,
         [m.id, m.code, m.name, m.size, m.material, m.price, m.totalStock, m.soldStock, m.remainingStock, m.active]
       );
     }
