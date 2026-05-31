@@ -6,6 +6,7 @@ import BillingPage from './pages/billing/BillingPage.jsx';
 import InvoicePage from './pages/billing/InvoicePage.jsx';
 import Login from './components/auth/Login.jsx';
 import ApiLoader from './components/ui/ApiLoader.jsx';
+import logo from './assets/logo.png';
 
 // Clear any stale local dev URL that was saved while testing on local network.
 // If the stored URL points to localhost or a LAN IP, remove it so the app uses
@@ -82,12 +83,12 @@ function Layout({ children }) {
       {/* Desktop Sidebar */}
       <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-slate-150 bg-white p-6 lg:block z-30">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
-            <span className="text-slate-955 font-black text-xl">ॐ</span>
+          <div className="w-10 h-10 rounded-xl border border-amber-500/20 overflow-hidden bg-gradient-to-br from-amber-50 to-orange-100 flex items-center justify-center shadow-md">
+            <img src={logo} alt="Shri Ganesh Art Logo" className="w-full h-full object-contain p-0.5" />
           </div>
           <div>
             <h2 className="text-md font-bold tracking-tight text-slate-900 leading-none">Shri Ganesh Art</h2>
-            <p className="text-[10px] text-amber-600 font-semibold tracking-widest uppercase mt-1">Studio Portal</p>
+            <p className="text-[10px] text-amber-600 font-extrabold tracking-wide uppercase mt-1">Ganesh Idol Manufacturer</p>
           </div>
         </div>
         <div className="mt-6 rounded-2xl border border-slate-100 bg-white p-4 text-xs text-slate-650 shadow-sm flex flex-col gap-1.5">
@@ -131,12 +132,12 @@ function Layout({ children }) {
       {/* Responsive Mobile Header */}
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur-md flex items-center justify-between lg:hidden">
         <div className="flex items-center gap-2" onClick={() => navigate('/')}>
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-black text-md">
-            ॐ
+          <div className="w-8 h-8 rounded-lg border border-amber-500/20 overflow-hidden bg-gradient-to-br from-amber-50 to-orange-100 flex items-center justify-center shadow-sm">
+            <img src={logo} alt="Shri Ganesh Art Logo" className="w-full h-full object-contain p-0.5" />
           </div>
           <div>
             <span className="font-bold text-sm text-slate-900 block">Shri Ganesh Art</span>
-            <span className="text-[9px] text-slate-500 block uppercase tracking-wider leading-none">Studio Portal</span>
+            <span className="text-[9px] text-amber-600 font-extrabold tracking-wide uppercase leading-none mt-0.5">Ganesh Idol Manufacturer</span>
           </div>
         </div>
         
@@ -344,13 +345,13 @@ function WelcomePortal() {
 
         <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4 text-center md:text-left flex-col md:flex-row">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center shadow-xl shadow-amber-500/20">
-              <span className="text-slate-950 font-black text-3xl">ॐ</span>
+            <div className="w-16 h-16 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-50 to-orange-100 overflow-hidden flex items-center justify-center shadow-lg p-1.5 shrink-0">
+              <img src={logo} alt="Shri Ganesh Art Logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <p className="text-xs font-extrabold text-amber-600 tracking-widest uppercase">{getGreeting()}</p>
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-1">Shri Ganesh Art Studio</h2>
-              <p className="text-sm text-slate-600 mt-1 font-medium">Welcome to the Live Operations & Catalog Portal</p>
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-1">Shri Ganesh Art</h2>
+              <p className="text-sm text-amber-600 mt-1 font-extrabold tracking-wide uppercase">Ganesh Idol Manufacturer</p>
             </div>
           </div>
           
