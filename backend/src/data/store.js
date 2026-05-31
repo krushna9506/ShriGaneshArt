@@ -1,16 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const modelsJsonPath = path.join(__dirname, 'models.json');
-const ordersJsonPath = path.join(__dirname, 'orders.json');
-const paymentsJsonPath = path.join(__dirname, 'payments.json');
-const customersJsonPath = path.join(__dirname, 'customers.json');
-
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import pool from '../config/db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -18,6 +8,7 @@ const modelsJsonPath = path.join(__dirname, 'models.json');
 const ordersJsonPath = path.join(__dirname, 'orders.json');
 const paymentsJsonPath = path.join(__dirname, 'payments.json');
 const customersJsonPath = path.join(__dirname, 'customers.json');
+
 
 export async function saveModels() {
   try {
@@ -731,6 +722,5 @@ export {
   formatDate,
   loadModels,
   deleteOrder,
-  updateOrder,
-  loadStoreData
+  updateOrder
 };
