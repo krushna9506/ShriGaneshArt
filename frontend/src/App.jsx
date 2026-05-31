@@ -846,14 +846,14 @@ function Models() {
     e.preventDefault();
     const totalStock = Number(form.totalStock || 0);
     const soldStock = Number(form.soldStock || 0);
-    const remainingStock = totalStock - soldStock;
+    const remainingStock = totalStock - soldStock;  // always auto-computed
     const payload = {
       ...form,
       name: `Ganesh Model ${form.code}`,
       price: form.price || '',
       totalStock,
       soldStock,
-      remainingStock
+      remainingStock,
     };
     try {
       await ensureSession();
@@ -867,6 +867,7 @@ function Models() {
       loadData();
     } catch (err) {
       console.error('Save model failed', err);
+      alert(`Failed to save model: ${err.response?.data?.error || err.message}`);
     }
   };
 
@@ -889,14 +890,14 @@ function Models() {
   const submitInlineEdit = async () => {
     const totalStock = Number(form.totalStock || 0);
     const soldStock = Number(form.soldStock || 0);
-    const remainingStock = totalStock - soldStock;
+    const remainingStock = totalStock - soldStock;  // always auto-computed
     const payload = {
       ...form,
       name: `Ganesh Model ${form.code}`,
       price: form.price || '',
       totalStock,
       soldStock,
-      remainingStock
+      remainingStock,
     };
     try {
       await ensureSession();
@@ -906,6 +907,7 @@ function Models() {
       loadData();
     } catch (err) {
       console.error('Inline save model failed', err);
+      alert(`Failed to save: ${err.response?.data?.error || err.message}`);
     }
   };
 
@@ -1067,33 +1069,96 @@ function Models() {
 
             <form onSubmit={submitModel} className="rounded-3xl border border-slate-200 bg-white p-5 w-full min-w-0">
               <h3 className="text-lg font-semibold">{editingId ? 'Edit Model' : 'Add Model'}</h3>
-              <p className="mt-1 text-sm text-slate-500">Enter model code (any language), size, price, and stock details.</p>
+              <p className="mt-1 text-sm text-slate-500">Enter model code, size, price, and stock. Remaining is auto-calculated.</p>
               <div className="mt-4 grid gap-4">
-                {[
-                  ['code', 'Model Code (Alphanumeric)'],
-                  ['size', 'Size'],
-                  ['price', 'Price'],
-                  ['totalStock', 'Total Stock'],
-                  ['soldStock', 'Sold Stock'],
-                  ['remainingStock', 'Remaining Stock']
-                ].map(([field, label]) => (
-                  <label key={field} className="text-sm text-slate-700">
-                    <span className="mb-1 block">{label}</span>
-                    <input
-                      type={['price','totalStock','soldStock','remainingStock'].includes(field) ? 'number' : 'text'}
-                      value={form[field] ?? ''}
-                      onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-                      className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
-                    />
-                  </label>
-                ))}
+
+                <label className="text-sm text-slate-700">
+                  <span className="mb-1 block font-medium">Model Code</span>
+                  <input
+                    required
+                    type="text"
+                    value={form.code}
+                    onChange={(e) => setForm({ ...form, code: e.target.value })}
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+                    placeholder="e.g. A65"
+                  />
+                </label>
+
+                <label className="text-sm text-slate-700">
+                  <span className="mb-1 block font-medium">Size</span>
+                  <input
+                    type="text"
+                    value={form.size}
+                    onChange={(e) => setForm({ ...form, size: e.target.value })}
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+                    placeholder="e.g. 6 inch"
+                  />
+                </label>
+
+                <label className="text-sm text-slate-700">
+                  <span className="mb-1 block font-medium">Price (₹)</span>
+                  <input
+                    type="number"
+                    value={form.price}
+                    onChange={(e) => setForm({ ...form, price: e.target.value })}
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+                    placeholder="e.g. 95"
+                  />
+                </label>
+
+                <label className="text-sm text-slate-700">
+                  <span className="mb-1 block font-medium">Total Stock</span>
+                  <input
+                    type="number"
+                    value={form.totalStock}
+                    onChange={(e) => {
+                      const total = Number(e.target.value || 0);
+                      const sold = Number(form.soldStock || 0);
+                      setForm({ ...form, totalStock: e.target.value, remainingStock: total - sold });
+                    }}
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+                    placeholder="e.g. 80"
+                  />
+                </label>
+
+                <label className="text-sm text-slate-700">
+                  <span className="mb-1 block font-medium">Sold Stock</span>
+                  <input
+                    type="number"
+                    value={form.soldStock}
+                    onChange={(e) => {
+                      const sold = Number(e.target.value || 0);
+                      const total = Number(form.totalStock || 0);
+                      setForm({ ...form, soldStock: e.target.value, remainingStock: total - sold });
+                    }}
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
+                    placeholder="e.g. 3"
+                  />
+                </label>
+
+                {/* READ-ONLY: auto-computed from Total - Sold */}
+                <label className="text-sm text-slate-700">
+                  <span className="mb-1 block font-medium text-emerald-700">Remaining Stock <span className="text-[10px] font-normal text-slate-400">(auto-calculated)</span></span>
+                  <input
+                    type="number"
+                    readOnly
+                    value={Number(form.totalStock || 0) - Number(form.soldStock || 0)}
+                    className="w-full rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-800 font-bold cursor-not-allowed"
+                  />
+                </label>
+
                 <label className="flex items-center gap-2 text-sm text-slate-700">
                   <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />
                   Active Status
                 </label>
+
                 <div className="flex gap-3">
-                  <button type="submit" className="rounded-2xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950">{editingId ? 'Update Model' : 'Save Model'}</button>
-                  <button type="button" onClick={() => { setEditingId(null); setForm({ code: '', size: '', price: '', totalStock: '', soldStock: '', remainingStock: '', active: true }); }} className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-800 hover:border-amber-400 hover:bg-amber-50">Reset</button>
+                  <button type="submit" className="flex-1 rounded-2xl bg-emerald-400 px-4 py-2.5 text-sm font-bold text-slate-950 hover:bg-emerald-500 transition-colors">
+                    {editingId ? '✓ Update Model' : '+ Save Model'}
+                  </button>
+                  <button type="button" onClick={() => { setEditingId(null); setForm({ code: '', size: '', price: '', totalStock: '', soldStock: '', remainingStock: '', active: true }); }} className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-800 hover:border-amber-400 hover:bg-amber-50">
+                    Reset
+                  </button>
                 </div>
               </div>
             </form>
