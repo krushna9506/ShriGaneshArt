@@ -1,5 +1,5 @@
 import { generateInvoiceNumber } from '../utils/invoiceNumber.js';
-import { customers, invoices, models, orders, saveInvoices } from '../data/store.js';
+import { customers, invoices, models, orders, payments, saveInvoices } from '../data/store.js';
 
 const findOrder = (orderId) => orders.find((order) => String(order.id) === String(orderId));
 const findCustomer = (customerId) => customers.find((customer) => String(customer.id) === String(customerId));
@@ -7,6 +7,11 @@ const findCustomer = (customerId) => customers.find((customer) => String(custome
 const generateInvoice = (orderId) => {
   const order = findOrder(orderId);
   if (!order) throw new Error('Order not found');
+
+  const existing = invoices.find(inv => String(inv.order_id) === String(orderId));
+  if (existing) {
+    return getInvoiceById(existing.id);
+  }
 
   const customer = findCustomer(order.customerId);
   const items = (order.items || []).map((item) => ({
@@ -20,6 +25,10 @@ const generateInvoice = (orderId) => {
   const subtotal = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const totalAmount = subtotal;
   const invoiceNumber = generateInvoiceNumber(invoices);
+
+  const orderPayments = payments.filter(p => String(p.orderId) === String(order.id));
+  const totalPaid = orderPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
   const invoice = {
     id: String(Date.now()),
     invoice_number: invoiceNumber,
@@ -29,13 +38,14 @@ const generateInvoice = (orderId) => {
     items,
     subtotal,
     total_amount: totalAmount,
-    advance_paid: order.advance || 0,
-    balance_due: Math.max(0, totalAmount - (order.advance || 0)),
+    advance_paid: totalPaid,
+    balance_due: Math.max(0, totalAmount - totalPaid),
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     order,
     customer,
-    models
+    models,
+    payments: orderPayments
   };
 
   invoices.push(invoice);
@@ -43,7 +53,26 @@ const generateInvoice = (orderId) => {
   return invoice;
 };
 
-const getInvoiceById = (invoiceId) => invoices.find((invoice) => String(invoice.id) === String(invoiceId));
+const getInvoiceById = (invoiceId) => {
+  const invoice = invoices.find((invoice) => String(invoice.id) === String(invoiceId));
+  if (!invoice) return null;
+
+  const order = orders.find(o => String(o.id) === String(invoice.order_id));
+  const customer = customers.find(c => String(c.id) === String(invoice.customer_id || order?.customerId));
+  const orderPayments = payments.filter(p => String(p.orderId) === String(invoice.order_id));
+  
+  const totalPaid = orderPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+  const balanceDue = Math.max(0, Number(invoice.total_amount || 0) - totalPaid);
+
+  return {
+    ...invoice,
+    order,
+    customer,
+    payments: orderPayments,
+    advance_paid: totalPaid,
+    balance_due: balanceDue
+  };
+};
 
 const getAllInvoices = (filters = {}) => {
   const page = Number(filters.page || 1);
@@ -52,8 +81,22 @@ const getAllInvoices = (filters = {}) => {
   const dateFrom = filters.dateFrom;
   const dateTo = filters.dateTo;
 
-  const data = invoices.filter((invoice) => {
-    const matchesSearch = !search || [invoice.invoice_number, invoice.customer?.name, invoice.order?.order_number].join(' ').toLowerCase().includes(search);
+  const populatedInvoices = invoices.map(invoice => {
+    const order = orders.find(o => String(o.id) === String(invoice.order_id));
+    const customer = customers.find(c => String(c.id) === String(invoice.customer_id || order?.customerId));
+    const orderPayments = payments.filter(p => String(p.orderId) === String(invoice.order_id));
+    const totalPaid = orderPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+    return {
+      ...invoice,
+      order,
+      customer,
+      advance_paid: totalPaid,
+      balance_due: Math.max(0, Number(invoice.total_amount || 0) - totalPaid)
+    };
+  });
+
+  const data = populatedInvoices.filter((invoice) => {
+    const matchesSearch = !search || [invoice.invoice_number, invoice.customer?.name, invoice.order?.orderNumber].join(' ').toLowerCase().includes(search);
     const matchesDateFrom = !dateFrom || invoice.invoice_date >= dateFrom;
     const matchesDateTo = !dateTo || invoice.invoice_date <= dateTo;
     return matchesSearch && matchesDateFrom && matchesDateTo;

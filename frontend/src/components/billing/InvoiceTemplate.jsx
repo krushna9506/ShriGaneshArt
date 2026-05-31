@@ -26,7 +26,7 @@ function InvoiceTemplate({ invoice }) {
     }).format(Number(amount || 0));
   };
 
-  const ITEMS_PER_PAGE = 8;
+  const ITEMS_PER_PAGE = 12;
   const items = invoice.items || [];
   const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE) || 1;
 
@@ -156,10 +156,29 @@ function InvoiceTemplate({ invoice }) {
 
               {/* 7. Cumulative Totals and Slogans (ONLY on the last page) */}
               {isLastPage && (
-                <div className="grid grid-cols-2 gap-4 items-end">
-                  <div className="text-left text-xs font-bold text-rose-700 italic">
-                    भगवान गणेश आपल्या घरी सुख, समृद्धी आणि आनंद घेऊन येवोत! 🙏
+                <div className="grid grid-cols-2 gap-4 items-end mt-4">
+                  {/* Payments / Installments History */}
+                  <div className="text-left space-y-2">
+                    <div className="border border-rose-800 rounded-2xl p-3 bg-rose-50/20 text-[11px] font-bold text-rose-800 print:bg-transparent print:border-rose-800">
+                      <h4 className="font-extrabold text-rose-955 border-b border-rose-200 pb-1 mb-1.5 uppercase tracking-wider text-xs">भरणा तपशील / Payment Installments:</h4>
+                      {invoice.payments && invoice.payments.length > 0 ? (
+                        <div className="space-y-1 max-h-24 overflow-y-auto">
+                          {invoice.payments.map((p, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-slate-800 border-b border-rose-100 last:border-none pb-0.5 last:pb-0">
+                              <span>{p.paymentDate || p.payment_date || '—'} · {p.mode}</span>
+                              <span className="font-extrabold text-rose-900">₹{Number(p.amount).toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-slate-500 italic font-semibold text-[10px]">No payments recorded yet.</div>
+                      )}
+                    </div>
+                    <div className="text-left text-xs font-bold text-rose-700 italic pl-1">
+                      भगवान गणेश आपल्या घरी सुख, समृद्धी आणि आनंद घेऊन येवोत! 🙏
+                    </div>
                   </div>
+
                   <div className="flex flex-col items-end gap-3 text-xs font-bold text-rose-800">
                     <div className="w-full max-w-sm space-y-1.5 border-2 border-rose-800 rounded-2xl p-4 bg-rose-50/20 print:bg-transparent">
                       <div className="flex justify-between text-rose-900 font-bold border-b border-rose-200 pb-1">
@@ -167,7 +186,7 @@ function InvoiceTemplate({ invoice }) {
                         <span className="text-sm font-black text-rose-950">{formatCurrency(invoice.total_amount)}</span>
                       </div>
                       <div className="flex justify-between text-rose-800 font-bold border-b border-rose-200 pb-1">
-                        <span>अॅडव्हान्स / Advance Paid:</span>
+                        <span>भरलेले एकूण / Total Paid:</span>
                         <span className="text-sm font-extrabold text-rose-900">{formatCurrency(invoice.advance_paid)}</span>
                       </div>
                       <div className={`flex justify-between font-black text-sm pt-0.5 rounded-lg ${
@@ -250,15 +269,15 @@ const styleTag = (
       min-height: 1123px;    /* 297mm at 96 dpi */
       margin: 0 auto 24px auto;
       background: #ffffff;
-      border: 4px solid #9f1239;
-      border-radius: 24px;
-      padding: 32px;
+      border: 2px solid #881337;
+      border-radius: 16px;
+      padding: 24px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       color: #881337;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
 
     /* ── Print / PDF ── */
@@ -285,11 +304,11 @@ const styleTag = (
         min-height: 297mm !important;
         height: 297mm !important;
         margin: 0 !important;
-        padding: 14mm !important;
+        padding: 10mm !important;
         border-radius: 0 !important;
         box-shadow: none !important;
         page-break-after: always;
-        border: 3px solid #9f1239 !important;
+        border: 2px solid #881337 !important;
       }
     }
 

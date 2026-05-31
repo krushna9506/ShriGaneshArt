@@ -1667,6 +1667,7 @@ function Orders() {
 }
 
 function OrdersHistory() {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [models, setModels] = useState([]);
   const [editingOrder, setEditingOrder] = useState(null);
@@ -1676,6 +1677,21 @@ function OrdersHistory() {
   const [rowSearch, setRowSearch] = useState({});
   const [activeRow, setActiveRow] = useState(null);
   const [activeOpt, setActiveOpt] = useState({});
+
+  const handleGenerateInvoice = async (order) => {
+    try {
+      await ensureSession();
+      const { data } = await api.post(`/billing/generate/${order.id}`);
+      if (data && data.success && data.data) {
+        navigate(`/billing/${data.data.id}`);
+      } else {
+        throw new Error(data?.message || 'Invoice generation failed');
+      }
+    } catch (err) {
+      console.error('Invoice generation failed', err);
+      alert(err.response?.data?.message || err.message || 'Unable to generate invoice');
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -1878,6 +1894,7 @@ function OrdersHistory() {
                         {order.status}
                       </span>
                       <button onClick={() => startEdit(order)} className="rounded-2xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-700 hover:border-amber-400 hover:text-amber-600 transition-colors">Edit</button>
+                      <button onClick={() => handleGenerateInvoice(order)} className="rounded-2xl border border-amber-300 bg-amber-50 px-3.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors">Generate Invoice</button>
                       <button onClick={() => deleteOrder(order.id)} className="rounded-2xl border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100 transition-colors">Delete</button>
                     </div>
                   </div>
@@ -2169,6 +2186,7 @@ function OrdersHistory() {
                         </div>
                         <div className="text-xs text-slate-500 px-2 font-medium">Size: {item.size || '—'}</div>
                         <div className="text-xs text-slate-500 px-2 font-medium">Price: ₹{Number(item.price || 0).toFixed(2)}</div>
+                        <div className="text-xs text-slate-900 px-2 font-black">Total: ₹{(Number(item.price || 0) * Number(item.quantity || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
                         <div>
                           <button type="button" onClick={() => setEditForm({
                             ...editForm,
@@ -2326,6 +2344,20 @@ function PaymentsHistory() {
   useEffect(() => {
     loadData();
   }, [isAnalysisUnlocked]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        sessionStorage.removeItem('payments_analysis_unlocked');
+        setIsAnalysisUnlocked(false);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      sessionStorage.removeItem('payments_analysis_unlocked');
+    };
+  }, []);
 
   const handleUnlock = async (e) => {
     e.preventDefault();
