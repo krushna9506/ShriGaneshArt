@@ -1,6 +1,7 @@
 // Updated for secure PostgreSQL manual login only
 import { useState } from 'react';
 import api from '../../services/api.js';
+import logo from '../../assets/logo.png';
 
 export default function Login({ onLoginSuccess }) {
   const [mobileNumber, setMobileNumber] = useState('');
@@ -51,16 +52,16 @@ export default function Login({ onLoginSuccess }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-xl flex flex-col items-center">
         {/* Brand Icon */}
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20 mb-4 animate-float">
-          <span className="text-slate-955 font-black text-3xl">ॐ</span>
+        <div className="w-16 h-16 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-50 to-orange-100 overflow-hidden flex items-center justify-center shadow-lg p-1.5 mb-5 animate-float">
+          <img src={logo} alt="Shri Ganesh Art Logo" className="w-full h-full object-contain" />
         </div>
 
         {/* Brand Titles */}
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight text-center">Shri Ganesh Art</h1>
-        <p className="text-[10px] text-amber-600 font-extrabold tracking-widest uppercase mt-1.5 mb-6">Studio Portal Login</p>
+        <h1 className="text-2xl font-black text-rose-800 tracking-tight text-center">Shri Ganesh Art</h1>
+        <p className="text-[10px] text-amber-600 font-extrabold tracking-wide uppercase mt-1 mb-6">Ganesh Idol Manufacturer</p>
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="w-full space-y-4">
@@ -99,7 +100,7 @@ export default function Login({ onLoginSuccess }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 rounded-2xl bg-amber-500 py-3.5 text-sm font-black text-slate-955 hover:bg-amber-600 shadow-md shadow-amber-500/10 active:scale-98 transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full mt-2 rounded-2xl bg-amber-500 py-3.5 text-sm font-black text-slate-950 hover:bg-amber-600 shadow-md shadow-amber-500/10 active:scale-98 transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading ? 'Securing Access...' : 'Sign In Securely'}
           </button>

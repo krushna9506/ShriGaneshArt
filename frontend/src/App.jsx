@@ -87,8 +87,8 @@ function Layout({ children }) {
             <img src={logo} alt="Shri Ganesh Art Logo" className="w-full h-full object-contain p-0.5" />
           </div>
           <div>
-            <h2 className="text-md font-bold tracking-tight text-slate-900 leading-none">Shri Ganesh Art</h2>
-            <p className="text-[10px] text-amber-600 font-extrabold tracking-wide uppercase mt-1">Ganesh Idol Manufacturer</p>
+            <h2 className="text-sm font-black tracking-tight text-rose-800 leading-none">Shri Ganesh Art</h2>
+            <p className="text-[8px] text-amber-600 font-extrabold tracking-wide uppercase mt-1">Ganesh Idol Manufacturer</p>
           </div>
         </div>
         <div className="mt-6 rounded-2xl border border-slate-100 bg-white p-4 text-xs text-slate-650 shadow-sm flex flex-col gap-1.5">
@@ -136,7 +136,7 @@ function Layout({ children }) {
             <img src={logo} alt="Shri Ganesh Art Logo" className="w-full h-full object-contain p-0.5" />
           </div>
           <div>
-            <span className="font-bold text-sm text-slate-900 block">Shri Ganesh Art</span>
+            <span className="font-extrabold text-sm text-rose-800 block">Shri Ganesh Art</span>
             <span className="text-[9px] text-amber-600 font-extrabold tracking-wide uppercase leading-none mt-0.5">Ganesh Idol Manufacturer</span>
           </div>
         </div>
@@ -350,7 +350,7 @@ function WelcomePortal() {
             </div>
             <div>
               <p className="text-xs font-extrabold text-amber-600 tracking-widest uppercase">{getGreeting()}</p>
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-1">Shri Ganesh Art</h2>
+              <h2 className="text-2xl font-black text-rose-800 tracking-tight mt-1">Shri Ganesh Art</h2>
               <p className="text-sm text-amber-600 mt-1 font-extrabold tracking-wide uppercase">Ganesh Idol Manufacturer</p>
             </div>
           </div>
@@ -711,19 +711,19 @@ function Models() {
     }
   });
 
-  // Extract unique active customer names who have active bookings
-  const activeCustomerNames = Array.from(
-    new Set(
-      orders
-        .filter((o) => o.status !== 'Cancelled')
-        .map((o) => o.customerName)
-        .filter(Boolean)
-    )
-  ).sort();
+  // Extract all active orders to use as spreadsheet columns
+  const activeOrders = orders.filter((o) => o.status !== 'Cancelled');
 
-  const displayCustomerColumns = activeCustomerNames.length > 0 
-    ? activeCustomerNames 
-    : ['Customer 1', 'Customer 2', 'Customer 3', 'Customer 4', 'Customer 5', 'Customer 6'];
+  const displayCustomerColumns = activeOrders.length > 0 
+    ? activeOrders.map(o => ({ id: o.orderNumber, label: `${o.customerName} (${o.orderNumber})` }))
+    : [
+        { id: 'c1', label: 'Customer 1' },
+        { id: 'c2', label: 'Customer 2' },
+        { id: 'c3', label: 'Customer 3' },
+        { id: 'c4', label: 'Customer 4' },
+        { id: 'c5', label: 'Customer 5' },
+        { id: 'c6', label: 'Customer 6' }
+      ];
 
   // Filter models based on the stock search (checks model code OR active booking customer names)
   const filteredModelsForStock = models.filter((model) => {
@@ -1070,10 +1070,10 @@ function Models() {
               />
             </div>
             
-            {/* Horizontal Scrollable Spreadsheet Wrapper */}
-            <div className="overflow-x-auto rounded-2xl border border-slate-200">
+            {/* Horizontal & Vertical Scrollable Spreadsheet Wrapper */}
+            <div className="overflow-y-auto max-h-[580px] overflow-x-auto rounded-2xl border border-slate-200 relative">
               <table className="w-full text-left text-sm border-collapse min-w-[850px]">
-                <thead>
+                <thead className="sticky top-0 z-20 bg-slate-50 shadow-[0_1.5px_0_0_rgba(226,232,240,1)]">
                   <tr className="border-b border-slate-200 bg-slate-50">
                     {/* Frozen headers with inline sticky positioning */}
                     <th 
@@ -1096,12 +1096,12 @@ function Models() {
                     </th>
 
                     {/* Scrollable customer columns headers */}
-                    {displayCustomerColumns.map((colName, idx) => (
+                    {displayCustomerColumns.map((col, idx) => (
                       <th 
                         key={idx} 
                         className="px-4 py-3 font-bold text-slate-700 border-r border-slate-200 min-w-[200px]"
                       >
-                        {colName}
+                        {col.label}
                       </th>
                     ))}
                   </tr>
@@ -1138,32 +1138,29 @@ function Models() {
                         </td>
 
                         {/* Customer entries */}
-                        {displayCustomerColumns.map((colName, colIdx) => {
-                          const isPlaceholder = colName.startsWith('Customer ');
-                          const customerBookings = isPlaceholder 
-                            ? [] 
-                            : (modelBookingsMap[model.id] || []).filter(b => b.customerName === colName);
+                        {displayCustomerColumns.map((col, colIdx) => {
+                          const isPlaceholder = col.id.startsWith('c');
+                          
+                          // Find booking for this model by order number (or slot index for placeholders)
+                          const booking = isPlaceholder
+                            ? (modelBookingsMap[model.id] || [])[colIdx]
+                            : (modelBookingsMap[model.id] || []).find(b => b.orderNumber === col.id);
 
-                          const legacyBooking = isPlaceholder ? (modelBookingsMap[model.id] || [])[colIdx] : null;
-                          const displayBookings = legacyBooking ? [legacyBooking] : customerBookings;
-
-                          if (displayBookings.length > 0) {
+                          if (booking) {
                             return (
                               <td key={colIdx} className="px-4 py-4 border-r border-slate-100 min-w-[200px]">
-                                <div className="flex flex-col gap-2">
-                                  {displayBookings.map((booking, bIdx) => (
-                                    <div key={bIdx} className="flex flex-col gap-1 border-b border-slate-100 last:border-none pb-1 last:pb-0">
-                                      <span className="font-extrabold text-slate-900 text-xs truncate max-w-[180px]" title={isPlaceholder ? `${booking.customerName} · ${booking.orderNumber}` : booking.orderNumber}>
-                                        {isPlaceholder ? `${booking.customerName} · ${booking.orderNumber}` : booking.orderNumber}
-                                      </span>
-                                      <div className="flex items-center gap-1.5 text-xs mt-0.5">
-                                        <span className="inline-flex items-baseline gap-0.5 rounded-xl bg-amber-50 border border-amber-200 px-2.5 py-0.5 font-bold text-amber-800">
-                                          <span className="text-xs font-black">{booking.qtyGiven}</span>
-                                          <span className="text-[9px] font-semibold text-amber-600">units</span>
-                                        </span>
-                                      </div>
-                                    </div>
-                                  ))}
+                                <div className="flex flex-col gap-1.5">
+                                  {isPlaceholder && (
+                                    <span className="font-bold text-slate-900 truncate max-w-[180px]" title={booking.customerName}>
+                                      {booking.customerName} · {booking.orderNumber}
+                                    </span>
+                                  )}
+                                  <div className="flex items-center gap-1.5 text-xs">
+                                    <span className="inline-flex items-baseline gap-0.5 rounded-xl bg-amber-50 border border-amber-200 px-2.5 py-0.5 font-bold text-amber-800">
+                                      <span className="text-xs font-black">{booking.qtyGiven}</span>
+                                      <span className="text-[9px] font-semibold text-amber-600">units</span>
+                                    </span>
+                                  </div>
                                 </div>
                               </td>
                             );

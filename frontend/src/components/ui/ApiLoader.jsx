@@ -1,6 +1,7 @@
 // Updated for free deployment: Vercel + Render + Neon
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
+import logo from '../../assets/logo.png';
 
 /**
  * ApiLoader — shows the app immediately from cached data if available.
@@ -42,15 +43,16 @@ export default function ApiLoader({ children }) {
 
   if (!ready) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-amber-50" style={{ fontFamily: "'Outfit', sans-serif" }}>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
         {/* Brand Icon */}
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center shadow-2xl shadow-amber-500/20 mb-6">
-          <span className="text-slate-950 font-black text-4xl">ॐ</span>
+        <div className="w-20 h-20 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-50 to-orange-100 overflow-hidden flex items-center justify-center shadow-xl p-2 mb-6">
+          <img src={logo} alt="Shri Ganesh Art Logo" className="w-full h-full object-contain" />
         </div>
-        <div className="animate-spin rounded-full h-8 w-8 border-4 border-amber-500 border-t-transparent mb-4" />
-        <p className="text-amber-800 font-extrabold text-base uppercase tracking-wider">Shri Ganesh Art</p>
-        <p className="text-amber-600 text-xs font-bold uppercase tracking-widest mt-1">
-          {attempt > 0 ? `Connecting... (${attempt}/${3})` : 'Loading...'}
+        <div className="animate-spin rounded-full h-8 w-8 border-4 border-rose-800 border-t-transparent mb-5" />
+        <p className="text-rose-800 font-black text-2xl tracking-tight">Shri Ganesh Art</p>
+        <p className="text-amber-600 text-[10px] font-extrabold uppercase tracking-widest mt-1">Ganesh Idol Manufacturer</p>
+        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mt-3">
+          {attempt > 0 ? `Connecting... (${attempt}/${3})` : 'Loading live database...'}
         </p>
       </div>
     );
