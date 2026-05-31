@@ -937,11 +937,11 @@ function Models() {
         </div>
 
         {activeTab === 'catalog' ? (
-          <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+          <div className="mt-6 flex flex-col xl:grid xl:grid-cols-[1.1fr_0.9fr] gap-6">
             <div className="rounded-3xl border border-slate-200 bg-white p-5">
-              <div className="mb-4 flex items-center justify-between">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="text-lg font-semibold">Model Master</h3>
-                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search model code or size..." className="w-72 rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100" />
+                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search model code or size..." className="w-full sm:w-64 rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100" />
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm min-w-[700px] border-collapse">
@@ -1054,7 +1054,7 @@ function Models() {
               </div>
             </div>
 
-            <form onSubmit={submitModel} className="rounded-3xl border border-slate-200 bg-white p-5">
+            <form onSubmit={submitModel} className="rounded-3xl border border-slate-200 bg-white p-5 w-full min-w-0">
               <h3 className="text-lg font-semibold">{editingId ? 'Edit Model' : 'Add Model'}</h3>
               <p className="mt-1 text-sm text-slate-500">Enter model code (any language), size, price, and stock details.</p>
               <div className="mt-4 grid gap-4">
