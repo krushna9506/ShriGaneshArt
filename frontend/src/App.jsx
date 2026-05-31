@@ -502,66 +502,6 @@ function WelcomePortal() {
         </div>
       </div>
 
-      {/* Analytics Summary Collapsible Accordion */}
-      <div className="rounded-3xl border border-slate-100 bg-white overflow-hidden shadow-sm">
-        <button
-          type="button"
-          onClick={() => setShowStats(!showStats)}
-          className="w-full flex items-center justify-between px-6 py-4 font-bold text-sm text-slate-700 hover:bg-amber-50/30 transition-colors uppercase tracking-wider"
-        >
-          <div className="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-amber-500"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" /><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21a7.5 7.5 0 0013.5 3v7.5z" /></svg>
-            <span>Real-time Sales Charts & Alerts</span>
-          </div>
-          <span className="text-slate-400">{showStats ? 'Collapse ▲' : 'Expand ▼'}</span>
-        </button>
-        
-        {showStats && (
-          <div className="border-t border-slate-100 p-6 bg-white">
-            {loading ? (
-              <p className="text-xs text-slate-450">Loading operations statistics...</p>
-            ) : data ? (
-              <div className="space-y-6">
-                <div className="grid gap-6 xl:grid-cols-2">
-                  <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm min-h-[190px] flex flex-col justify-between">
-                    <h4 className="text-sm font-bold text-slate-800 mb-2">Monthly Sales Metrics</h4>
-                    <div className="flex items-end gap-3 h-32 pt-2">
-                      {data.sales.map((item) => (
-                        <div key={item.month} className="flex-1 flex flex-col items-center gap-2">
-                          <div className="w-full rounded-lg bg-gradient-to-t from-amber-600 to-amber-400 relative group" style={{height: `${item.value * 1.5}px`}}>
-                            <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-950 text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                              {item.value}
-                            </div>
-                          </div>
-                          <span className="text-[10px] text-slate-650 font-bold">{item.month}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                    <h4 className="text-sm font-bold text-slate-800 mb-4">Urgent Operations Alerts</h4>
-                    <ul className="space-y-2.5">
-                      {data.alerts.map((alert, idx) => (
-                        <li key={idx} className="rounded-xl border border-amber-100 bg-white p-3 text-xs text-slate-700 flex items-center gap-2.5 shadow-sm">
-                          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                          <span>{alert}</span>
-                        </li>
-                      ))}
-                      {data.alerts.length === 0 && (
-                        <p className="text-xs text-slate-500">No active alerts at this time.</p>
-                      )}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <p className="text-xs text-rose-500">Offline: Could not load data charts.</p>
-            )}
-          </div>
-        )}
-      </div>
-
       {/* FLOATING QUICK STOCK CHECKER DIALOG MODAL */}
       {isStockOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
