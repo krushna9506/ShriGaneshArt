@@ -5,7 +5,6 @@ import api from './services/api.js';
 import BillingPage from './pages/billing/BillingPage.jsx';
 import InvoicePage from './pages/billing/InvoicePage.jsx';
 import Login from './components/auth/Login.jsx';
-import SecurityPinModal from './components/auth/SecurityPinModal.jsx';
 import ApiLoader from './components/ui/ApiLoader.jsx';
 
 // Clear any stale local dev URL that was saved while testing on local network.
@@ -221,10 +220,6 @@ function WelcomePortal() {
   const [isOnline, setIsOnline] = useState(true);
   const [pingMs, setPingMs] = useState(null);
 
-  // Secure PIN variables
-  const [isPinUnlocked, setIsPinUnlocked] = useState(true);
-  const [showPinModal, setShowPinModal] = useState(false);
-  
   const [isStockOpen, setIsStockOpen] = useState(false);
   const [stockQuery, setStockQuery] = useState('');
   const [modelsList, setModelsList] = useState([]);
@@ -627,23 +622,12 @@ function WelcomePortal() {
           </form>
         </div>
       )}
-      {showPinModal && (
-        <SecurityPinModal
-          onSuccess={() => {
-            setIsPinUnlocked(true);
-            setShowPinModal(false);
-          }}
-          onCancel={() => setShowPinModal(false)}
-        />
-      )}
     </div>
   );
 }
 
 function Dashboard() {
   const [data, setData] = useState(null);
-  const [isPinUnlocked, setIsPinUnlocked] = useState(true);
-  const [showPinModal, setShowPinModal] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -699,15 +683,6 @@ function Dashboard() {
           </ul>
         </div>
       </div>
-      {showPinModal && (
-        <SecurityPinModal
-          onSuccess={() => {
-            setIsPinUnlocked(true);
-            setShowPinModal(false);
-          }}
-          onCancel={() => setShowPinModal(false)}
-        />
-      )}
     </div>
   );
 }
@@ -2342,10 +2317,6 @@ function PaymentsHistory() {
   const [orders, setOrders] = useState([]);
   const [payments, setPayments] = useState([]);
 
-  // Secure PIN variables
-  const [isPinUnlocked, setIsPinUnlocked] = useState(true);
-  const [showPinModal, setShowPinModal] = useState(false);
-
   const loadData = async () => {
     try {
       await ensureSession();
@@ -2387,24 +2358,6 @@ function PaymentsHistory() {
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm w-full min-w-0">
         <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">Chronological Ledger</h3>
-        {!isPinUnlocked ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center max-w-sm mx-auto">
-            <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-              </svg>
-            </div>
-            <h4 className="font-extrabold text-slate-900 uppercase tracking-wider">Payments Ledger Locked</h4>
-            <p className="text-xs text-slate-500 font-bold mt-1 mb-6 leading-relaxed">Enter 4-Digit Security PIN to view chronological transactions ledger.</p>
-            <button
-              type="button"
-              onClick={() => setShowPinModal(true)}
-              className="rounded-2xl bg-amber-500 px-6 py-3 text-xs font-black text-slate-955 hover:bg-amber-600 shadow-md shadow-amber-500/10 active:scale-95 transition-all"
-            >
-              Unlock Payments History
-            </button>
-          </div>
-        ) : (
           <div className="space-y-4">
             {payments.length === 0 ? (
               <p className="text-center text-sm text-slate-500 py-6">No payments recorded yet.</p>
@@ -2458,17 +2411,7 @@ function PaymentsHistory() {
               })
             )}
           </div>
-        )}
       </div>
-      {showPinModal && (
-        <SecurityPinModal
-          onSuccess={() => {
-            setIsPinUnlocked(true);
-            setShowPinModal(false);
-          }}
-          onCancel={() => setShowPinModal(false)}
-        />
-      )}
     </div>
   );
 }

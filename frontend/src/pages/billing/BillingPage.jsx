@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { generateInvoice, getAllInvoices } from '../../services/billingService.js';
-import SecurityPinModal from '../../components/auth/SecurityPinModal.jsx';
 
 function BillingPage() {
   const [invoices, setInvoices] = useState({ data: [], totalPages: 1 });
@@ -11,10 +10,6 @@ function BillingPage() {
   const [orders, setOrders] = useState([]);
   const [orderSearch, setOrderSearch] = useState('');
   const [loading, setLoading] = useState(true);
-
-  // Secure PIN variables
-  const [isPinUnlocked, setIsPinUnlocked] = useState(true);
-  const [showPinModal, setShowPinModal] = useState(false);
 
   const loadInvoices = async () => {
     setLoading(true);
@@ -27,10 +22,8 @@ function BillingPage() {
   };
 
   useEffect(() => {
-    if (isPinUnlocked) {
-      loadInvoices();
-    }
-  }, [page, search, isPinUnlocked]);
+    loadInvoices();
+  }, [page, search]);
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -41,10 +34,8 @@ function BillingPage() {
         console.error('Order load failed', err);
       }
     };
-    if (isPinUnlocked) {
-      loadOrders();
-    }
-  }, [isPinUnlocked]);
+    loadOrders();
+  }, []);
 
   const filteredOrders = useMemo(() => orders.filter((order) => [order.orderNumber, order.customerName].join(' ').toLowerCase().includes(orderSearch.toLowerCase())), [orders, orderSearch]);
 
@@ -66,13 +57,7 @@ function BillingPage() {
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Billing</h2>
             <p className="text-sm text-slate-600 font-medium mt-1">Generate invoice snapshots and review balances.</p>
           </div>
-          <button onClick={() => {
-            if (!isPinUnlocked) {
-              setShowPinModal(true);
-            } else {
-              setShowModal(true);
-            }
-          }} className="rounded-2xl bg-amber-500 px-5 py-2.5 text-sm font-black text-slate-950 shadow-sm active:scale-95 transition-all">Generate New Invoice</button>
+          <button onClick={() => setShowModal(true)} className="rounded-2xl bg-amber-500 px-5 py-2.5 text-sm font-black text-slate-950 shadow-sm active:scale-95 transition-all">Generate New Invoice</button>
         </div>
         <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center">
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search invoice / customer / order" className="w-full rounded-2xl border border-slate-350 bg-white px-4 py-2.5 text-sm text-slate-900 font-medium lg:max-w-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none transition-all" />
@@ -80,18 +65,7 @@ function BillingPage() {
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm w-full min-w-0">
-        {!isPinUnlocked ? (
-          <div className="text-center py-12 flex flex-col items-center max-w-sm mx-auto">
-            <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-              </svg>
-            </div>
-            <h4 className="font-extrabold text-slate-900 uppercase tracking-wider">Invoice Registry Protected</h4>
-            <p className="text-xs text-slate-500 font-bold mt-1 leading-relaxed">All sales statements, customer invoice listings, and balances are secure. Verify your PIN to enter.</p>
-            <button type="button" onClick={() => setShowPinModal(true)} className="mt-5 rounded-2xl bg-amber-500 px-6 py-3 text-xs font-black text-slate-950 shadow-md shadow-amber-500/10 active:scale-95 transition-all">Verify Security PIN</button>
-          </div>
-        ) : loading ? (
+        {loading ? (
           <div className="text-slate-600 font-bold text-center py-8">Loading invoices…</div>
         ) : (
           <div className="overflow-x-auto">
@@ -131,7 +105,7 @@ function BillingPage() {
           </div>
         )}
 
-        {isPinUnlocked && invoices.totalPages > 1 && (
+        {invoices.totalPages > 1 && (
           <div className="mt-4 flex gap-2">
             {Array.from({ length: invoices.totalPages || 1 }, (_, i) => i + 1).map((num) => (
               <button key={num} onClick={() => setPage(num)} className={`rounded-xl px-3.5 py-1.5 text-xs font-black transition-all ${page === num ? 'bg-amber-500 text-slate-950 shadow-sm' : 'border border-slate-200 bg-white text-slate-800 hover:bg-slate-50'}`}>{num}</button>
@@ -161,16 +135,6 @@ function BillingPage() {
             </div>
           </div>
         </div>
-      )}
-
-      {showPinModal && (
-        <SecurityPinModal
-          onSuccess={() => {
-            setIsPinUnlocked(true);
-            setShowPinModal(false);
-          }}
-          onCancel={() => setShowPinModal(false)}
-        />
       )}
     </div>
   );
