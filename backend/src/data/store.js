@@ -8,39 +8,277 @@ const ordersJsonPath = path.join(__dirname, 'orders.json');
 const paymentsJsonPath = path.join(__dirname, 'payments.json');
 const customersJsonPath = path.join(__dirname, 'customers.json');
 
-export function saveModels() {
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import pool from '../config/db.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const modelsJsonPath = path.join(__dirname, 'models.json');
+const ordersJsonPath = path.join(__dirname, 'orders.json');
+const paymentsJsonPath = path.join(__dirname, 'payments.json');
+const customersJsonPath = path.join(__dirname, 'customers.json');
+
+export async function saveModels() {
   try {
     fs.writeFileSync(modelsJsonPath, JSON.stringify(models, null, 2), 'utf8');
-    console.log('[Store] Saved models successfully to models.json');
+    console.log('[Store] Saved models successfully to models.json local backup');
   } catch (err) {
     console.error('[Store] Failed to save models to JSON:', err);
   }
+
+  if (!process.env.DATABASE_URL) return;
+  try {
+    console.log('[Postgres Sync] Saving models to Neon cloud...');
+    await pool.query('BEGIN');
+    await pool.query('DELETE FROM pg_models');
+    for (const m of models) {
+      await pool.query(`
+        INSERT INTO pg_models (id, code, name, size, material, price, total_stock, sold_stock, remaining_stock, active)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `, [m.id, m.code, m.name, m.size, m.material, m.price, m.totalStock, m.soldStock, m.remainingStock, m.active]);
+    }
+    await pool.query('COMMIT');
+    console.log('[Postgres Sync] Successfully saved all models to Neon.');
+  } catch (err) {
+    try { await pool.query('ROLLBACK'); } catch {}
+    console.error('[Postgres Sync] Failed to save models to Neon:', err);
+  }
 }
 
-export function saveOrders() {
+export async function saveOrders() {
   try {
     fs.writeFileSync(ordersJsonPath, JSON.stringify(orders, null, 2), 'utf8');
-    console.log('[Store] Saved orders successfully to orders.json');
+    console.log('[Store] Saved orders successfully to orders.json local backup');
   } catch (err) {
     console.error('[Store] Failed to save orders to JSON:', err);
   }
-}
 
-export function savePayments() {
+  if (!process.env.DATABASE_URL) return;
   try {
-    fs.writeFileSync(paymentsJsonPath, JSON.stringify(payments, null, 2), 'utf8');
-    console.log('[Store] Saved payments successfully to payments.json');
+    console.log('[Postgres Sync] Saving orders to Neon cloud...');
+    await pool.query('BEGIN');
+    await pool.query('DELETE FROM pg_orders');
+    for (const o of orders) {
+      await pool.query(`
+        INSERT INTO pg_orders (id, order_number, customer_id, customer_name, mobile, address, city, order_date, delivery_date, status, total_amount, advance, balance, items)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      `, [o.id, o.orderNumber, o.customerId, o.customerName, o.mobile, o.address, o.city, o.orderDate, o.deliveryDate, o.status, o.totalAmount, o.advance, o.balance, JSON.stringify(o.items)]);
+    }
+    await pool.query('COMMIT');
+    console.log('[Postgres Sync] Successfully saved all orders to Neon.');
   } catch (err) {
-    console.error('[Store] Failed to save payments to JSON:', err);
+    try { await pool.query('ROLLBACK'); } catch {}
+    console.error('[Postgres Sync] Failed to save orders to Neon:', err);
   }
 }
 
-export function saveCustomers() {
+export async function savePayments() {
+  try {
+    fs.writeFileSync(paymentsJsonPath, JSON.stringify(payments, null, 2), 'utf8');
+    console.log('[Store] Saved payments successfully to payments.json local backup');
+  } catch (err) {
+    console.error('[Store] Failed to save payments to JSON:', err);
+  }
+
+  if (!process.env.DATABASE_URL) return;
+  try {
+    console.log('[Postgres Sync] Saving payments to Neon cloud...');
+    await pool.query('BEGIN');
+    await pool.query('DELETE FROM pg_payments');
+    for (const p of payments) {
+      await pool.query(`
+        INSERT INTO pg_payments (id, order_id, amount, mode, payment_date, notes)
+        VALUES ($1, $2, $3, $4, $5, $6)
+      `, [p.id, p.orderId, p.amount, p.mode, p.paymentDate, p.notes]);
+    }
+    await pool.query('COMMIT');
+    console.log('[Postgres Sync] Successfully saved all payments to Neon.');
+  } catch (err) {
+    try { await pool.query('ROLLBACK'); } catch {}
+    console.error('[Postgres Sync] Failed to save payments to Neon:', err);
+  }
+}
+
+export async function saveCustomers() {
   try {
     fs.writeFileSync(customersJsonPath, JSON.stringify(customers, null, 2), 'utf8');
-    console.log('[Store] Saved customers successfully to customers.json');
+    console.log('[Store] Saved customers successfully to customers.json local backup');
   } catch (err) {
     console.error('[Store] Failed to save customers to JSON:', err);
+  }
+
+  if (!process.env.DATABASE_URL) return;
+  try {
+    console.log('[Postgres Sync] Saving customers to Neon cloud...');
+    await pool.query('BEGIN');
+    await pool.query('DELETE FROM pg_customers');
+    for (const c of customers) {
+      await pool.query(`
+        INSERT INTO pg_customers (id, name, mobile, address, city, notes)
+        VALUES ($1, $2, $3, $4, $5, $6)
+      `, [c.id, c.name, c.mobile, c.address, c.city, c.notes]);
+    }
+    await pool.query('COMMIT');
+    console.log('[Postgres Sync] Successfully saved all customers to Neon.');
+  } catch (err) {
+    try { await pool.query('ROLLBACK'); } catch {}
+    console.error('[Postgres Sync] Failed to save customers to Neon:', err);
+  }
+}
+
+export async function saveInvoices() {
+  if (!process.env.DATABASE_URL) return;
+  try {
+    console.log('[Postgres Sync] Saving invoices to Neon cloud...');
+    await pool.query('BEGIN');
+    await pool.query('DELETE FROM pg_invoices');
+    for (const inv of invoices) {
+      await pool.query(`
+        INSERT INTO pg_invoices (id, invoice_number, order_id, customer_id, invoice_date, items, subtotal, total_amount, advance_paid, balance_due, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      `, [inv.id, inv.invoice_number, inv.order_id, inv.customer_id, inv.invoice_date, JSON.stringify(inv.items), inv.subtotal, inv.total_amount, inv.advance_paid, inv.balance_due, inv.created_at, inv.updated_at]);
+    }
+    await pool.query('COMMIT');
+    console.log('[Postgres Sync] Successfully saved all invoices to Neon.');
+  } catch (err) {
+    try { await pool.query('ROLLBACK'); } catch {}
+    console.error('[Postgres Sync] Failed to save invoices to Neon:', err);
+  }
+}
+
+async function seedModelsToPostgres() {
+  if (!process.env.DATABASE_URL) return;
+  try {
+    console.log('[Postgres Sync] Seeding initial models catalog to Neon database...');
+    await pool.query('BEGIN');
+    for (const m of initialModels) {
+      await pool.query(`
+        INSERT INTO pg_models (id, code, name, size, material, price, total_stock, sold_stock, remaining_stock, active)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `, [m.id, m.code, m.name, m.size, m.material, m.price, m.totalStock, m.soldStock, m.remainingStock, m.active]);
+    }
+    await pool.query('COMMIT');
+    console.log('[Postgres Sync] Seeding initial models completed successfully.');
+  } catch (err) {
+    try { await pool.query('ROLLBACK'); } catch {}
+    console.error('[Postgres Sync] Seeding models failed:', err);
+  }
+}
+
+export async function syncFromPostgres() {
+  if (!process.env.DATABASE_URL) {
+    console.warn('[Postgres Sync] No DATABASE_URL provided. Cloud sync skipped.');
+    return;
+  }
+  try {
+    console.log('[Postgres Sync] Hydrating in-memory database arrays from Neon Postgres cloud...');
+
+    // 1. Models Catalog
+    const modelsRes = await pool.query('SELECT * FROM pg_models ORDER BY id ASC');
+    if (modelsRes.rows.length > 0) {
+      models.length = 0;
+      models.push(...modelsRes.rows.map(row => ({
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        size: row.size,
+        material: row.material,
+        price: Number(row.price),
+        totalStock: row.total_stock,
+        soldStock: row.sold_stock,
+        remainingStock: row.remaining_stock,
+        active: row.active
+      })));
+      console.log(`[Postgres Sync] Loaded ${models.length} catalog models from Neon Postgres.`);
+    } else {
+      console.log('[Postgres Sync] Neon pg_models is empty. Seeding defaults...');
+      await seedModelsToPostgres();
+      // Reload models after seeding
+      const modelsReload = await pool.query('SELECT * FROM pg_models ORDER BY id ASC');
+      models.length = 0;
+      models.push(...modelsReload.rows.map(row => ({
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        size: row.size,
+        material: row.material,
+        price: Number(row.price),
+        totalStock: row.total_stock,
+        soldStock: row.sold_stock,
+        remainingStock: row.remaining_stock,
+        active: row.active
+      })));
+    }
+
+    // 2. Customers
+    const custRes = await pool.query('SELECT * FROM pg_customers');
+    customers.length = 0;
+    customers.push(...custRes.rows.map(row => ({
+      id: Number(row.id),
+      name: row.name,
+      mobile: row.mobile,
+      address: row.address,
+      city: row.city,
+      notes: row.notes
+    })));
+    console.log(`[Postgres Sync] Loaded ${customers.length} customers from Neon Postgres.`);
+
+    // 3. Orders
+    const ordersRes = await pool.query('SELECT * FROM pg_orders');
+    orders.length = 0;
+    orders.push(...ordersRes.rows.map(row => ({
+      id: Number(row.id),
+      orderNumber: row.order_number,
+      customerId: Number(row.customer_id),
+      customerName: row.customer_name,
+      mobile: row.mobile,
+      address: row.address,
+      city: row.city,
+      orderDate: row.order_date,
+      deliveryDate: row.delivery_date,
+      status: row.status,
+      totalAmount: Number(row.total_amount),
+      advance: Number(row.advance),
+      balance: Number(row.balance),
+      items: typeof row.items === 'string' ? JSON.parse(row.items) : row.items
+    })));
+    console.log(`[Postgres Sync] Loaded ${orders.length} orders from Neon Postgres.`);
+
+    // 4. Payments
+    const paymentsRes = await pool.query('SELECT * FROM pg_payments');
+    payments.length = 0;
+    payments.push(...paymentsRes.rows.map(row => ({
+      id: Number(row.id),
+      orderId: Number(row.order_id),
+      amount: Number(row.amount),
+      mode: row.mode,
+      paymentDate: row.payment_date,
+      notes: row.notes
+    })));
+    console.log(`[Postgres Sync] Loaded ${payments.length} ledger payments from Neon Postgres.`);
+
+    // 5. Invoices
+    const invoicesRes = await pool.query('SELECT * FROM pg_invoices');
+    invoices.length = 0;
+    invoices.push(...invoicesRes.rows.map(row => ({
+      id: row.id,
+      invoice_number: row.invoice_number,
+      order_id: Number(row.order_id),
+      customer_id: row.customer_id ? Number(row.customer_id) : null,
+      invoice_date: row.invoice_date,
+      items: typeof row.items === 'string' ? JSON.parse(row.items) : row.items,
+      subtotal: Number(row.subtotal),
+      total_amount: Number(row.total_amount),
+      advance_paid: Number(row.advance_paid),
+      balance_due: Number(row.balance_due),
+      created_at: row.created_at,
+      updated_at: row.updated_at
+    })));
+    console.log(`[Postgres Sync] Loaded ${invoices.length} billing invoices from Neon Postgres.`);
+
+  } catch (err) {
+    console.error('[Postgres Sync] Database synchronization failed:', err);
   }
 }
 

@@ -1,6 +1,5 @@
-// Updated for free deployment: Vercel + Render + Neon
 import app from './app.js';
-import { loadModels } from './data/store.js';
+import { loadModels, syncFromPostgres } from './data/store.js';
 import { initDatabase } from './config/db.js';
 import fs from 'fs';
 import path from 'path';
@@ -16,4 +15,7 @@ app.listen(PORT, '0.0.0.0', async () => {
   
   // Initialize PostgreSQL database tables
   await initDatabase();
+
+  // Hydrate all database arrays from Neon Postgres cloud
+  await syncFromPostgres();
 });

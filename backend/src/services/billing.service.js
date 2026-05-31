@@ -1,5 +1,5 @@
 import { generateInvoiceNumber } from '../utils/invoiceNumber.js';
-import { customers, invoices, models, orders } from '../data/store.js';
+import { customers, invoices, models, orders, saveInvoices } from '../data/store.js';
 
 const findOrder = (orderId) => orders.find((order) => String(order.id) === String(orderId));
 const findCustomer = (customerId) => customers.find((customer) => String(customer.id) === String(customerId));
@@ -39,6 +39,7 @@ const generateInvoice = (orderId) => {
   };
 
   invoices.push(invoice);
+  saveInvoices(); // Persist generated invoice dynamically to Neon cloud
   return invoice;
 };
 
