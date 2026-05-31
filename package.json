@@ -1,0 +1,11 @@
+{
+  "name": "ganesha-arts-management-system",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm --prefix frontend run dev\" \"npm --prefix backend run dev\"",
+    "install:all": "npm install --prefix frontend && npm install --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

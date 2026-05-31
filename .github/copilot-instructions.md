@@ -1,0 +1,3 @@
+- Verify the project structure and run the app from the workspace root.
+- Keep the frontend and backend isolated but connected through /api.
+- Prefer reusable components and documented modules for future expansion.

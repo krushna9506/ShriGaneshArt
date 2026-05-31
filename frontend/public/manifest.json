@@ -1,0 +1,24 @@
+{
+  "short_name": "Ganesha Art",
+  "name": "Shri Ganesh Art Studio",
+  "description": "Premium Operational Portal & Billing for Shri Ganesh Art Studio",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/color/192/ganesh.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://img.icons8.com/color/512/ganesh.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f172a",
+  "theme_color": "#d97706",
+  "display": "standalone",
+  "orientation": "any"
+}

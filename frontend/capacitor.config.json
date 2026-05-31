@@ -1,0 +1,21 @@
+{
+  "appId": "com.ganesharts.billing",
+  "appName": "Ganesh Arts",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "https",
+    "cleartext": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#f97316",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "light",
+      "backgroundColor": "#f97316"
+    }
+  }
+}
