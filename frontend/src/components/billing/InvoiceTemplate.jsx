@@ -31,7 +31,8 @@ function InvoiceTemplate({ invoice }) {
   const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE) || 1;
 
   return (
-    <div className="space-y-8 print:space-y-0">
+    // Outer scroll wrapper — on mobile this lets user scroll the fixed-width invoice
+    <div className="invoice-scroll-wrapper">
       {Array.from({ length: totalPages }).map((_, pageIndex) => {
         const pageItems = items.slice(pageIndex * ITEMS_PER_PAGE, (pageIndex + 1) * ITEMS_PER_PAGE);
         const pageModelsCount = pageItems.length;
@@ -43,7 +44,7 @@ function InvoiceTemplate({ invoice }) {
           <div 
             key={pageIndex}
             id="invoice-template" 
-            className="invoice-printable border-4 border-rose-800 rounded-3xl bg-white p-8 text-rose-900 shadow-xl print:bg-white print:text-rose-950 print:shadow-none print:border-4 print:border-rose-900 print:p-6 print:m-0 break-after-page mb-8 print:mb-0 print:h-[297mm] print:w-[210mm] print:box-border flex flex-col justify-between"
+            className="invoice-printable"
             style={{ fontFamily: "'Outfit', 'Noto Sans Devanagari', 'Inter', sans-serif" }}
           >
             <div>
@@ -61,7 +62,7 @@ function InvoiceTemplate({ invoice }) {
               </div>
 
               {/* 2. Main Brand Header */}
-              <div className="mt-4 flex flex-col md:flex-row justify-between items-center gap-4 border-b-4 border-double border-rose-800 pb-4">
+              <div className="mt-4 flex flex-row justify-between items-center gap-4 border-b-4 border-double border-rose-800 pb-4">
                 {/* Left Side: Ganesha Brand Logo */}
                 <div className="flex items-center gap-4">
                   <div className="h-20 w-20 rounded-2xl border-2 border-rose-800 bg-gradient-to-br from-amber-50 to-orange-100 overflow-hidden relative flex items-center justify-center shadow-sm print:shadow-none">
@@ -71,19 +72,19 @@ function InvoiceTemplate({ invoice }) {
 
                 {/* Center: Title and Address */}
                 <div className="flex-1 text-center">
-                  <h1 className="text-3xl md:text-4xl font-extrabold text-rose-800 tracking-tight">
-                    श्री गणेश आर्ट <span className="text-xl md:text-2xl font-black text-rose-700 block md:inline md:ml-2">/ SHRI GANESH ART</span>
+                  <h1 className="text-3xl font-extrabold text-rose-800 tracking-tight">
+                    श्री गणेश आर्ट <span className="text-xl font-black text-rose-700 ml-2">/ SHRI GANESH ART</span>
                   </h1>
-                  <p className="mt-2 text-xs md:text-sm font-extrabold text-rose-900 leading-snug">
+                  <p className="mt-2 text-xs font-extrabold text-rose-900 leading-snug">
                     यादव नगर, साईकमल हॉटेल समोर, संभाजीनगर बायपास रोड, धाराशिव - ४१३५०१
                   </p>
-                  <p className="text-[10px] md:text-xs font-bold text-rose-700 leading-snug">
+                  <p className="text-[10px] font-bold text-rose-700 leading-snug">
                     Yadav Nagar, Opposite Saikamal Hotel, Sambhajinagar Bypass Road, Dharashiv - 413501
                   </p>
                 </div>
 
                 {/* Right Side: Contact Info */}
-                <div className="text-center md:text-right text-xs font-bold text-rose-800">
+                <div className="text-right text-xs font-bold text-rose-800">
                   <p className="text-rose-700 uppercase tracking-wider text-[10px]">मोबाईल नं. / Mobile No:</p>
                   <p className="text-base font-black text-rose-900 mt-0.5">9423734355</p>
                   <p className="text-base font-black text-rose-900">9922743650</p>
@@ -97,9 +98,9 @@ function InvoiceTemplate({ invoice }) {
               </div>
 
               {/* 4. Customer & Invoice Details */}
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 border-b-2 border-rose-800 pb-4">
+              <div className="mt-4 grid grid-cols-3 gap-4 border-b-2 border-rose-800 pb-4">
                 {/* Customer fields */}
-                <div className="md:col-span-2 space-y-2.5">
+                <div className="col-span-2 space-y-2.5">
                   <div className="flex items-center gap-2 border-b border-dashed border-rose-400 pb-0.5">
                     <span className="text-xs font-black text-rose-800 min-w-[100px] shrink-0">नांव / Name:</span>
                     <span className="text-sm font-extrabold text-slate-800">{customerName || 'Valued Customer'}</span>
@@ -155,7 +156,7 @@ function InvoiceTemplate({ invoice }) {
 
               {/* 7. Cumulative Totals and Slogans (ONLY on the last page) */}
               {isLastPage && (
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                <div className="grid grid-cols-2 gap-4 items-end">
                   <div className="text-left text-xs font-bold text-rose-700 italic">
                     भगवान गणेश आपल्या घरी सुख, समृद्धी आणि आनंद घेऊन येवोत! 🙏
                   </div>
@@ -228,33 +229,73 @@ function InvoiceTemplate({ invoice }) {
       })}
 
       {styleTag}
-    </div>
+    </div> /* end invoice-scroll-wrapper */
   );
 }
 
 const styleTag = (
   <style>{`
+    /* ── Scroll wrapper: centres the A4 page on any screen ── */
+    .invoice-scroll-wrapper {
+      overflow-x: auto;
+      overflow-y: visible;
+      -webkit-overflow-scrolling: touch;
+      background: #f1f5f9;
+      padding: 16px 8px;
+    }
+
+    /* ── Fixed A4 page: never reflows ── */
+    .invoice-printable {
+      width: 794px;          /* 210mm at 96 dpi */
+      min-height: 1123px;    /* 297mm at 96 dpi */
+      margin: 0 auto 24px auto;
+      background: #ffffff;
+      border: 4px solid #9f1239;
+      border-radius: 24px;
+      padding: 32px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #881337;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    /* ── Print / PDF ── */
     @media print {
-      body {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      body, html {
+        margin: 0 !important;
+        padding: 0 !important;
         background: #ffffff !important;
-        color: #000000 !important;
-        font-family: 'Inter', system-ui, sans-serif !important;
+      }
+      .invoice-scroll-wrapper {
+        background: transparent !important;
+        padding: 0 !important;
+        overflow: visible !important;
       }
       .no-print {
         display: none !important;
       }
       .invoice-printable {
-        box-shadow: none !important;
-        border: 4px solid #9f1239 !important;
-        background: #ffffff !important;
-        padding: 0 !important;
+        width: 210mm !important;
+        min-height: 297mm !important;
+        height: 297mm !important;
         margin: 0 !important;
+        padding: 14mm !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        page-break-after: always;
+        border: 3px solid #9f1239 !important;
       }
-      /* Keep colors beautiful in PDF generation */
-      * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 0;
     }
   `}</style>
 );

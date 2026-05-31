@@ -648,13 +648,14 @@ function WelcomePortal() {
               </label>
               <input
                 type="url"
-                placeholder="e.g. http://192.168.1.100:4000 (leave blank for local)"
+                placeholder="e.g. https://shriganeshart.onrender.com (leave blank to use default)"
                 value={apiUrlInput}
                 onChange={(e) => setApiUrlInput(e.target.value)}
                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20"
               />
               <p className="text-[10px] text-slate-400 leading-snug font-medium">
-                Configure a custom IP address if running the app on a mobile browser or installed APK. Ensure your phone is connected to the same Wi-Fi router as your computer.
+                Your backend is hosted on Render. The default URL is pre-configured.
+                Only change this if you are running a local development server.
               </p>
             </div>
 
