@@ -115,20 +115,31 @@ app.post('/api/auth/verify-password', auth, async (req, res) => {
     return res.status(400).json({ error: 'Password is required' });
   }
   try {
-    const userMobile = req.user.sub;
+    const userMobile = req.user?.sub;
+    console.log('[Verify] Verifying password for admin mobile number:', userMobile);
+    
+    if (!userMobile) {
+      return res.status(400).json({ error: 'User mobile details missing from session context' });
+    }
+
     const result = await pool.query('SELECT * FROM admins WHERE mobile = $1', [userMobile]);
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Admin user not found' });
+      console.warn('[Verify] No database admin user found for mobile:', userMobile);
+      return res.status(404).json({ error: 'Admin user not found in secure tables' });
     }
+
     const admin = result.rows[0];
     const isMatch = await bcrypt.compare(password, admin.password_hash);
+    console.log('[Verify] Hashed password comparison result:', isMatch ? 'MATCHED' : 'MISMATCHED');
+
     if (!isMatch) {
-      return res.status(401).json({ error: 'Incorrect password' });
+      return res.status(403).json({ error: 'Incorrect password. Access denied.' });
     }
-    res.json({ ok: true });
+    
+    return res.json({ ok: true });
   } catch (err) {
-    console.error('Password verification failed', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('[Verify] Password verification failed with internal error:', err);
+    return res.status(500).json({ error: 'Internal server error during password verification' });
   }
 });
 
