@@ -46,12 +46,11 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 // UptimeRobot ping endpoint
-app.get('/ping', (req, res) => {
-  res.status(200).send('pong');
-});
+app.get('/ping', (req, res) => res.status(200).send('pong'));
+app.get('/api/ping', (req, res) => res.status(200).send('pong'));
 
-// Render Health check route with Neon DB ping
-app.get('/health', async (req, res) => {
+// Render Health check — available at both /health and /api/health
+const healthHandler = async (req, res) => {
   try {
     await pool.query('SELECT 1');
     res.status(200).json({
@@ -68,7 +67,11 @@ app.get('/health', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   }
-});
+};
+// Register health check at both root and /api prefix
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
+
 
 function auth(req, res, next) {
   return authMiddleware(req, res, next);
