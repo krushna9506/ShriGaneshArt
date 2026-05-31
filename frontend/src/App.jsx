@@ -710,16 +710,19 @@ function Models() {
     }
   });
 
-  // Calculate the max bookings across all models
-  let maxBookings = 0;
-  models.forEach((model) => {
-    const bookingsCount = modelBookingsMap[model.id]?.length || 0;
-    if (bookingsCount > maxBookings) {
-      maxBookings = bookingsCount;
-    }
-  });
+  // Extract unique active customer names who have active bookings
+  const activeCustomerNames = Array.from(
+    new Set(
+      orders
+        .filter((o) => o.status !== 'Cancelled')
+        .map((o) => o.customerName)
+        .filter(Boolean)
+    )
+  ).sort();
 
-  const numCustomerCols = Math.max(6, maxBookings);
+  const displayCustomerColumns = activeCustomerNames.length > 0 
+    ? activeCustomerNames 
+    : ['Customer 1', 'Customer 2', 'Customer 3', 'Customer 4', 'Customer 5', 'Customer 6'];
 
   // Filter models based on the stock search (checks model code OR active booking customer names)
   const filteredModelsForStock = models.filter((model) => {
@@ -1092,12 +1095,12 @@ function Models() {
                     </th>
 
                     {/* Scrollable customer columns headers */}
-                    {Array.from({ length: numCustomerCols }).map((_, i) => (
+                    {displayCustomerColumns.map((colName, idx) => (
                       <th 
-                        key={i} 
-                        className="px-4 py-3 font-semibold text-slate-500 border-r border-slate-200 min-w-[200px]"
+                        key={idx} 
+                        className="px-4 py-3 font-bold text-slate-700 border-r border-slate-200 min-w-[200px]"
                       >
-                        Customer {i + 1}
+                        {colName}
                       </th>
                     ))}
                   </tr>
@@ -1134,27 +1137,40 @@ function Models() {
                         </td>
 
                         {/* Customer entries */}
-                        {Array.from({ length: numCustomerCols }).map((_, i) => {
-                          const booking = bookings[i];
-                          if (booking) {
+                        {displayCustomerColumns.map((colName, colIdx) => {
+                          const isPlaceholder = colName.startsWith('Customer ');
+                          const customerBookings = isPlaceholder 
+                            ? [] 
+                            : (modelBookingsMap[model.id] || []).filter(b => b.customerName === colName);
+
+                          const legacyBooking = isPlaceholder ? (modelBookingsMap[model.id] || [])[colIdx] : null;
+                          const displayBookings = legacyBooking ? [legacyBooking] : customerBookings;
+
+                          if (displayBookings.length > 0) {
                             return (
-                              <td key={i} className="px-4 py-4 border-r border-slate-100 min-w-[200px]">
-                                <div className="flex flex-col gap-1">
-                                  <span className="font-bold text-slate-900 truncate max-w-[180px]" title={booking.customerName}>
-                                    {booking.customerName}
-                                  </span>
-                                  <div className="flex items-center gap-1.5 text-xs">
-                                    <span className="inline-flex rounded-xl bg-amber-50 border border-amber-200 px-2 py-0.5 font-extrabold text-amber-800">
-                                      {booking.qtyGiven} units
-                                    </span>
-                                    <span className="text-slate-400 font-semibold">{booking.orderNumber}</span>
-                                  </div>
+                              <td key={colIdx} className="px-4 py-4 border-r border-slate-100 min-w-[200px]">
+                                <div className="flex flex-col gap-2">
+                                  {displayBookings.map((booking, bIdx) => (
+                                    <div key={bIdx} className="flex flex-col gap-1 border-b border-slate-100 last:border-none pb-1 last:pb-0">
+                                      {isPlaceholder && (
+                                        <span className="font-bold text-slate-900 truncate max-w-[180px]" title={booking.customerName}>
+                                          {booking.customerName}
+                                        </span>
+                                      )}
+                                      <div className="flex items-center gap-1.5 text-xs">
+                                        <span className="inline-flex rounded-xl bg-amber-50 border border-amber-200 px-2 py-0.5 font-extrabold text-amber-800">
+                                          {booking.qtyGiven} units
+                                        </span>
+                                        <span className="text-slate-500 font-bold">{booking.orderNumber}</span>
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
                               </td>
                             );
                           }
                           return (
-                            <td key={i} className="px-4 py-4 border-r border-slate-100 text-slate-400 text-xs text-center min-w-[200px]">
+                            <td key={colIdx} className="px-4 py-4 border-r border-slate-100 min-w-[200px] text-center text-slate-300 font-medium">
                               —
                             </td>
                           );
@@ -1164,7 +1180,7 @@ function Models() {
                   })}
                   {filteredModelsForStock.length === 0 && (
                     <tr>
-                      <td colSpan={3 + numCustomerCols} className="text-center text-slate-500 py-8">
+                      <td colSpan={3 + displayCustomerColumns.length} className="text-center text-slate-500 py-8">
                         No matching models or customer bookings found.
                       </td>
                     </tr>
