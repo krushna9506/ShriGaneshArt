@@ -83,3 +83,146 @@ body {
 html {
   overscroll-behavior-y: contain;
 }
+
+/* Pull to refresh visual safeguard */
+html {
+  overscroll-behavior-y: contain;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   PRINT / PDF — When body.printing-invoice is active OR in @media print,
+   hide the entire app shell and show ONLY the A4 invoice page.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* 1. Hide all non-printable elements */
+body.printing-invoice aside,
+body.printing-invoice header,
+body.printing-invoice nav,
+body.printing-invoice .no-print,
+body.printing-invoice .desktop-header,
+body.printing-invoice section > :not(.invoice-scroll-wrapper) {
+  display: none !important;
+}
+
+@media print {
+  aside,
+  header,
+  nav,
+  .no-print,
+  .desktop-header,
+  section > :not(.invoice-scroll-wrapper) {
+    display: none !important;
+  }
+}
+
+/* 2. Reset ALL parent/wrapper containers so the invoice is not shifted or padded */
+body.printing-invoice,
+body.printing-invoice #root,
+body.printing-invoice #root > div,
+body.printing-invoice main,
+body.printing-invoice section,
+body.printing-invoice .grid,
+body.printing-invoice [class*="grid"] {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  position: static !important;
+  transform: none !important;
+  display: block !important;
+  box-shadow: none !important;
+}
+
+@media print {
+  html,
+  body,
+  #root,
+  #root > div,
+  main,
+  section,
+  .grid,
+  [class*="grid"] {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+    transform: none !important;
+    display: block !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+
+  /* Force color printing across browsers */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* 3. Outer invoice scroll/centering wrapper print styles */
+body.printing-invoice .invoice-scroll-wrapper {
+  display: block !important;
+  overflow: visible !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+@media print {
+  .invoice-scroll-wrapper {
+    display: block !important;
+    overflow: visible !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+/* 4. Core A4 page layout print styles */
+body.printing-invoice .invoice-printable {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  width: 210mm !important;
+  min-height: 297mm !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 8mm !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  page-break-after: always !important;
+  border: 2px solid #881337 !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+  color: #881337 !important;
+}
+
+@media print {
+  .invoice-printable {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 8mm !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    page-break-after: always !important;
+    border: 2px solid #881337 !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    color: #881337 !important;
+  }
+}
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}

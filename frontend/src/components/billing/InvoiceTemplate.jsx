@@ -277,58 +277,23 @@ const styleTag = (
       padding: 16px 8px;
     }
 
-    /* ── Fixed A4 page: never reflows ── */
-    .invoice-printable {
-      width: 794px;          /* 210mm at 96 dpi */
-      min-height: 1123px;    /* 297mm at 96 dpi */
-      margin: 0 auto 16px auto;
-      background: #ffffff;
-      border: 2px solid #881337;
-      border-radius: 12px;
-      padding: 20px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      color: #881337;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-    }
-
-    /* ── Print / PDF ── */
-    @media print {
-      * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
-      body, html {
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #ffffff !important;
-      }
-      .invoice-scroll-wrapper {
-        background: transparent !important;
-        padding: 0 !important;
-        overflow: visible !important;
-      }
-      .no-print {
-        display: none !important;
-      }
+    /* ── Fixed A4 page on SCREEN: never reflows ── */
+    @media screen {
       .invoice-printable {
-        width: 210mm !important;
-        min-height: 297mm !important;
-        height: 297mm !important;
-        margin: 0 !important;
-        padding: 8mm !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-        page-break-after: always;
-        border: 2px solid #881337 !important;
+        width: 794px;          /* 210mm at 96 dpi */
+        min-height: 1123px;    /* 297mm at 96 dpi */
+        margin: 0 auto 16px auto;
+        background: #ffffff;
+        border: 2px solid #881337;
+        border-radius: 12px;
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: #881337;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
       }
-    }
-
-    @page {
-      size: A4 portrait;
-      margin: 0;
     }
   `}</style>
 );
