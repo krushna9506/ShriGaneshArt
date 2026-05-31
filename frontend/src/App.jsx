@@ -389,21 +389,14 @@ function WelcomePortal() {
       {data && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Pending Orders', value: data.cards[0].value, color: 'border-amber-100 text-amber-600 bg-white hover:border-amber-300 shadow-sm', isSensitive: false },
-            { label: 'Payments Pending', value: data.cards[1].value, color: 'border-emerald-100 text-emerald-600 bg-white hover:border-emerald-300 shadow-sm', isSensitive: true },
-            { label: 'Revenue Recorded', value: data.cards[2].value, color: 'border-indigo-100 text-indigo-600 bg-white hover:border-indigo-300 shadow-sm', isSensitive: true },
-            { label: 'Total Available Stock', value: data.cards[3].value, color: 'border-sky-100 text-sky-600 bg-white hover:border-sky-300 shadow-sm', isSensitive: false }
+          { label: 'Pending Orders', value: data.cards[0].value, color: 'border-amber-100 text-amber-600 bg-white hover:border-amber-300 shadow-sm' },
+            { label: 'Payments Pending', value: data.cards[1].value, color: 'border-emerald-100 text-emerald-600 bg-white hover:border-emerald-300 shadow-sm' },
+            { label: 'Revenue Recorded', value: data.cards[2].value, color: 'border-indigo-100 text-indigo-600 bg-white hover:border-indigo-300 shadow-sm' },
+            { label: 'Total Available Stock', value: data.cards[3].value, color: 'border-sky-100 text-sky-600 bg-white hover:border-sky-300 shadow-sm' }
           ].map((card, i) => (
             <div key={i} className={`rounded-2xl border p-4 text-center transition-all duration-200 hover:-translate-y-0.5 ${card.color}`}>
               <p className="text-[10px] uppercase font-black tracking-wider opacity-60">{card.label}</p>
-              {card.isSensitive && !isPinUnlocked ? (
-                <div className="flex flex-col items-center justify-center mt-1.5">
-                  <span className="text-xs font-bold text-slate-400 flex items-center gap-1">🔒 Locked</span>
-                  <button type="button" onClick={() => setShowPinModal(true)} className="text-[10px] text-amber-600 font-extrabold uppercase mt-1 hover:underline active:scale-95 transition-all">Reveal</button>
-                </div>
-              ) : (
-                <p className="text-lg md:text-xl font-black mt-1 leading-none">{card.value}</p>
-              )}
+              <p className="text-lg md:text-xl font-black mt-1 leading-none">{card.value}</p>
             </div>
           ))}
         </div>
@@ -521,25 +514,18 @@ function WelcomePortal() {
                 <div className="grid gap-6 xl:grid-cols-2">
                   <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm min-h-[190px] flex flex-col justify-between">
                     <h4 className="text-sm font-bold text-slate-800 mb-2">Monthly Sales Metrics</h4>
-                    {!isPinUnlocked ? (
-                      <div className="flex-1 flex flex-col items-center justify-center text-center py-4">
-                        <span className="text-xs font-bold text-slate-400">🔒 Monthly sales charts locked</span>
-                        <button type="button" onClick={() => setShowPinModal(true)} className="mt-2 text-xs font-black text-amber-600 hover:underline active:scale-95 transition-all">Reveal</button>
-                      </div>
-                    ) : (
-                      <div className="flex items-end gap-3 h-32 pt-2">
-                        {data.sales.map((item) => (
-                          <div key={item.month} className="flex-1 flex flex-col items-center gap-2">
-                            <div className="w-full rounded-lg bg-gradient-to-t from-amber-600 to-amber-400 relative group" style={{height: `${item.value * 1.5}px`}}>
-                              <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-950 text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                                {item.value}
-                              </div>
+                    <div className="flex items-end gap-3 h-32 pt-2">
+                      {data.sales.map((item) => (
+                        <div key={item.month} className="flex-1 flex flex-col items-center gap-2">
+                          <div className="w-full rounded-lg bg-gradient-to-t from-amber-600 to-amber-400 relative group" style={{height: `${item.value * 1.5}px`}}>
+                            <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-950 text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                              {item.value}
                             </div>
-                            <span className="text-[10px] text-slate-650 font-bold">{item.month}</span>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                          <span className="text-[10px] text-slate-650 font-bold">{item.month}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   
                   <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
@@ -728,14 +714,7 @@ function Dashboard() {
           return (
             <div key={card.label} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
               <p className="text-sm text-slate-500">{card.label}</p>
-              {isSensitive && !isPinUnlocked ? (
-                <div className="flex flex-col items-center justify-center mt-2">
-                  <span className="text-xs font-bold text-slate-400 flex items-center gap-1">🔒 Locked</span>
-                  <button type="button" onClick={() => setShowPinModal(true)} className="text-[10px] text-amber-600 font-extrabold uppercase mt-1 hover:underline active:scale-95 transition-all">Reveal</button>
-                </div>
-              ) : (
-                <p className="mt-2 text-3xl font-bold text-slate-800">{card.value}</p>
-              )}
+              <p className="mt-2 text-3xl font-bold text-slate-800">{card.value}</p>
             </div>
           );
         })}
@@ -744,25 +723,18 @@ function Dashboard() {
       <div className="grid gap-6 xl:grid-cols-2">
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <h3 className="text-lg font-semibold">Monthly sales</h3>
-          {!isPinUnlocked ? (
-            <div className="flex flex-col items-center justify-center h-32 text-center py-4">
-              <span className="text-xs font-bold text-slate-400">🔒 Monthly sales charts locked</span>
-              <button type="button" onClick={() => setShowPinModal(true)} className="mt-2 text-xs font-black text-amber-600 hover:underline active:scale-95 transition-all">Reveal</button>
-            </div>
-          ) : (
-            <div className="mt-4 flex items-end gap-3 h-32 pt-2">
-              {data.sales.map(item => (
-                <div key={item.month} className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-full rounded-lg bg-gradient-to-t from-amber-600 to-amber-400 relative group" style={{height: `${item.value * 1.5}px`}}>
-                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-950 text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                      {item.value}
-                    </div>
+          <div className="mt-4 flex items-end gap-3 h-32 pt-2">
+            {data.sales.map(item => (
+              <div key={item.month} className="flex-1 flex flex-col items-center gap-2">
+                <div className="w-full rounded-lg bg-gradient-to-t from-amber-600 to-amber-400 relative group" style={{height: `${item.value * 1.5}px`}}>
+                  <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-950 text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                    {item.value}
                   </div>
-                  <span className="text-[10px] text-slate-655 font-bold">{item.month}</span>
                 </div>
-              ))}
-            </div>
-          )}
+                <span className="text-[10px] text-slate-655 font-bold">{item.month}</span>
+              </div>
+            ))}
+          </div>
         </div>
         
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
