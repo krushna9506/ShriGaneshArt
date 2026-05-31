@@ -1153,16 +1153,14 @@ function Models() {
                                 <div className="flex flex-col gap-2">
                                   {displayBookings.map((booking, bIdx) => (
                                     <div key={bIdx} className="flex flex-col gap-1 border-b border-slate-100 last:border-none pb-1 last:pb-0">
-                                      {isPlaceholder && (
-                                        <span className="font-bold text-slate-900 truncate max-w-[180px]" title={booking.customerName}>
-                                          {booking.customerName}
+                                      <span className="font-extrabold text-slate-900 text-xs truncate max-w-[180px]" title={isPlaceholder ? `${booking.customerName} · ${booking.orderNumber}` : booking.orderNumber}>
+                                        {isPlaceholder ? `${booking.customerName} · ${booking.orderNumber}` : booking.orderNumber}
+                                      </span>
+                                      <div className="flex items-center gap-1.5 text-xs mt-0.5">
+                                        <span className="inline-flex items-baseline gap-0.5 rounded-xl bg-amber-50 border border-amber-200 px-2.5 py-0.5 font-bold text-amber-800">
+                                          <span className="text-xs font-black">{booking.qtyGiven}</span>
+                                          <span className="text-[9px] font-semibold text-amber-600">units</span>
                                         </span>
-                                      )}
-                                      <div className="flex items-center gap-1.5 text-xs">
-                                        <span className="inline-flex rounded-xl bg-amber-50 border border-amber-200 px-2 py-0.5 font-extrabold text-amber-800">
-                                          {booking.qtyGiven} units
-                                        </span>
-                                        <span className="text-slate-500 font-bold">{booking.orderNumber}</span>
                                       </div>
                                     </div>
                                   ))}
