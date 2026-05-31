@@ -13,7 +13,7 @@ function BillingPage() {
   const [loading, setLoading] = useState(true);
 
   // Secure PIN variables
-  const [isPinUnlocked, setIsPinUnlocked] = useState(sessionStorage.getItem('ganesha_pin_unlocked') === 'true');
+  const [isPinUnlocked, setIsPinUnlocked] = useState(true);
   const [showPinModal, setShowPinModal] = useState(false);
 
   const loadInvoices = async () => {
@@ -60,7 +60,7 @@ function BillingPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm w-full min-w-0">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Billing</h2>
@@ -79,7 +79,7 @@ function BillingPage() {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm w-full min-w-0">
         {!isPinUnlocked ? (
           <div className="text-center py-12 flex flex-col items-center max-w-sm mx-auto">
             <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mb-3">

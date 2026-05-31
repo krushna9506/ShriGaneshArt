@@ -79,7 +79,7 @@ function Layout({ children }) {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col pb-20 lg:pb-0 lg:pl-64">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col pb-20 lg:pb-0 lg:pl-64 w-full max-w-full overflow-x-hidden lg:overflow-x-visible">
       {/* Desktop Sidebar */}
       <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-slate-150 bg-white p-6 lg:block z-30">
         <div className="flex items-center gap-3">
@@ -222,7 +222,7 @@ function WelcomePortal() {
   const [pingMs, setPingMs] = useState(null);
 
   // Secure PIN variables
-  const [isPinUnlocked, setIsPinUnlocked] = useState(sessionStorage.getItem('ganesha_pin_unlocked') === 'true');
+  const [isPinUnlocked, setIsPinUnlocked] = useState(true);
   const [showPinModal, setShowPinModal] = useState(false);
   
   const [isStockOpen, setIsStockOpen] = useState(false);
@@ -642,7 +642,7 @@ function WelcomePortal() {
 
 function Dashboard() {
   const [data, setData] = useState(null);
-  const [isPinUnlocked, setIsPinUnlocked] = useState(sessionStorage.getItem('ganesha_pin_unlocked') === 'true');
+  const [isPinUnlocked, setIsPinUnlocked] = useState(true);
   const [showPinModal, setShowPinModal] = useState(false);
 
   useEffect(() => {
@@ -853,7 +853,7 @@ function Models() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 w-full min-w-0">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Models</h2>
@@ -891,7 +891,7 @@ function Models() {
 
         {activeTab === 'catalog' ? (
           <div className="mt-6 flex flex-col xl:grid xl:grid-cols-[1.1fr_0.9fr] gap-6">
-            <div className="rounded-3xl border border-slate-200 bg-white p-5">
+            <div className="rounded-3xl border border-slate-200 bg-white p-5 w-full min-w-0">
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="text-lg font-semibold">Model Master</h3>
                 <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search model code or size..." className="w-full sm:w-64 rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100" />
@@ -1104,7 +1104,7 @@ function Models() {
             </form>
           </div>
         ) : (
-          <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5">
+          <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 w-full min-w-0">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h3 className="text-lg font-bold text-slate-900">Stock & Dispatch Ledger</h3>
               <input
@@ -1345,7 +1345,7 @@ function Orders() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 w-full min-w-0">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Create New Order</h2>
@@ -1358,7 +1358,7 @@ function Orders() {
           </div>
         </div>
       </div>
-      <form onSubmit={submitOrder} className="rounded-3xl border border-slate-200 bg-white p-6">
+      <form onSubmit={submitOrder} className="rounded-3xl border border-slate-200 bg-white p-6 w-full min-w-0">
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-semibold">Customer Details</h3>
@@ -1848,7 +1848,7 @@ function OrdersHistory() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 w-full min-w-0">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Order History</h2>
@@ -1859,7 +1859,7 @@ function OrdersHistory() {
           </div>
         </div>
       </div>
-      <div className="rounded-3xl border border-slate-200 bg-white p-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 w-full min-w-0">
         <div className="space-y-6">
           {/* Gorgeous Pill Filter Section */}
           <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-4">
@@ -2284,7 +2284,7 @@ function Payments() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 w-full min-w-0">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Payments</h2>
@@ -2298,7 +2298,7 @@ function Payments() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+      <div className="max-w-2xl mx-auto rounded-3xl border border-slate-200 bg-white p-8 shadow-sm w-full min-w-0">
         <h3 className="text-xl font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">Record Payment</h3>
         <form onSubmit={submitPayment} className="space-y-5">
           <div>
@@ -2343,7 +2343,7 @@ function PaymentsHistory() {
   const [payments, setPayments] = useState([]);
 
   // Secure PIN variables
-  const [isPinUnlocked, setIsPinUnlocked] = useState(sessionStorage.getItem('ganesha_pin_unlocked') === 'true');
+  const [isPinUnlocked, setIsPinUnlocked] = useState(true);
   const [showPinModal, setShowPinModal] = useState(false);
 
   const loadData = async () => {
@@ -2371,7 +2371,7 @@ function PaymentsHistory() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 w-full min-w-0">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Payment History</h2>
@@ -2385,7 +2385,7 @@ function PaymentsHistory() {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm w-full min-w-0">
         <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">Chronological Ledger</h3>
         {!isPinUnlocked ? (
           <div className="flex flex-col items-center justify-center py-16 text-center max-w-sm mx-auto">
@@ -2501,14 +2501,14 @@ function Delivery() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 w-full min-w-0">
         <h2 className="text-2xl font-semibold">Delivery</h2>
         <p className="mt-1 text-sm text-slate-600">Manage dispatched, delivered, and cancelled orders from one view.</p>
       </div>
-      <div className="rounded-3xl border border-slate-200 bg-white p-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 w-full min-w-0">
         <div className="space-y-3">
           {orders.map((order) => (
-            <article key={order.id} className="rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
+            <article key={order.id} className="rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-700 w-full min-w-0">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="font-semibold text-slate-900">{order.orderNumber}</p>
