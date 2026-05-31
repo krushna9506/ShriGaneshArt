@@ -31,7 +31,7 @@ export default function Login({ onLoginSuccess }) {
 
     try {
       // Direct backend PostgreSQL authentication check
-      const response = await api.post('/auth/login', {
+      const response = await api.post('/api/auth/login', {
         username: trimmedMobile,
         password: trimmedPassword
       });
