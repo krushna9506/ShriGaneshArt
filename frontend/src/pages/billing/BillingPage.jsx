@@ -69,7 +69,7 @@ function BillingPage() {
           <div className="text-slate-600 font-bold text-center py-8">Loading invoices…</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm min-w-[650px] border-collapse">
+            <table className="w-full text-left text-sm min-w-[650px] border-collapse">
               <thead className="text-slate-500 font-black uppercase tracking-wider text-xs border-b border-slate-100">
                 <tr>
                   <th className="px-3 py-3">Invoice No</th>

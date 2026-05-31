@@ -848,7 +848,7 @@ function Models() {
                 <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search model code or size..." className="w-full sm:w-64 rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100" />
               </div>
               <div className="overflow-x-auto">
-                <table className="min-w-full text-left text-sm min-w-[700px] border-collapse">
+                <table className="w-full text-left text-sm min-w-[700px] border-collapse">
                   <thead className="text-slate-500">
                     <tr>
                       <th className="px-3 py-2">Model Code</th>
@@ -912,7 +912,7 @@ function Models() {
                                 className="w-full rounded-xl border border-slate-300 bg-white px-2 py-1 text-xs text-slate-800 focus:border-amber-400 focus:ring-1 focus:ring-amber-200"
                               />
                             </td>
-                            <td className="px-2 py-2 text-xs font-semibold text-slate-600 px-3">
+                            <td className="px-3 py-2 text-xs font-semibold text-slate-600">
                               {Number(form.totalStock || 0) - Number(form.soldStock || 0)}
                             </td>
                             <td className="px-2 py-2">
@@ -1068,7 +1068,7 @@ function Models() {
             
             {/* Horizontal Scrollable Spreadsheet Wrapper */}
             <div className="overflow-x-auto rounded-2xl border border-slate-200">
-              <table className="min-w-full text-left text-sm border-collapse min-w-[850px]">
+              <table className="w-full text-left text-sm border-collapse min-w-[850px]">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50">
                     {/* Frozen headers with inline sticky positioning */}
