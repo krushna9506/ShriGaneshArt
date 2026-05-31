@@ -6,7 +6,9 @@ import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
-
+import dotenv from 'dotenv';
+const __serverDir = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__serverDir, '../../.env') });
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, '0.0.0.0', async () => {
@@ -17,7 +19,7 @@ app.listen(PORT, '0.0.0.0', async () => {
   
   // File watcher for real-time Excel hot-reloading
   try {
-    const __serverDir = path.dirname(fileURLToPath(import.meta.url));
+    // __serverDir is defined at the top of the file
     const excelFilePath = path.resolve(__serverDir, '../../database/Shri_Ganesh_Art_Stock_and_Price.xlsx');
     const pythonScriptPath = path.resolve(__serverDir, '../../scripts/extract_models.py');
 
