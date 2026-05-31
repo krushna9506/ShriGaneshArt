@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
 import billingRoutes from './routes/billing.routes.js';
 import { authMiddleware } from './middleware/authMiddleware.js';
-import { createOrder, customers, models, orders, payments, recordPayment, updateDeliveryStatus, deleteOrder, updateOrder } from './data/store.js';
+import { createOrder, customers, models, orders, payments, recordPayment, updateDeliveryStatus, deleteOrder, updateOrder, saveModels } from './data/store.js';
 import pool from './config/db.js';
 import bcrypt from 'bcryptjs';
 
@@ -109,6 +109,29 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+app.post('/api/auth/verify-password', auth, async (req, res) => {
+  const { password } = req.body;
+  if (!password) {
+    return res.status(400).json({ error: 'Password is required' });
+  }
+  try {
+    const userMobile = req.user.sub;
+    const result = await pool.query('SELECT * FROM admins WHERE mobile = $1', [userMobile]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Admin user not found' });
+    }
+    const admin = result.rows[0];
+    const isMatch = await bcrypt.compare(password, admin.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Incorrect password' });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Password verification failed', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.get('/api/dashboard', auth, (req, res) => {
   const pendingPayments = orders.reduce((sum, order) => sum + Number(order.balance || 0), 0);
   const availableStock = models.reduce((sum, model) => sum + Number(model.remainingStock || 0), 0);
@@ -135,18 +158,21 @@ app.get('/api/models', auth, (req, res) => res.json(models));
 app.post('/api/models', auth, (req, res) => {
   const item = { id: Date.now(), ...req.body, price: req.body.price ?? '' };
   models.push(item);
+  saveModels();
   res.status(201).json(item);
 });
 app.put('/api/models/:id', auth, (req, res) => {
   const index = models.findIndex((item) => item.id === Number(req.params.id));
   if (index === -1) return res.status(404).json({ error: 'Model not found' });
   models[index] = { ...models[index], ...req.body, price: req.body.price ?? '' };
+  saveModels();
   res.json(models[index]);
 });
 app.delete('/api/models/:id', auth, (req, res) => {
   const index = models.findIndex((item) => item.id === Number(req.params.id));
   if (index === -1) return res.status(404).json({ error: 'Model not found' });
   const [removed] = models.splice(index, 1);
+  saveModels();
   res.json({ deleted: true, model: removed });
 });
 

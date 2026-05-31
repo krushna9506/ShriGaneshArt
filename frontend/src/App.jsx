@@ -215,7 +215,6 @@ function Layout({ children }) {
 
 function WelcomePortal() {
   const navigate = useNavigate();
-  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isOnline, setIsOnline] = useState(true);
   const [pingMs, setPingMs] = useState(null);
@@ -238,12 +237,8 @@ function WelcomePortal() {
       try {
         await ensureSession();
         const start = Date.now();
-        const [dashRes, modelsRes] = await Promise.all([
-          api.get('/dashboard'),
-          api.get('/models')
-        ]);
+        const modelsRes = await api.get('/models');
         if (mounted) {
-          setData(dashRes.data);
           setModelsList(modelsRes.data);
           setIsOnline(true);
           setPingMs(Date.now() - start);
@@ -292,11 +287,7 @@ function WelcomePortal() {
         setIsOnline(true);
         
         const start = Date.now();
-        const [dashRes, modelsRes] = await Promise.all([
-          api.get('/dashboard'),
-          api.get('/models')
-        ]);
-        setData(dashRes.data);
+        const modelsRes = await api.get('/models');
         setModelsList(modelsRes.data);
         setPingMs(Date.now() - start);
         
@@ -391,22 +382,7 @@ function WelcomePortal() {
         </div>
       )}
 
-      {/* Dynamic welcome quick stats summary */}
-      {data && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-          { label: 'Pending Orders', value: data.cards[0].value, color: 'border-amber-100 text-amber-600 bg-white hover:border-amber-300 shadow-sm' },
-            { label: 'Payments Pending', value: data.cards[1].value, color: 'border-emerald-100 text-emerald-600 bg-white hover:border-emerald-300 shadow-sm' },
-            { label: 'Revenue Recorded', value: data.cards[2].value, color: 'border-indigo-100 text-indigo-600 bg-white hover:border-indigo-300 shadow-sm' },
-            { label: 'Total Available Stock', value: data.cards[3].value, color: 'border-sky-100 text-sky-600 bg-white hover:border-sky-300 shadow-sm' }
-          ].map((card, i) => (
-            <div key={i} className={`rounded-2xl border p-4 text-center transition-all duration-200 hover:-translate-y-0.5 ${card.color}`}>
-              <p className="text-[10px] uppercase font-black tracking-wider opacity-60">{card.label}</p>
-              <p className="text-lg md:text-xl font-black mt-1 leading-none">{card.value}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Quick stats moved to Payments History */}
 
       {/* Quick Launch Operations App Grid */}
       <div className="space-y-4">
@@ -2316,6 +2292,13 @@ function Payments() {
 function PaymentsHistory() {
   const [orders, setOrders] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [isAnalysisUnlocked, setIsAnalysisUnlocked] = useState(
+    sessionStorage.getItem('payments_analysis_unlocked') === 'true'
+  );
+  const [passwordInput, setPasswordInput] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [dashData, setDashData] = useState(null);
 
   const loadData = async () => {
     try {
@@ -2326,12 +2309,47 @@ function PaymentsHistory() {
       ]);
       setOrders(ordersRes.data);
       setPayments(paymentsRes.data);
+
+      if (isAnalysisUnlocked) {
+        try {
+          const dashRes = await api.get('/dashboard');
+          setDashData(dashRes.data);
+        } catch (dashErr) {
+          console.error('Failed to load dashboard analytics data:', dashErr);
+        }
+      }
     } catch (err) {
       console.error('Ledger data load failed', err);
     }
   };
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    loadData();
+  }, [isAnalysisUnlocked]);
+
+  const handleUnlock = async (e) => {
+    e.preventDefault();
+    if (!passwordInput.trim()) return;
+    setIsVerifying(true);
+    setErrorMsg('');
+    try {
+      await ensureSession();
+      // Call secure POST /api/auth/verify-password
+      const res = await api.post('/auth/verify-password', { password: passwordInput });
+      if (res.data && res.data.ok) {
+        sessionStorage.setItem('payments_analysis_unlocked', 'true');
+        setIsAnalysisUnlocked(true);
+        setPasswordInput('');
+      } else {
+        setErrorMsg('Invalid password.');
+      }
+    } catch (err) {
+      console.error('Verification failed', err);
+      setErrorMsg(err.response?.data?.error || 'Incorrect password. Access denied.');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   const cleanNotes = (notes) => {
     if (!notes) return '';
@@ -2346,7 +2364,7 @@ function PaymentsHistory() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Payment History</h2>
-            <p className="mt-1 text-sm text-slate-650">A comprehensive chronological record of all booking advances and transactions.</p>
+            <p className="mt-1 text-sm text-slate-655">A comprehensive chronological record of all booking advances and transactions.</p>
           </div>
           <div>
             <Link to="/payments" className="rounded-2xl border border-slate-700 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 hover:border-amber-400 hover:text-amber-600 transition-colors block text-center">
@@ -2355,6 +2373,61 @@ function PaymentsHistory() {
           </div>
         </div>
       </div>
+
+      {/* Dynamic welcome quick stats summary or Lock Overlay */}
+      {!isAnalysisUnlocked ? (
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 w-full min-w-0">
+          <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm shrink-0 mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900">Payments Analysis Locked</h3>
+              <p className="text-xs text-slate-500 font-medium">Verify your administrator login password to view analytics & stock metrics.</p>
+            </div>
+          </div>
+          <form onSubmit={handleUnlock} className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+            <div className="relative flex-grow sm:w-64">
+              <input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                placeholder="Enter login password"
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none"
+                required
+              />
+              {errorMsg && (
+                <p className="absolute left-1 -bottom-5 text-[10px] font-bold text-rose-600">{errorMsg}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={isVerifying}
+              className="rounded-2xl bg-amber-400 text-slate-950 px-5 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-amber-500 shadow-sm active:scale-95 transition-all disabled:opacity-50"
+            >
+              {isVerifying ? 'Verifying...' : 'Unlock'}
+            </button>
+          </form>
+        </div>
+      ) : (
+        dashData && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full min-w-0">
+            {[
+              { label: 'Pending Orders', value: dashData.cards[0].value, color: 'border-amber-100 text-amber-600 bg-white hover:border-amber-300 shadow-sm' },
+              { label: 'Payments Pending', value: dashData.cards[1].value, color: 'border-emerald-100 text-emerald-600 bg-white hover:border-emerald-300 shadow-sm' },
+              { label: 'Revenue Recorded', value: dashData.cards[2].value, color: 'border-indigo-100 text-indigo-600 bg-white hover:border-indigo-300 shadow-sm' },
+              { label: 'Total Available Stock', value: dashData.cards[3].value, color: 'border-sky-100 text-sky-600 bg-white hover:border-sky-300 shadow-sm' }
+            ].map((card, i) => (
+              <div key={i} className={`rounded-2xl border p-4 text-center transition-all duration-200 hover:-translate-y-0.5 ${card.color}`}>
+                <p className="text-[10px] uppercase font-black tracking-wider opacity-60">{card.label}</p>
+                <p className="text-lg md:text-xl font-black mt-1 leading-none">{card.value}</p>
+              </div>
+            ))}
+          </div>
+        )
+      )}
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm w-full min-w-0">
         <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-4 mb-6">Chronological Ledger</h3>

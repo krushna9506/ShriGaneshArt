@@ -4,6 +4,82 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const modelsJsonPath = path.join(__dirname, 'models.json');
+const ordersJsonPath = path.join(__dirname, 'orders.json');
+const paymentsJsonPath = path.join(__dirname, 'payments.json');
+const customersJsonPath = path.join(__dirname, 'customers.json');
+
+export function saveModels() {
+  try {
+    fs.writeFileSync(modelsJsonPath, JSON.stringify(models, null, 2), 'utf8');
+    console.log('[Store] Saved models successfully to models.json');
+  } catch (err) {
+    console.error('[Store] Failed to save models to JSON:', err);
+  }
+}
+
+export function saveOrders() {
+  try {
+    fs.writeFileSync(ordersJsonPath, JSON.stringify(orders, null, 2), 'utf8');
+    console.log('[Store] Saved orders successfully to orders.json');
+  } catch (err) {
+    console.error('[Store] Failed to save orders to JSON:', err);
+  }
+}
+
+export function savePayments() {
+  try {
+    fs.writeFileSync(paymentsJsonPath, JSON.stringify(payments, null, 2), 'utf8');
+    console.log('[Store] Saved payments successfully to payments.json');
+  } catch (err) {
+    console.error('[Store] Failed to save payments to JSON:', err);
+  }
+}
+
+export function saveCustomers() {
+  try {
+    fs.writeFileSync(customersJsonPath, JSON.stringify(customers, null, 2), 'utf8');
+    console.log('[Store] Saved customers successfully to customers.json');
+  } catch (err) {
+    console.error('[Store] Failed to save customers to JSON:', err);
+  }
+}
+
+export function loadStoreData() {
+  loadModels();
+  
+  try {
+    if (fs.existsSync(ordersJsonPath)) {
+      const data = JSON.parse(fs.readFileSync(ordersJsonPath, 'utf8'));
+      orders.length = 0;
+      orders.push(...data);
+      console.log(`[Store] Loaded ${orders.length} orders dynamically from orders.json`);
+    }
+  } catch (err) {
+    console.error('[Store] Failed to load orders from JSON:', err);
+  }
+
+  try {
+    if (fs.existsSync(paymentsJsonPath)) {
+      const data = JSON.parse(fs.readFileSync(paymentsJsonPath, 'utf8'));
+      payments.length = 0;
+      payments.push(...data);
+      console.log(`[Store] Loaded ${payments.length} payments dynamically from payments.json`);
+    }
+  } catch (err) {
+    console.error('[Store] Failed to load payments from JSON:', err);
+  }
+
+  try {
+    if (fs.existsSync(customersJsonPath)) {
+      const data = JSON.parse(fs.readFileSync(customersJsonPath, 'utf8'));
+      customers.length = 0;
+      customers.push(...data);
+      console.log(`[Store] Loaded ${customers.length} customers dynamically from customers.json`);
+    }
+  } catch (err) {
+    console.error('[Store] Failed to load customers from JSON:', err);
+  }
+}
 
 const models = [
   { id: 1, code: 'A65', name: 'Ganesh Model A65', size: '6 inch', material: 'Clay', price: 95, totalStock: 80, soldStock: 0, remainingStock: 80, active: true },
@@ -149,7 +225,7 @@ const initialModels = [
   { id: 60, code: 'दगडु', name: 'दगडु', size: '2 feet', material: 'MDF', price: 1700, totalStock: 10, soldStock: 0, remainingStock: 10, active: true },
 ];
 
-loadModels();
+loadStoreData();
 
 
 const customers = [];
@@ -264,6 +340,13 @@ const createOrder = (payload) => {
   }
 
   orders.push(order);
+  
+  // Persist store state to disk
+  saveModels();
+  saveOrders();
+  savePayments();
+  saveCustomers();
+  
   return order;
 };
 
@@ -288,6 +371,11 @@ const recordPayment = (payload) => {
   };
 
   payments.push(payment);
+  
+  // Persist store state to disk
+  saveOrders();
+  savePayments();
+  
   return { order, payment };
 };
 
@@ -305,6 +393,10 @@ const updateDeliveryStatus = (orderId, status) => {
     deductOrderStock(order);
   }
 
+  // Persist store state to disk
+  saveModels();
+  saveOrders();
+
   return order;
 };
 
@@ -320,6 +412,11 @@ const deleteOrder = (orderId) => {
   }
 
   orders.splice(index, 1);
+  
+  // Persist store state to disk
+  saveModels();
+  saveOrders();
+
   return { deleted: true };
 };
 
@@ -374,6 +471,10 @@ const updateOrder = (orderId, payload) => {
     deductOrderStock(order);
   }
 
+  // Persist store state to disk
+  saveModels();
+  saveOrders();
+
   return order;
 };
 
@@ -392,5 +493,6 @@ export {
   formatDate,
   loadModels,
   deleteOrder,
-  updateOrder
+  updateOrder,
+  loadStoreData
 };
