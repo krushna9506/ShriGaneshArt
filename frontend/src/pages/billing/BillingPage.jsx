@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../../services/api.js';
 import { generateInvoice, getAllInvoices } from '../../services/billingService.js';
 
 function BillingPage() {
@@ -28,14 +29,14 @@ function BillingPage() {
   useEffect(() => {
     const loadOrders = async () => {
       try {
-        const { data } = await import('../../services/api.js').then((m) => m.default.get('/orders'));
+        const { data } = await api.get('/orders');
         setOrders(data);
       } catch (err) {
         console.error('Order load failed', err);
       }
     };
     loadOrders();
-  }, []);
+  }, [showModal]);
 
   const filteredOrders = useMemo(() => orders.filter((order) => [order.orderNumber, order.customerName].join(' ').toLowerCase().includes(orderSearch.toLowerCase())), [orders, orderSearch]);
 
