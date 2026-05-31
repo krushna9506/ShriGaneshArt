@@ -90,8 +90,18 @@ export const initDatabase = async () => {
         amount DECIMAL(10, 2) NOT NULL,
         mode VARCHAR(50) NOT NULL,
         payment_date VARCHAR(50) NOT NULL,
-        notes TEXT
+        notes TEXT,
+        customer_name VARCHAR(255),
+        order_number VARCHAR(100),
+        order_status VARCHAR(100)
       );
+    `);
+
+    // Dynamic column additions for existing tables
+    await pool.query(`
+      ALTER TABLE pg_payments ADD COLUMN IF NOT EXISTS customer_name VARCHAR(255);
+      ALTER TABLE pg_payments ADD COLUMN IF NOT EXISTS order_number VARCHAR(100);
+      ALTER TABLE pg_payments ADD COLUMN IF NOT EXISTS order_status VARCHAR(100);
     `);
 
     // 6. pg_invoices table

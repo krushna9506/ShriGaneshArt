@@ -226,9 +226,9 @@ app.get('/api/payments', auth, (req, res) => {
     const customer = customers.find((c) => String(c.id) === String(order?.customerId || p.customerId));
     return {
       ...p,
-      customerName: order?.customerName || customer?.name || 'Walk-in Customer',
-      orderNumber: order?.orderNumber || `Order #${p.orderId}`,
-      orderStatus: order?.status || 'Active'
+      customerName: order?.customerName || p.customerName || customer?.name || 'Walk-in Customer',
+      orderNumber: order?.orderNumber || p.orderNumber || `Order #${p.orderId}`,
+      orderStatus: order ? order.status : (p.orderStatus || 'Cancelled')
     };
   });
   res.json(populated);

@@ -167,9 +167,9 @@ export async function savePayments() {
     await pool.query('DELETE FROM pg_payments');
     for (const p of payments) {
       await pool.query(
-        `INSERT INTO pg_payments (id, order_id, amount, mode, payment_date, notes)
-         VALUES ($1,$2,$3,$4,$5,$6)`,
-        [p.id, p.orderId, p.amount, p.mode, p.paymentDate, p.notes]
+        `INSERT INTO pg_payments (id, order_id, amount, mode, payment_date, notes, customer_name, order_number, order_status)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        [p.id, p.orderId, p.amount, p.mode, p.paymentDate, p.notes, p.customerName || '', p.orderNumber || '', p.orderStatus || 'Active']
       );
     }
     await pool.query('COMMIT');
@@ -381,7 +381,10 @@ export async function syncFromPostgres() {
       amount: Number(row.amount),
       mode: row.mode,
       paymentDate: row.payment_date,
-      notes: row.notes
+      notes: row.notes,
+      customerName: row.customer_name || '',
+      orderNumber: row.order_number || '',
+      orderStatus: row.order_status || 'Active'
     })));
     console.log(`[Postgres Sync] Loaded ${payments.length} payments from Neon.`);
 
@@ -531,7 +534,10 @@ const recordPayment = (payload) => {
     amount,
     mode: payload.mode || 'Cash',
     paymentDate: payload.paymentDate || formatDate(),
-    notes: payload.notes || (isFullSettlement ? 'Final balance settlement' : 'Installment payment')
+    notes: payload.notes || (isFullSettlement ? 'Final balance settlement' : 'Installment payment'),
+    customerName: order.customerName,
+    orderNumber: order.orderNumber,
+    orderStatus: order.status
   };
 
   payments.push(payment);
@@ -570,10 +576,20 @@ const deleteOrder = (orderId) => {
     restoreOrderStock(order);
   }
 
+  // Cache order customerName and orderNumber inside associated payments before deleting the order
+  payments.forEach((p) => {
+    if (String(p.orderId) === String(orderId)) {
+      p.customerName = order.customerName;
+      p.orderNumber = order.orderNumber;
+      p.orderStatus = 'Cancelled';
+    }
+  });
+
   orders.splice(index, 1);
 
   saveModels();
   saveOrders();
+  savePayments();
 
   return { deleted: true };
 };
