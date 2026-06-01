@@ -306,25 +306,25 @@ const styleTag = (
     }
 
     /* ── Fixed layout typography & spacing ── */
-    .invoice-top-row { font-size: 8.5px !important; }
+    .invoice-top-row { font-size: 9.5px !important; }
     
-    .invoice-brand-header { margin-top: 4px !important; padding-bottom: 4px !important; }
-    .invoice-brand-logo-container { height: 36px !important; width: 36px !important; border-radius: 8px !important; }
-    .invoice-brand-title { font-size: 16px !important; }
-    .invoice-brand-title span { font-size: 10.5px !important; }
-    .invoice-brand-address { font-size: 8px !important; margin-top: 2px !important; }
-    .invoice-brand-contact { font-size: 8.5px !important; }
-    .invoice-brand-contact p:first-child { font-size: 7.5px !important; }
+    .invoice-brand-header { margin-top: 8px !important; padding-bottom: 8px !important; }
+    .invoice-brand-logo-container { height: 48px !important; width: 48px !important; border-radius: 10px !important; }
+    .invoice-brand-title { font-size: 22px !important; }
+    .invoice-brand-title span { font-size: 12.5px !important; }
+    .invoice-brand-address { font-size: 10px !important; margin-top: 4px !important; }
+    .invoice-brand-contact { font-size: 10px !important; }
+    .invoice-brand-contact p:first-child { font-size: 8.5px !important; }
     
-    .invoice-slogan-banner { font-size: 8.5px !important; padding: 2px 4px !important; margin-top: 4px !important; border-radius: 6px !important; }
+    .invoice-slogan-banner { font-size: 10px !important; padding: 4px 8px !important; margin-top: 8px !important; border-radius: 8px !important; }
     
-    .invoice-customer-details { margin-top: 6px !important; padding-bottom: 4px !important; gap: 6px !important; }
-    .invoice-customer-info { font-size: 10px !important; }
-    .invoice-customer-info > div { border-bottom-width: 1px !important; padding-bottom: 2px !important; }
-    .invoice-customer-info span:first-child { min-width: 60px !important; font-size: 9.5px !important; }
+    .invoice-customer-details { margin-top: 10px !important; padding-bottom: 8px !important; gap: 12px !important; }
+    .invoice-customer-info { font-size: 12.5px !important; }
+    .invoice-customer-info > div { border-bottom-width: 1px !important; padding-bottom: 4px !important; }
+    .invoice-customer-info span:first-child { min-width: 75px !important; font-size: 11.5px !important; }
     
-    .invoice-metadata-card { font-size: 9.5px !important; padding: 4px 6px !important; border-radius: 8px !important; }
-    .invoice-metadata-card > div { margin-top: 2px !important; }
+    .invoice-metadata-card { font-size: 10.5px !important; padding: 8px 10px !important; border-radius: 10px !important; }
+    .invoice-metadata-card > div { margin-top: 4px !important; }
     
     .invoice-table-container { margin-top: 6px !important; }
     
