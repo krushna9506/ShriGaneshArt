@@ -4,7 +4,14 @@ import api from '../../services/api.js';
 import logo from '../../assets/logo.png';
 
 export default function Login({ onLoginSuccess }) {
-  const [mobileNumber, setMobileNumber] = useState('');
+  const [mobileNumber, setMobileNumber] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ganesha_suggested_m');
+      return saved ? atob(saved) : '';
+    } catch (e) {
+      return '';
+    }
+  });
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -12,6 +19,12 @@ export default function Login({ onLoginSuccess }) {
   const handleLoginSuccess = (userMobile, token) => {
     localStorage.setItem('ganesha_user', userMobile);
     localStorage.setItem('ganesha_token', token);
+    try {
+      // Securely obfuscate and store the last logged in mobile number on this device only
+      localStorage.setItem('ganesha_suggested_m', btoa(userMobile));
+    } catch (e) {
+      console.warn('Could not store suggested mobile securely', e);
+    }
     onLoginSuccess();
   };
 
