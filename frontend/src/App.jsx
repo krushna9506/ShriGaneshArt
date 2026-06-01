@@ -1552,10 +1552,177 @@ function Orders() {
                         <div className="hidden md:block text-slate-400 font-extrabold text-xs pl-2">{index + 1}</div>
 
                         {/* Model Input & suggestions + compact mobile grid */}
-                        <div className="w-full flex flex-col gap-1.5 md:contents">
-                          {/* Model Search Input */}
-                          <div className="w-full">
-                            <label className="block md:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Model (Search & Select)</label>
+                        <div className="w-full flex flex-col gap-2 md:contents">
+                          {/* Mobile: Model Search & Qty side-by-side. Desktop: search input inside table layout */}
+                          <div className="flex md:hidden gap-2 items-end w-full">
+                            {/* Model Search Input (Takes majority width) */}
+                            <div className="flex-1 min-w-0">
+                              <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 pl-0.5">Model (Search & Select)</label>
+                              <div className="relative">
+                                <input
+                                  type="text"
+                                  id={`model-search-input-${index}`}
+                                  value={currentSearchText}
+                                  placeholder="Search GA-001..."
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setRowSearch((prev) => ({ ...prev, [index]: val }));
+                                    setActiveRow(index);
+                                    setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
+                                  }}
+                                  onFocus={() => {
+                                    setActiveRow(index);
+                                    setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
+                                  }}
+                                  onBlur={() => {
+                                    setTimeout(() => {
+                                      if (activeRow === index) {
+                                        setActiveRow(null);
+                                      }
+                                      // Strict Auto-Correction / Reversion on Blur
+                                      const query = rowSearch[index];
+                                      if (query !== undefined) {
+                                        const text = String(query).trim().toLowerCase();
+                                        const exactMatch = models.find(m => m.code.toLowerCase() === text);
+                                        if (exactMatch) {
+                                          const isDup = form.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(exactMatch.id));
+                                          if (isDup) {
+                                            alert('This model is already selected in another row.');
+                                            updateLineItem(index, 'modelId', '');
+                                          } else {
+                                            updateLineItem(index, 'modelId', exactMatch.id);
+                                          }
+                                        } else {
+                                          const prevModel = models.find(m => String(m.id) === String(item.modelId));
+                                          if (!prevModel) {
+                                            updateLineItem(index, 'modelId', '');
+                                          }
+                                        }
+                                      }
+                                      setRowSearch(prev => {
+                                        const next = { ...prev };
+                                        delete next[index];
+                                        return next;
+                                      });
+                                    }, 250);
+                                  }}
+                                  onKeyDown={(e) => {
+                                    const options = getFilteredOptions(currentSearchText);
+                                    const currentOptIdx = activeOpt[index] || 0;
+
+                                    if (e.key === 'ArrowDown') {
+                                      if (options.length > 0) {
+                                        e.preventDefault();
+                                        const nextIdx = (currentOptIdx + 1) % options.length;
+                                        setActiveOpt(prev => ({ ...prev, [index]: nextIdx }));
+                                      } else {
+                                        e.preventDefault();
+                                        if (index < form.items.length - 1) {
+                                          const nextEl = document.getElementById(`model-search-input-${index + 1}`);
+                                          if (nextEl) nextEl.focus();
+                                        }
+                                      }
+                                    } else if (e.key === 'ArrowUp') {
+                                      if (options.length > 0) {
+                                        e.preventDefault();
+                                        const prevIdx = (currentOptIdx - 1 + options.length) % options.length;
+                                        setActiveOpt(prev => ({ ...prev, [index]: prevIdx }));
+                                      } else {
+                                        e.preventDefault();
+                                        if (index > 0) {
+                                          const prevEl = document.getElementById(`model-search-input-${index - 1}`);
+                                          if (prevEl) prevEl.focus();
+                                        }
+                                      }
+                                    } else if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      if (options.length > 0 && options[currentOptIdx]) {
+                                        const selected = options[currentOptIdx];
+                                        updateLineItem(index, 'modelId', selected.id);
+                                        setRowSearch(prev => ({ ...prev, [index]: undefined }));
+                                        setActiveRow(null);
+                                        setTimeout(() => {
+                                          const qtyEl = document.getElementById(`quantity-input-${index}`);
+                                          if (qtyEl) qtyEl.focus();
+                                        }, 50);
+                                      } else {
+                                        addLineItem();
+                                        const totalItems = form.items.length;
+                                        setTimeout(() => {
+                                          const nextEl = document.getElementById(`model-search-input-${totalItems}`);
+                                          if (nextEl) nextEl.focus();
+                                        }, 50);
+                                      }
+                                    } else if (e.key === 'ArrowRight') {
+                                      e.preventDefault();
+                                      const qtyEl = document.getElementById(`quantity-input-${index}`);
+                                      if (qtyEl) qtyEl.focus();
+                                    } else if (e.key === 'Escape') {
+                                      e.preventDefault();
+                                      setActiveRow(null);
+                                    }
+                                  }}
+                                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-800 font-extrabold focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
+                                />
+
+                                {/* Dropdown Floating Suggestions */}
+                                {activeRow === index && filteredOpts.length > 0 && (
+                                  <ul className="absolute right-0 left-0 z-50 max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl mt-1 text-slate-800 text-sm">
+                                    {filteredOpts.map((model, optIdx) => {
+                                      const isSelected = (activeOpt[index] || 0) === optIdx;
+                                      const isAlreadyChosen = form.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(model.id));
+                                      
+                                      return (
+                                        <li
+                                          key={model.id}
+                                          onMouseDown={(e) => {
+                                            e.preventDefault(); // Prevents input blur from executing prior to mouseup/touch
+                                            if (isAlreadyChosen) {
+                                              alert('This model is already selected in another row.');
+                                              return;
+                                            }
+                                            updateLineItem(index, 'modelId', model.id);
+                                            setRowSearch(prev => ({ ...prev, [index]: undefined }));
+                                            setActiveRow(null);
+                                            setTimeout(() => {
+                                              const qtyEl = document.getElementById(`quantity-input-${index}`);
+                                              if (qtyEl) qtyEl.focus();
+                                            }, 50);
+                                          }}
+                                          className={`px-4 py-3 cursor-pointer flex justify-between items-center transition-colors border-b border-slate-50 last:border-none ${
+                                            isSelected ? 'bg-amber-100 text-slate-900 font-bold' : 'hover:bg-slate-50'
+                                          } ${isAlreadyChosen ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        >
+                                          <span>{model.code} {isAlreadyChosen ? '(Already Selected)' : ''}</span>
+                                          <span className="text-xs text-slate-400 font-normal">
+                                            {model.size} · ₹{Number(model.price || 0).toFixed(2)} · Stock: {model.remainingStock}
+                                          </span>
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Mobile: Quantity input (Side-by-side but nice & large) */}
+                            <div className="w-28 shrink-0">
+                              <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 text-center">Quantity</label>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                placeholder="Qty"
+                                value={item.quantity}
+                                onChange={(e) => updateLineItem(index, 'quantity', e.target.value)}
+                                onKeyDown={(e) => handleKeyDown(e, index, 'quantity')}
+                                className="w-full text-center rounded-2xl border border-slate-300 bg-white py-3 px-2 text-base text-slate-950 font-black focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Desktop Only: Model Search Input (w-full inside md:contents table column) */}
+                          <div className="hidden md:block w-full">
                             <div className="relative">
                               <input
                                 type="text"
@@ -1663,7 +1830,7 @@ function Orders() {
                                 className="w-full rounded-xl md:rounded-2xl border border-slate-300 bg-white px-3.5 py-2 text-xs md:text-sm text-slate-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
                               />
 
-                              {/* Dropdown Floating Suggestions */}
+                              {/* Dropdown Floating Suggestions (Desktop only wrapper query) */}
                               {activeRow === index && filteredOpts.length > 0 && (
                                 <ul className="absolute z-50 w-full max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl mt-1 text-slate-800 text-sm">
                                   {filteredOpts.map((model, optIdx) => {
@@ -1674,7 +1841,7 @@ function Orders() {
                                       <li
                                         key={model.id}
                                         onMouseDown={(e) => {
-                                          e.preventDefault(); // Prevents input blur from executing prior to mouseup/touch
+                                          e.preventDefault();
                                           if (isAlreadyChosen) {
                                             alert('This model is already selected in another row.');
                                             return;
@@ -1703,23 +1870,9 @@ function Orders() {
                             </div>
                           </div>
 
-                          {/* Compact mobile layout row for Qty, Size, Price, Net Total and Delete Button */}
-                          <div className="flex md:hidden items-center justify-between gap-1 bg-slate-50/50 border border-slate-100 rounded-xl p-2 w-full text-xs font-semibold text-slate-655">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[8px] font-extrabold uppercase tracking-wide text-slate-400">Qty:</span>
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                pattern="[0-9]*"
-                                placeholder="0"
-                                value={item.quantity}
-                                onChange={(e) => updateLineItem(index, 'quantity', e.target.value)}
-                                onKeyDown={(e) => handleKeyDown(e, index, 'quantity')}
-                                className="w-10 text-center rounded-lg border border-slate-350 bg-white py-0.5 px-1 text-xs text-slate-800 font-black focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20 outline-none"
-                              />
-                            </div>
-
-                            <div className="text-[10px]">
+                          {/* Compact mobile layout row for Size, Price, Net Total and Delete Button */}
+                          <div className="flex md:hidden items-center justify-between gap-1 bg-slate-50/50 border border-slate-100 rounded-2xl p-2.5 w-full text-xs font-semibold text-slate-655 mt-0.5">
+                            <div className="text-[10px] pl-1">
                               <span className="text-[8px] font-extrabold uppercase tracking-wide text-slate-400 block leading-none">Size</span>
                               <span className="text-slate-800 font-bold mt-0.5 block">{selectedModel?.size || '—'}</span>
                             </div>
@@ -1737,7 +1890,7 @@ function Orders() {
                             <button
                               type="button"
                               onClick={() => setForm((prev) => ({ ...prev, items: prev.items.filter((_, itemIndex) => itemIndex !== index) }))}
-                              className="rounded-full bg-rose-50 border border-rose-250 p-1 text-rose-600 hover:bg-rose-100 transition-colors shrink-0"
+                              className="rounded-full bg-rose-50 border border-rose-200 p-1.5 text-rose-600 hover:bg-rose-100 transition-colors shrink-0"
                               title="Remove item"
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5} stroke="currentColor" className="w-3.5 h-3.5">
