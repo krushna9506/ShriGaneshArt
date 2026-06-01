@@ -34,7 +34,7 @@ const generateInvoice = (orderId) => {
     invoice_number: invoiceNumber,
     order_id: order.id,
     customer_id: customer?.id,
-    invoice_date: new Date().toLocaleDateString('sv'),
+    invoice_date: order.orderDate,
     items,
     subtotal,
     total_amount: totalAmount,
