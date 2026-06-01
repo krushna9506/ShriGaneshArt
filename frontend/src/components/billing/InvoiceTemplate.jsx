@@ -21,7 +21,7 @@ function InvoiceTemplate({ invoice }) {
 
   const customerName = cleanValue(invoice.customer?.name || invoice.order?.customerName);
   const customerMobile = cleanValue(invoice.customer?.mobile || invoice.order?.mobile);
-  
+
   const customerAddress = cleanAddressPart(invoice.customer?.address || invoice.order?.address);
   const customerCity = cleanAddressPart(invoice.customer?.city || invoice.order?.city);
 
@@ -55,7 +55,7 @@ function InvoiceTemplate({ invoice }) {
         const isLastPage = pageIndex === totalPages - 1;
 
         return (
-          <div 
+          <div
             key={pageIndex}
             className="invoice-printable"
             style={{ fontFamily: "'Outfit', 'Noto Sans Devanagari', 'Inter', sans-serif" }}
@@ -89,7 +89,7 @@ function InvoiceTemplate({ invoice }) {
                     श्री गणेश आर्ट <span className="text-sm font-black text-rose-700 ml-1">/ SHRI GANESH ART</span>
                   </h1>
                   <p className="invoice-brand-address font-extrabold text-rose-900 leading-none">
-                    यादव नगर, संभाजीनगर बायपास रोड, धाराशिव - ४१३५०१ · Yadav Nagar, Bypass Road, Dharashiv
+                    यादव नगर, संभाजीनगर बायपास रोड, धाराशिव - ४१३५०१ · Yadav Nagar, Bypass Road, Dharashiv, 413501
                   </p>
                 </div>
 
@@ -198,9 +198,8 @@ function InvoiceTemplate({ invoice }) {
                       <span>भरलेले एकूण / Total Paid:</span>
                       <span className="font-extrabold text-rose-900">{isLastPage ? formatCurrency(invoice.advance_paid) : '—'}</span>
                     </div>
-                    <div className={`flex justify-between font-black pt-0.5 rounded-lg text-[1.1em] ${
-                      isLastPage && Number(invoice.balance_due || 0) > 0 ? 'text-rose-750' : 'text-emerald-700'
-                    }`}>
+                    <div className={`flex justify-between font-black pt-0.5 rounded-lg text-[1.1em] ${isLastPage && Number(invoice.balance_due || 0) > 0 ? 'text-rose-750' : 'text-emerald-700'
+                      }`}>
                       <span>बाकी / Balance Due:</span>
                       <span className="font-black">{isLastPage ? formatCurrency(invoice.balance_due) : '—'}</span>
                     </div>
@@ -242,7 +241,7 @@ function InvoiceTemplate({ invoice }) {
                   <div className="border-b border-rose-800"></div>
                   <p className="mt-1 font-bold uppercase tracking-wider text-rose-800 leading-none">ऑर्डर दे. सही<br />Customer Signature</p>
                 </div>
-                
+
                 {/* Page Number indicator */}
                 <div className="invoice-page-indicator text-center font-black text-rose-700 bg-rose-50 rounded-full border border-rose-200 print:bg-transparent">
                   पाने {pageIndex + 1} पैकी {totalPages} / Page {pageIndex + 1} of {totalPages}

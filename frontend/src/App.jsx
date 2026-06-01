@@ -925,6 +925,72 @@ function Models() {
                   </button>
                 </div>
               </div>
+
+              {/* Premium Inventory Summary Dashboard */}
+              <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 border border-slate-100 rounded-2xl p-3">
+                {/* Card 1: Total Model Types */}
+                <div className="flex items-center justify-between bg-white border border-slate-100 rounded-xl p-3 shadow-sm hover:shadow-md transition-all duration-200">
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-left">Total Models</span>
+                    <span className="text-xl font-extrabold text-slate-800 mt-0.5 truncate text-left">{models.length}</span>
+                    <span className="text-[10px] text-slate-400 font-medium text-left">Distinct Codes</span>
+                  </div>
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100/80">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5 text-slate-500">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Card 2: Total Stock */}
+                <div className="flex items-center justify-between bg-white border border-slate-100 rounded-xl p-3 shadow-sm hover:shadow-md transition-all duration-200">
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-left">Total Stock</span>
+                    <span className="text-xl font-extrabold text-amber-600 mt-0.5 truncate text-left">
+                      {models.reduce((sum, m) => sum + Number(m.totalStock || 0), 0).toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-[10px] text-amber-500/80 font-medium text-left">Total Manufactured</span>
+                  </div>
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5 text-amber-600">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Card 3: Sold/Dispatched Stock */}
+                <div className="flex items-center justify-between bg-white border border-slate-100 rounded-xl p-3 shadow-sm hover:shadow-md transition-all duration-200">
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-left">Sold / Dispatched</span>
+                    <span className="text-xl font-extrabold text-rose-600 mt-0.5 truncate text-left">
+                      {models.reduce((sum, m) => sum + Number(m.soldStock || 0), 0).toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-[10px] text-rose-500/80 font-medium text-left">Delivered to Clients</span>
+                  </div>
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-500/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5 text-rose-600">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Card 4: Remaining Available Stock */}
+                <div className="flex items-center justify-between bg-white border border-slate-100 rounded-xl p-3 shadow-sm hover:shadow-md transition-all duration-200">
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-left">Available Stock</span>
+                    <span className="text-xl font-extrabold text-emerald-600 mt-0.5 truncate text-left">
+                      {models.reduce((sum, m) => sum + Number(m.remainingStock || 0), 0).toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-[10px] text-emerald-500/80 font-medium text-left">Ready in Warehouse</span>
+                  </div>
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5 text-emerald-600">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
               <div className="overflow-y-auto max-h-[580px] overflow-x-auto pr-1 relative">
                 <table className="w-full text-left text-sm min-w-[650px] border-collapse">
                   <thead className="text-slate-500 bg-white sticky top-0 z-10 shadow-[0_1.5px_0_0_rgba(226,232,240,1)]">

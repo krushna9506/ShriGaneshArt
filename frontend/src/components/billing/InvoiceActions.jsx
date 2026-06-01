@@ -12,14 +12,14 @@ function InvoiceActions({ invoice, onRegenerate, onDelete }) {
   const handlePrint = () => {
     // Add class to body before printing so CSS can hide app shell
     document.body.classList.add('printing-invoice');
-    
+
     // Remove the class after print dialog closes (both on confirm or cancel)
     const cleanup = () => {
       document.body.classList.remove('printing-invoice');
       window.removeEventListener('afterprint', cleanup);
     };
     window.addEventListener('afterprint', cleanup);
-    
+
     window.print();
   };
 
