@@ -46,7 +46,7 @@ function InvoiceTemplate({ invoice }) {
 
   return (
     // Outer scroll wrapper — on mobile this lets user scroll the fixed-width invoice
-    <div className="invoice-scroll-wrapper">
+    <div id="invoice-template" className="invoice-scroll-wrapper">
       {Array.from({ length: totalPages }).map((_, pageIndex) => {
         const pageItems = items.slice(pageIndex * ITEMS_PER_PAGE, (pageIndex + 1) * ITEMS_PER_PAGE);
         const pageModelsCount = pageItems.length;
@@ -57,7 +57,6 @@ function InvoiceTemplate({ invoice }) {
         return (
           <div 
             key={pageIndex}
-            id="invoice-template" 
             className="invoice-printable"
             style={{ fontFamily: "'Outfit', 'Noto Sans Devanagari', 'Inter', sans-serif" }}
           >

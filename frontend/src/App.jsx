@@ -38,6 +38,7 @@ function Layout({ children }) {
   const [activePath, setActivePath] = useState(window.location.pathname);
   const [isOnline, setIsOnline] = useState(true);
   const [pingMs, setPingMs] = useState(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   useEffect(() => {
     setActivePath(window.location.pathname);
@@ -56,7 +57,7 @@ function Layout({ children }) {
       }
     };
     pingServer();
-    const interval = setInterval(pingServer, 10000);
+    const interval = setInterval(pingServer, 30000); // Decreased ping frequency to every 30s to reduce battery & network load
     return () => clearInterval(interval);
   }, []);
 
@@ -155,7 +156,50 @@ function Layout({ children }) {
               {isOnline ? `${pingMs ?? 0}ms` : 'Offline'}
             </span>
           </div>
+
+          {/* Mobile Profile Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className="w-8 h-8 rounded-full border border-amber-500/20 bg-gradient-to-br from-amber-50 to-orange-100 flex items-center justify-center shadow-sm text-amber-700 hover:text-amber-800 transition-all font-black text-xs relative active:scale-95 duration-100"
+          >
+            AD
+          </button>
         </div>
+
+        {/* Mobile Profile Popover Dropdown */}
+        {isProfileOpen && (
+          <>
+            <div className="fixed inset-0 z-40 bg-transparent" onClick={() => setIsProfileOpen(false)}></div>
+            <div className="absolute right-4 top-14 z-50 w-64 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl flex flex-col gap-2.5 animate-in fade-in slide-in-from-top-2 duration-150 text-left">
+              <div className="flex items-center gap-3 border-b border-slate-100 pb-2.5">
+                <div className="w-8 h-8 rounded-full border border-amber-500/20 bg-gradient-to-br from-amber-50 to-orange-100 flex items-center justify-center text-xs font-black text-amber-700">
+                  AD
+                </div>
+                <div>
+                  <h4 className="text-[10px] uppercase tracking-[0.2em] text-amber-600 font-extrabold">Owner Info</h4>
+                  <p className="text-[9px] text-slate-400 mt-0.5 leading-none font-bold">Shri Ganesh Art</p>
+                </div>
+              </div>
+              <div className="text-[11px] text-slate-600 space-y-1">
+                <p className="font-extrabold text-slate-900 text-sm">Arun Donge</p>
+                <p>Contact: <span className="font-semibold text-slate-800">9423734355</span></p>
+                <p>Location: <span className="font-semibold text-slate-800">Dharashiv, 413501</span></p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem('ganesha_user');
+                  sessionStorage.removeItem('ganesha_pin_unlocked');
+                  window.location.reload();
+                }}
+                className="mt-1 w-full rounded-xl border border-rose-200 bg-rose-50/50 py-2 text-[10px] font-black text-rose-700 uppercase tracking-widest hover:bg-rose-100/50 transition-colors active:scale-95 duration-100 text-center"
+              >
+                Sign Out
+              </button>
+            </div>
+          </>
+        )}
       </header>
 
       {/* Main app panel */}
@@ -255,7 +299,7 @@ function WelcomePortal() {
     };
     
     loadPortalData();
-    const interval = setInterval(loadPortalData, 15000);
+    const interval = setInterval(loadPortalData, 60000); // Decreased reload frequency to every 60s to reduce network load
     
     return () => {
       mounted = false;
@@ -1490,7 +1534,8 @@ function Orders() {
                               return (
                                 <li
                                   key={model.id}
-                                  onMouseDown={() => {
+                                  onMouseDown={(e) => {
+                                    e.preventDefault(); // Prevents input blur from executing prior to mouseup/touch
                                     if (isAlreadyChosen) {
                                       alert('This model is already selected in another row.');
                                       return;
@@ -2147,7 +2192,8 @@ function OrdersHistory() {
                                   return (
                                     <li
                                       key={model.id}
-                                      onMouseDown={() => {
+                                      onMouseDown={(e) => {
+                                        e.preventDefault(); // Prevents input blur from executing prior to mouseup/touch
                                         if (isAlreadyChosen) {
                                           alert('This model is already selected in another row.');
                                           return;

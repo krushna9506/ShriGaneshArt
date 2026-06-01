@@ -1,6 +1,6 @@
 {
-  "appId": "com.ganesharts.billing",
-  "appName": "Ganesh Arts",
+  "appId": "com.shriganeshart.app",
+  "appName": "Shri Ganesh Art",
   "webDir": "dist",
   "server": {
     "androidScheme": "https",

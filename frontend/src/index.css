@@ -99,8 +99,7 @@ body.printing-invoice aside,
 body.printing-invoice header,
 body.printing-invoice nav,
 body.printing-invoice .no-print,
-body.printing-invoice .desktop-header,
-body.printing-invoice section > :not(.invoice-scroll-wrapper) {
+body.printing-invoice .desktop-header {
   display: none !important;
 }
 
@@ -109,8 +108,7 @@ body.printing-invoice section > :not(.invoice-scroll-wrapper) {
   header,
   nav,
   .no-print,
-  .desktop-header,
-  section > :not(.invoice-scroll-wrapper) {
+  .desktop-header {
     display: none !important;
   }
 }
