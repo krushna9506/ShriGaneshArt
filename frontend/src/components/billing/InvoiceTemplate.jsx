@@ -162,50 +162,52 @@ function InvoiceTemplate({ invoice }) {
                 </div>
               </div>
 
-              {/* 7. Cumulative Totals and Slogans (ONLY on the last page) */}
-              {isLastPage && (
-                <div className="invoice-cumulative-block grid grid-cols-2 items-end">
-                  {/* Payments / Installments History */}
-                  <div className="text-left space-y-1.5">
-                    <div className="invoice-installments-card border border-rose-800 bg-rose-50/20 font-bold text-rose-800 print:bg-transparent print:border-rose-800">
-                      <h4 className="font-extrabold text-rose-955 border-b border-rose-200 pb-0.5 mb-1 uppercase tracking-wider">भरणा तपशील / Payment Installments:</h4>
-                      {invoice.payments && invoice.payments.length > 0 ? (
-                        <div className="space-y-0.5">
-                          {invoice.payments.map((p, idx) => (
-                            <div key={idx} className="flex justify-between items-center text-slate-800 border-b border-rose-100 last:border-none pb-0.5 last:pb-0 text-[0.95em]">
-                              <span>{p.paymentDate || p.payment_date || '—'} · {p.mode}</span>
-                              <span className="font-extrabold text-rose-900">₹{Number(p.amount).toFixed(2)}</span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-slate-505 italic font-semibold text-[0.9em]">No payments recorded yet.</div>
-                      )}
+              {/* 7. Cumulative Totals and Slogans (On EVERY page to preserve height and structure) */}
+              <div className="invoice-cumulative-block grid grid-cols-2 items-end">
+                {/* Payments / Installments History */}
+                <div className="text-left space-y-1.5">
+                  <div className="invoice-installments-card border border-rose-800 bg-rose-50/20 font-bold text-rose-800 print:bg-transparent print:border-rose-800">
+                    <h4 className="font-extrabold text-rose-955 border-b border-rose-200 pb-0.5 mb-1 uppercase tracking-wider">भरणा तपशील / Payment Installments:</h4>
+                    {isLastPage && invoice.payments && invoice.payments.length > 0 ? (
+                      <div className="space-y-0.5">
+                        {invoice.payments.map((p, idx) => (
+                          <div key={idx} className="flex justify-between items-center text-slate-800 border-b border-rose-100 last:border-none pb-0.5 last:pb-0 text-[0.95em]">
+                            <span>{p.paymentDate || p.payment_date || '—'} · {p.mode}</span>
+                            <span className="font-extrabold text-rose-900">₹{Number(p.amount).toFixed(2)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-slate-400 italic font-semibold text-[0.85em] mt-1 border-b border-dashed border-rose-200 pb-0.5">
+                        {isLastPage ? 'No payments recorded yet.' : 'Carried Forward / पुढे चालू...'}
+                      </div>
+                    )}
+                  </div>
+                  <div className="invoice-blessing-text text-left font-bold text-rose-700 italic pl-0.5">
+                    भगवान गणेश आपल्या घरी सुख, समृद्धी आणि आनंद घेऊन येवोत! 🙏
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-2 text-rose-800 font-bold">
+                  <div className="invoice-totals-card w-full border border-rose-800 bg-rose-50/20 print:bg-transparent">
+                    <div className="flex justify-between text-rose-900 font-bold border-b border-rose-200 pb-0.5">
+                      <span>एकूण / Total Amount:</span>
+                      <span className="font-black text-rose-950">{isLastPage ? formatCurrency(invoice.total_amount) : '—'}</span>
                     </div>
-                    <div className="invoice-blessing-text text-left font-bold text-rose-700 italic pl-0.5">
-                      भगवान गणेश आपल्या घरी सुख, समृद्धी आणि आनंद घेऊन येवोत! 🙏
+                    <div className="flex justify-between text-rose-800 font-bold border-b border-rose-200 pb-0.5">
+                      <span>भरलेले एकूण / Total Paid:</span>
+                      <span className="font-extrabold text-rose-900">{isLastPage ? formatCurrency(invoice.advance_paid) : '—'}</span>
+                    </div>
+                    <div className={`flex justify-between font-black pt-0.5 rounded-lg text-[1.1em] ${
+                      isLastPage && Number(invoice.balance_due || 0) > 0 ? 'text-rose-750' : 'text-emerald-700'
+                    }`}>
+                      <span>बाकी / Balance Due:</span>
+                      <span className="font-black">{isLastPage ? formatCurrency(invoice.balance_due) : '—'}</span>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-2 text-rose-800 font-bold">
-                    <div className="invoice-totals-card w-full border border-rose-800 bg-rose-50/20 print:bg-transparent">
-                      <div className="flex justify-between text-rose-900 font-bold border-b border-rose-200 pb-0.5">
-                        <span>एकूण / Total Amount:</span>
-                        <span className="font-black text-rose-950">{formatCurrency(invoice.total_amount)}</span>
-                      </div>
-                      <div className="flex justify-between text-rose-800 font-bold border-b border-rose-200 pb-0.5">
-                        <span>भरलेले एकूण / Total Paid:</span>
-                        <span className="font-extrabold text-rose-900">{formatCurrency(invoice.advance_paid)}</span>
-                      </div>
-                      <div className={`flex justify-between font-black pt-0.5 rounded-lg text-[1.1em] ${
-                        Number(invoice.balance_due || 0) > 0 ? 'text-rose-750' : 'text-emerald-700'
-                      }`}>
-                        <span>बाकी / Balance Due:</span>
-                        <span className="font-black">{formatCurrency(invoice.balance_due)}</span>
-                      </div>
-                    </div>
-
-                    {Number(invoice.balance_due || 0) === 0 ? (
+                  {isLastPage ? (
+                    Number(invoice.balance_due || 0) === 0 ? (
                       <span className="invoice-status-badge inline-flex items-center rounded-lg bg-emerald-100 border border-emerald-350 text-emerald-800 print:bg-transparent">
                         ✔ FULLY PAID / पूर्ण भरणा
                       </span>
@@ -213,23 +215,25 @@ function InvoiceTemplate({ invoice }) {
                       <span className="invoice-status-badge inline-flex items-center rounded-lg bg-amber-100 border border-amber-350 text-amber-800 print:bg-transparent">
                         ⏳ BALANCE DUE / बाकी देणे
                       </span>
-                    )}
-                  </div>
+                    )
+                  ) : (
+                    <span className="invoice-status-badge inline-flex items-center rounded-lg bg-slate-100 border border-slate-350 text-slate-500 print:bg-transparent">
+                      ⏳ PAGE {pageIndex + 1} / पाने {pageIndex + 1}
+                    </span>
+                  )}
                 </div>
-              )}
+              </div>
 
-              {/* 8. Terms Notes (ONLY on the last page) */}
-              {isLastPage && (
-                <div className="invoice-terms-block border-t border-rose-850 pt-2 text-rose-800 leading-snug font-semibold">
-                  <div className="space-y-0.5">
-                    <p className="font-extrabold text-rose-955 uppercase tracking-wider mb-0.5 text-[1.1em]">नम्र सुचना / Kindly Note:</p>
-                    <p>१) एकदा विकलेला माल परत घेतला जाणार नाही. / 1. Goods once sold will not be taken back.</p>
-                    <p>२) मुर्ती पाहून घेणे. मुर्तीची मोडतोड झाल्यास श्री गणेश आर्ट त्यास जबाबदार नाही. / 2. Please check the idol thoroughly. Shri Ganesh Art is not responsible for any damage or breakage afterwards.</p>
-                    <p>३) मुर्ती नेण्याची जबाबदारी शक्यतो स्वतः वाहनाबरोबर असावे. / 3. The responsibility of carrying the idol should preferably be with your own vehicle.</p>
-                    <p>४) चूक भूल देणे घ्यावी. / 4. Errors and omissions excepted.</p>
-                  </div>
+              {/* 8. Terms Notes (On EVERY page to preserve A4 space budgeting) */}
+              <div className="invoice-terms-block border-t border-rose-850 pt-2 text-rose-800 leading-snug font-semibold">
+                <div className="space-y-0.5">
+                  <p className="font-extrabold text-rose-955 uppercase tracking-wider mb-0.5 text-[1.1em]">नम्र सुचना / Kindly Note:</p>
+                  <p>१) एकदा विकलेला माल परत घेतला जाणार नाही. / 1. Goods once sold will not be taken back.</p>
+                  <p>२) मुर्ती पाहून घेणे. मुर्तीची मोडतोड झाल्यास श्री गणेश आर्ट त्यास जबाबदार नाही. / 2. Please check the idol thoroughly. Shri Ganesh Art is not responsible for any damage or breakage afterwards.</p>
+                  <p>३) मुर्ती नेण्याची जबाबदारी शक्यतो स्वतः वाहनाबरोबर असावे. / 3. The responsibility of carrying the idol should preferably be with your own vehicle.</p>
+                  <p>४) चूक भूल देणे घ्यावी. / 4. Errors and omissions excepted.</p>
                 </div>
-              )}
+              </div>
 
               {/* 9. Signatures Block and Page Indicator (On EVERY page) */}
               <div className="invoice-signatures-block border-t border-rose-200 pt-2 flex justify-between items-end text-rose-800 leading-relaxed font-bold">
