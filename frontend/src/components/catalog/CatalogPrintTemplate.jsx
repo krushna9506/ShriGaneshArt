@@ -67,7 +67,7 @@ function CatalogPrintTemplate({ models = [] }) {
               <div className="mt-4 grid grid-cols-2 gap-4">
                 {/* Left Table Column */}
                 <div>
-                  <table className="w-full text-left text-xs border-collapse border border-rose-800 table-layout-fixed">
+                  <table className="w-full text-left text-xs border-collapse border border-rose-800 table-fixed" style={{ tableLayout: 'fixed' }}>
                     <thead className="bg-rose-100 text-rose-955 font-bold border-b border-rose-800">
                       <tr className="h-[26px]">
                         <th className="w-[12%] px-1 border-r border-rose-800 text-center leading-none">अ.क्र.</th>
@@ -102,7 +102,7 @@ function CatalogPrintTemplate({ models = [] }) {
 
                 {/* Right Table Column */}
                 <div>
-                  <table className="w-full text-left text-xs border-collapse border border-rose-800 table-layout-fixed">
+                  <table className="w-full text-left text-xs border-collapse border border-rose-800 table-fixed" style={{ tableLayout: 'fixed' }}>
                     <thead className="bg-rose-100 text-rose-955 font-bold border-b border-rose-800">
                       <tr className="h-[26px]">
                         <th className="w-[12%] px-1 border-r border-rose-800 text-center leading-none">अ.क्र.</th>

@@ -12,7 +12,7 @@ function InvoiceTable({ items = [], startIndex = 0 }) {
 
   return (
     <div className="overflow-x-auto rounded-xl border border-rose-800 bg-white">
-      <table className="min-w-full text-left border-collapse table-layout-fixed">
+      <table className="min-w-full text-left border-collapse table-fixed" style={{ tableLayout: 'fixed' }}>
         <thead className="bg-rose-100 text-rose-955 font-bold border-b border-rose-800">
           <tr className="h-[24px] text-[10px]">
             <th className="w-[7%] px-1 py-1 border-r border-rose-800 text-center leading-tight">अ.क्र.<br />Sr. No.</th>
