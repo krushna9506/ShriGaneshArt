@@ -2368,7 +2368,7 @@ function OrdersHistory() {
                         <span>·</span>
                         <span>Date: {order.orderDate}</span>
                         <span>·</span>
-                        <span>Delivery: {order.deliveryDate || 'N/A'}</span>
+                        <span>Booking: {order.deliveryDate || 'N/A'}</span>
                       </div>
                     </div>
                     
@@ -2455,7 +2455,7 @@ function OrdersHistory() {
                     <input value={editForm.city} onChange={(e) => setEditForm({ ...editForm, city: e.target.value })} placeholder="City" className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100" />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Delivery Date</label>
+                    <label className="block text-xs font-semibold text-slate-600 mb-1">Booking Date</label>
                     <input type="date" value={editForm.deliveryDate} onChange={(e) => setEditForm({ ...editForm, deliveryDate: e.target.value })} className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100" />
                   </div>
                   <div>
@@ -3058,7 +3058,7 @@ function Delivery() {
                 </div>
                 <span className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs text-slate-700">{order.status}</span>
               </div>
-              <p className="mt-2 text-slate-600">Delivery: {order.deliveryDate} · Balance ₹{Number(order.balance || 0).toFixed(2)}</p>
+              <p className="mt-2 text-slate-600">Booking: {order.deliveryDate} · Balance ₹{Number(order.balance || 0).toFixed(2)}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <button onClick={() => setStatus(order.id, 'Packed')} className="rounded-2xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 hover:border-amber-400 hover:bg-amber-50">Mark Packed</button>
                 <button onClick={() => setStatus(order.id, 'Delivered')} className="rounded-2xl border border-emerald-200 bg-emerald-100 px-3 py-2 text-xs text-emerald-800">Mark Delivered</button>
