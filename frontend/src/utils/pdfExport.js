@@ -53,14 +53,15 @@ const exportInvoicePDF = async (elementId, invoiceNumber) => {
   // to be completely loaded, and give the browser a small paint timeout to prevent
   // font rendering discrepancies and text misalignments in the html2canvas generation.
   await document.fonts.ready;
-  await new Promise((resolve) => setTimeout(resolve, 150));
+  await new Promise((resolve) => setTimeout(resolve, 200));
 
   const canvas = await html2canvas(element, {
-    scale: 2,                      // 2× = 1588×(2246*N) → crisp on high-res
+    scale: 4,                      // 4× scaling = 3176×4492 px per A4 page (hyper-sharp 384 DPI print quality)
     backgroundColor: '#ffffff',
     useCORS: true,
     allowTaint: true,
     logging: false,
+    imageTimeout: 0,
     width: A4_PX_WIDTH,
     height: actualHeight,
     windowWidth: A4_PX_WIDTH,
@@ -106,7 +107,8 @@ const exportInvoicePDF = async (elementId, invoiceNumber) => {
 
     const sliceData = sliceCanvas.toDataURL('image/png');
     const sliceHeight = (sliceCanvas.height * PAGE_W) / canvas.width;
-    pdf.addImage(sliceData, 'PNG', 0, 0, PAGE_W, sliceHeight);
+    // Use FAST compression to keep PDF size optimized while preserving high-definition resolution
+    pdf.addImage(sliceData, 'PNG', 0, 0, PAGE_W, sliceHeight, undefined, 'FAST');
 
     yOffset += a4CanvasHeight;
   }
@@ -162,14 +164,15 @@ const exportCatalogPDF = async (elementId, title) => {
 
   // Let browser fonts load and paint fully before canvas capture
   await document.fonts.ready;
-  await new Promise((resolve) => setTimeout(resolve, 150));
+  await new Promise((resolve) => setTimeout(resolve, 200));
 
   const canvas = await html2canvas(element, {
-    scale: 2,
+    scale: 4,                      // 4× scaling for crisp 384 DPI high-density text and graphics zoomability
     backgroundColor: '#ffffff',
     useCORS: true,
     allowTaint: true,
     logging: false,
+    imageTimeout: 0,
     width: A4_PX_WIDTH,
     height: actualHeight,
     windowWidth: A4_PX_WIDTH,
@@ -214,7 +217,7 @@ const exportCatalogPDF = async (elementId, title) => {
 
     const sliceData = sliceCanvas.toDataURL('image/png');
     const sliceHeight = (sliceCanvas.height * PAGE_W) / canvas.width;
-    pdf.addImage(sliceData, 'PNG', 0, 0, PAGE_W, sliceHeight);
+    pdf.addImage(sliceData, 'PNG', 0, 0, PAGE_W, sliceHeight, undefined, 'FAST');
 
     yOffset += a4CanvasHeight;
   }
