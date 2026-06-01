@@ -1392,7 +1392,9 @@ function Orders() {
                 <option value="Bank">Bank</option>
                 <option value="Cheque">Cheque</option>
               </select>
-                <div>
+            </div>
+          </div>
+          <div>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3 mb-4 gap-2">
               <h3 className="text-lg font-black text-slate-900">Order Items</h3>
               <div className="flex rounded-2xl bg-slate-100 p-1 border border-slate-150 shrink-0 self-start">
