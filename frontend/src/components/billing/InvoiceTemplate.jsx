@@ -54,26 +54,10 @@ function InvoiceTemplate({ invoice }) {
         const pageAmountSum = pageItems.reduce((sum, item) => sum + Number(item.amount || 0), 0);
         const isLastPage = pageIndex === totalPages - 1;
 
-        // Determine dynamic density scaling class based on item count and page layout
-        let densityClass = 'density-cozy';
-        if (isLastPage) {
-          if (pageModelsCount >= 20) {
-            densityClass = 'density-compact';
-          } else if (pageModelsCount < 10) {
-            densityClass = 'density-spacious';
-          }
-        } else {
-          if (pageModelsCount >= 25) {
-            densityClass = 'density-cozy';
-          } else {
-            densityClass = 'density-spacious';
-          }
-        }
-
         return (
           <div 
             key={pageIndex}
-            className={`invoice-printable ${densityClass}`}
+            className="invoice-printable"
             style={{ fontFamily: "'Outfit', 'Noto Sans Devanagari', 'Inter', sans-serif" }}
           >
             <div>
@@ -305,130 +289,61 @@ const styleTag = (
       }
     }
 
-    /* ── Density Modes for Screen (A4 representation margins) ── */
-    @media screen {
-      .invoice-printable.density-compact {
-        padding: 12px !important;
-      }
-      .invoice-printable.density-cozy {
-        padding: 22px !important;
-      }
-      .invoice-printable.density-spacious {
-        padding: 36px !important;
-      }
+    /* ── Fixed A4 page padding ── */
+    .invoice-printable {
+      padding: 16px 20px !important;
     }
 
-    /* ── Density Modes for Print / PDF ── */
     @media print {
-      body.printing-invoice .invoice-printable.density-compact,
-      .invoice-printable.density-compact {
-        padding: 4mm !important;
-      }
-      body.printing-invoice .invoice-printable.density-cozy,
-      .invoice-printable.density-cozy {
-        padding: 8mm !important;
-      }
-      body.printing-invoice .invoice-printable.density-spacious,
-      .invoice-printable.density-spacious {
-        padding: 14mm !important;
+      body.printing-invoice .invoice-printable,
+      .invoice-printable {
+        padding: 5mm !important;
       }
     }
 
-    /* ── Density Rule: COMPACT ── */
-    .density-compact .invoice-top-row { font-size: 8px !important; }
-    .density-compact .invoice-brand-header { margin-top: 4px !important; padding-bottom: 4px !important; }
-    .density-compact .invoice-brand-logo-container { height: 32px !important; width: 32px !important; border-radius: 8px !important; }
-    .density-compact .invoice-brand-title { font-size: 15px !important; }
-    .density-compact .invoice-brand-title span { font-size: 10px !important; }
-    .density-compact .invoice-brand-address { font-size: 8px !important; margin-top: 2px !important; }
-    .density-compact .invoice-brand-contact { font-size: 8.5px !important; }
-    .density-compact .invoice-brand-contact p:first-child { font-size: 7.5px !important; }
-    .density-compact .invoice-slogan-banner { font-size: 8.5px !important; padding: 2px 4px !important; margin-top: 4px !important; border-radius: 6px !important; }
-    .density-compact .invoice-customer-details { margin-top: 6px !important; padding-bottom: 4px !important; gap: 6px !important; }
-    .density-compact .invoice-customer-info { font-size: 10px !important; }
-    .density-compact .invoice-customer-info > div { border-bottom-width: 1px !important; padding-bottom: 2px !important; }
-    .density-compact .invoice-customer-info span:first-child { min-width: 60px !important; font-size: 9.5px !important; }
-    .density-compact .invoice-metadata-card { font-size: 9.5px !important; padding: 4px 6px !important; border-radius: 8px !important; }
-    .density-compact .invoice-metadata-card > div { margin-top: 2px !important; }
-    .density-compact .invoice-table-container { margin-top: 6px !important; }
-    .density-compact table { font-size: 9px !important; }
-    .density-compact th { padding: 3px 4px !important; font-size: 9.5px !important; }
-    .density-compact td { padding: 2px 4px !important; }
-    .density-compact .invoice-page-totals { margin-top: 6px !important; padding: 4px 8px !important; font-size: 9px !important; border-radius: 8px !important; gap: 4px !important; }
-    .density-compact .invoice-cumulative-block { margin-top: 6px !important; gap: 6px !important; }
-    .density-compact .invoice-installments-card { padding: 4px 6px !important; font-size: 8.5px !important; border-radius: 8px !important; }
-    .density-compact .invoice-installments-card h4 { font-size: 8px !important; margin-bottom: 2px !important; }
-    .density-compact .invoice-blessing-text { font-size: 8.5px !important; }
-    .density-compact .invoice-totals-card { padding: 4px 6px !important; font-size: 9px !important; border-radius: 8px !important; max-width: 200px !important; }
-    .density-compact .invoice-status-badge { font-size: 8px !important; padding: 2px 6px !important; border-radius: 6px !important; }
-    .density-compact .invoice-terms-block { margin-top: 6px !important; font-size: 7px !important; line-height: 1.25 !important; }
-    .density-compact .invoice-terms-block p { margin-top: 1px !important; }
-    .density-compact .invoice-signatures-block { margin-top: 6px !important; font-size: 8px !important; }
-    .density-compact .invoice-signatures-block p { font-size: 7.5px !important; }
-    .density-compact .invoice-sig-gap { height: 10px !important; }
-    .density-compact .invoice-page-indicator { font-size: 8.5px !important; padding: 2px 8px !important; }
-
-    /* ── Density Rule: COZY ── */
-    .density-cozy .invoice-top-row { font-size: 9.5px !important; }
-    .density-cozy .invoice-brand-header { margin-top: 8px !important; padding-bottom: 8px !important; }
-    .density-cozy .invoice-brand-logo-container { height: 42px !important; width: 42px !important; border-radius: 10px !important; }
-    .density-cozy .invoice-brand-title { font-size: 19px !important; }
-    .density-cozy .invoice-brand-title span { font-size: 12px !important; }
-    .density-cozy .invoice-brand-address { font-size: 9.5px !important; margin-top: 3px !important; }
-    .density-cozy .invoice-brand-contact { font-size: 9.5px !important; }
-    .density-cozy .invoice-brand-contact p:first-child { font-size: 8px !important; }
-    .density-cozy .invoice-slogan-banner { font-size: 9.5px !important; padding: 4px 8px !important; margin-top: 6px !important; border-radius: 8px !important; }
-    .density-cozy .invoice-customer-details { margin-top: 10px !important; padding-bottom: 6px !important; gap: 12px !important; }
-    .density-cozy .invoice-customer-info { font-size: 11.5px !important; }
-    .density-cozy .invoice-customer-info span:first-child { min-width: 80px !important; }
-    .density-cozy .invoice-metadata-card { font-size: 10px !important; padding: 6px 10px !important; border-radius: 10px !important; }
-    .density-cozy .invoice-table-container { margin-top: 10px !important; }
-    .density-cozy table { font-size: 10.5px !important; }
-    .density-cozy th { padding: 5px 6px !important; font-size: 11px !important; }
-    .density-cozy td { padding: 4px 6px !important; }
-    .density-cozy .invoice-page-totals { margin-top: 10px !important; padding: 6px 12px !important; font-size: 10px !important; border-radius: 10px !important; }
-    .density-cozy .invoice-cumulative-block { margin-top: 10px !important; gap: 12px !important; }
-    .density-cozy .invoice-installments-card { padding: 6px 10px !important; font-size: 10px !important; border-radius: 10px !important; }
-    .density-cozy .invoice-installments-card h4 { font-size: 9px !important; }
-    .density-cozy .invoice-blessing-text { font-size: 9.5px !important; }
-    .density-cozy .invoice-totals-card { padding: 8px 12px !important; font-size: 10px !important; border-radius: 10px !important; max-width: 250px !important; }
-    .density-cozy .invoice-status-badge { font-size: 9px !important; padding: 3px 8px !important; border-radius: 8px !important; }
-    .density-cozy .invoice-terms-block { margin-top: 10px !important; font-size: 8px !important; }
-    .density-cozy .invoice-signatures-block { margin-top: 10px !important; font-size: 9.5px !important; }
-    .density-cozy .invoice-signatures-block p { font-size: 8.5px !important; }
-    .density-cozy .invoice-sig-gap { height: 18px !important; }
-    .density-cozy .invoice-page-indicator { font-size: 10px !important; padding: 3px 12px !important; }
-
-    /* ── Density Rule: SPACIOUS ── */
-    .density-spacious .invoice-top-row { font-size: 11px !important; }
-    .density-spacious .invoice-brand-header { margin-top: 14px !important; padding-bottom: 12px !important; }
-    .density-spacious .invoice-brand-logo-container { height: 50px !important; width: 50px !important; border-radius: 12px !important; }
-    .density-spacious .invoice-brand-title { font-size: 23px !important; }
-    .density-spacious .invoice-brand-title span { font-size: 14px !important; }
-    .density-spacious .invoice-brand-address { font-size: 11.5px !important; margin-top: 4px !important; }
-    .density-spacious .invoice-brand-contact { font-size: 11.5px !important; }
-    .density-spacious .invoice-brand-contact p:first-child { font-size: 9px !important; }
-    .density-spacious .invoice-slogan-banner { font-size: 11.5px !important; padding: 6px 12px !important; margin-top: 10px !important; border-radius: 10px !important; }
-    .density-spacious .invoice-customer-details { margin-top: 16px !important; padding-bottom: 10px !important; gap: 16px !important; }
-    .density-spacious .invoice-customer-info { font-size: 13.5px !important; }
-    .density-spacious .invoice-customer-info span:first-child { min-width: 90px !important; }
-    .density-spacious .invoice-metadata-card { font-size: 11.5px !important; padding: 10px 14px !important; border-radius: 12px !important; }
-    .density-spacious .invoice-table-container { margin-top: 16px !important; }
-    .density-spacious table { font-size: 12.5px !important; }
-    .density-spacious th { padding: 8px 10px !important; font-size: 13px !important; }
-    .density-spacious td { padding: 6px 10px !important; }
-    .density-spacious .invoice-page-totals { margin-top: 16px !important; padding: 10px 16px !important; font-size: 11.5px !important; border-radius: 12px !important; }
-    .density-spacious .invoice-cumulative-block { margin-top: 16px !important; gap: 16px !important; }
-    .density-spacious .invoice-installments-card { padding: 10px 14px !important; font-size: 11.5px !important; border-radius: 12px !important; }
-    .density-spacious .invoice-installments-card h4 { font-size: 10.5px !important; }
-    .density-spacious .invoice-blessing-text { font-size: 11px !important; }
-    .density-spacious .invoice-totals-card { padding: 12px 16px !important; font-size: 11.5px !important; border-radius: 12px !important; max-width: 300px !important; }
-    .density-spacious .invoice-status-badge { font-size: 10px !important; padding: 4px 10px !important; border-radius: 10px !important; }
-    .density-spacious .invoice-terms-block { margin-top: 16px !important; font-size: 9.5px !important; }
-    .density-spacious .invoice-signatures-block { margin-top: 16px !important; font-size: 11px !important; }
-    .density-spacious .invoice-signatures-block p { font-size: 10px !important; }
-    .density-spacious .invoice-sig-gap { height: 26px !important; }
-    .density-spacious .invoice-page-indicator { font-size: 11.5px !important; padding: 4px 16px !important; }
+    /* ── Fixed layout typography & spacing ── */
+    .invoice-top-row { font-size: 8.5px !important; }
+    
+    .invoice-brand-header { margin-top: 4px !important; padding-bottom: 4px !important; }
+    .invoice-brand-logo-container { height: 36px !important; width: 36px !important; border-radius: 8px !important; }
+    .invoice-brand-title { font-size: 16px !important; }
+    .invoice-brand-title span { font-size: 10.5px !important; }
+    .invoice-brand-address { font-size: 8px !important; margin-top: 2px !important; }
+    .invoice-brand-contact { font-size: 8.5px !important; }
+    .invoice-brand-contact p:first-child { font-size: 7.5px !important; }
+    
+    .invoice-slogan-banner { font-size: 8.5px !important; padding: 2px 4px !important; margin-top: 4px !important; border-radius: 6px !important; }
+    
+    .invoice-customer-details { margin-top: 6px !important; padding-bottom: 4px !important; gap: 6px !important; }
+    .invoice-customer-info { font-size: 10px !important; }
+    .invoice-customer-info > div { border-bottom-width: 1px !important; padding-bottom: 2px !important; }
+    .invoice-customer-info span:first-child { min-width: 60px !important; font-size: 9.5px !important; }
+    
+    .invoice-metadata-card { font-size: 9.5px !important; padding: 4px 6px !important; border-radius: 8px !important; }
+    .invoice-metadata-card > div { margin-top: 2px !important; }
+    
+    .invoice-table-container { margin-top: 6px !important; }
+    
+    .invoice-page-totals { margin-top: 6px !important; padding: 4px 8px !important; font-size: 9px !important; border-radius: 8px !important; gap: 4px !important; }
+    
+    .invoice-cumulative-block { margin-top: 6px !important; gap: 6px !important; }
+    
+    .invoice-installments-card { padding: 4px 6px !important; font-size: 8.5px !important; border-radius: 8px !important; }
+    .invoice-installments-card h4 { font-size: 8px !important; margin-bottom: 2px !important; }
+    
+    .invoice-blessing-text { font-size: 8.5px !important; }
+    
+    .invoice-totals-card { padding: 4px 6px !important; font-size: 9px !important; border-radius: 8px !important; max-width: 210px !important; }
+    
+    .invoice-status-badge { font-size: 8px !important; padding: 2px 6px !important; border-radius: 6px !important; }
+    
+    .invoice-terms-block { margin-top: 6px !important; font-size: 7.2px !important; line-height: 1.25 !important; }
+    .invoice-terms-block p { margin-top: 1px !important; }
+    
+    .invoice-signatures-block { margin-top: 6px !important; font-size: 8px !important; }
+    .invoice-signatures-block p { font-size: 7.5px !important; }
+    .invoice-sig-gap { height: 12px !important; }
+    .invoice-page-indicator { font-size: 8.5px !important; padding: 2px 8px !important; }
   `}</style>
 );
 

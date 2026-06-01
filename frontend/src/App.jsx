@@ -7,6 +7,8 @@ import InvoicePage from './pages/billing/InvoicePage.jsx';
 import Login from './components/auth/Login.jsx';
 import ApiLoader from './components/ui/ApiLoader.jsx';
 import logo from './assets/logo.png';
+import CatalogPrintTemplate from './components/catalog/CatalogPrintTemplate.jsx';
+import { exportCatalogPDF } from './utils/pdfExport.js';
 
 // Clear any stale local dev URL that was saved while testing on local network.
 // If the stored URL points to localhost or a LAN IP, remove it so the app uses
@@ -716,6 +718,20 @@ function Models() {
   const [stockSearch, setStockSearch] = useState('');
   const [form, setForm] = useState({ code: '', size: '', price: '', totalStock: '', soldStock: '', remainingStock: '', active: true });
   const [editingId, setEditingId] = useState(null);
+  const [exportingCatalog, setExportingCatalog] = useState(false);
+
+  const handleExportCatalog = async () => {
+    try {
+      setExportingCatalog(true);
+      const dateString = new Date().toLocaleDateString('en-IN').replace(/\//g, '-');
+      await exportCatalogPDF('catalog-print-template', dateString);
+    } catch (err) {
+      console.error('Export catalog failed', err);
+      alert('Unable to export catalog PDF');
+    } finally {
+      setExportingCatalog(false);
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -893,7 +909,21 @@ function Models() {
             <div className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-3 sm:p-5 w-full min-w-0">
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="text-lg font-semibold">Model Master</h3>
-                <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search model code or size..." className="w-full sm:w-64 rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100" />
+                <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                  <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search model code or size..." className="w-full sm:w-64 rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100" />
+                  
+                  <button
+                    type="button"
+                    onClick={handleExportCatalog}
+                    disabled={exportingCatalog}
+                    className="flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-500/20 active:scale-95 transition-all disabled:opacity-60 shrink-0"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-4 h-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    {exportingCatalog ? 'Generating…' : 'Export Catalog PDF'}
+                  </button>
+                </div>
               </div>
               <div className="overflow-y-auto max-h-[580px] overflow-x-auto pr-1 relative">
                 <table className="w-full text-left text-sm min-w-[650px] border-collapse">
@@ -1231,6 +1261,7 @@ function Models() {
           </div>
         )}
       </div>
+      <CatalogPrintTemplate models={models} />
     </div>
   );
 }
