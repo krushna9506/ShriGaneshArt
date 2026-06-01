@@ -53,6 +53,58 @@ const generateInvoice = (orderId) => {
   return invoice;
 };
 
+const regenerateInvoice = (orderId) => {
+  const order = findOrder(orderId);
+  if (!order) throw new Error('Order not found');
+
+  const existingIndex = invoices.findIndex(inv => String(inv.order_id) === String(orderId));
+  if (existingIndex === -1) {
+    // If it doesn't exist, just generate normally
+    return generateInvoice(orderId);
+  }
+
+  const existing = invoices[existingIndex];
+  const customer = findCustomer(order.customerId);
+  const items = (order.items || []).map((item) => ({
+    model_name: item.name || 'Model',
+    size: item.size || '',
+    quantity: item.quantity,
+    rate: item.price,
+    amount: item.subtotal
+  }));
+
+  const subtotal = items.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const totalAmount = subtotal;
+
+  const orderPayments = payments.filter(p => String(p.orderId) === String(order.id));
+  const totalPaid = orderPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+  // Update the existing invoice snapshot fields
+  existing.items = items;
+  existing.subtotal = subtotal;
+  existing.total_amount = totalAmount;
+  existing.advance_paid = totalPaid;
+  existing.balance_due = Math.max(0, totalAmount - totalPaid);
+  existing.updated_at = new Date().toISOString();
+  
+  // Sync details
+  existing.order = order;
+  existing.customer = customer;
+  existing.payments = orderPayments;
+
+  saveInvoices(); // Persist changes to database
+  return getInvoiceById(existing.id);
+};
+
+const deleteInvoice = (invoiceId) => {
+  const index = invoices.findIndex((invoice) => String(invoice.id) === String(invoiceId));
+  if (index === -1) throw new Error('Invoice not found');
+
+  invoices.splice(index, 1);
+  saveInvoices(); // Persist changes to database
+  return { id: invoiceId, deleted: true };
+};
+
 const getInvoiceById = (invoiceId) => {
   const invoice = invoices.find((invoice) => String(invoice.id) === String(invoiceId));
   if (!invoice) return null;
@@ -117,4 +169,4 @@ const getAllInvoices = (filters = {}) => {
   return { data: slice, page, totalPages, total: data.length };
 };
 
-export { generateInvoice, getInvoiceById, getAllInvoices, invoices };
+export { generateInvoice, regenerateInvoice, deleteInvoice, getInvoiceById, getAllInvoices, invoices };

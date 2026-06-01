@@ -1,4 +1,4 @@
-import { generateInvoice, getAllInvoices, getInvoiceById } from '../services/billing.service.js';
+import { generateInvoice, regenerateInvoice, deleteInvoice, getAllInvoices, getInvoiceById } from '../services/billing.service.js';
 
 const generateInvoiceHandler = async (req, res) => {
   try {
@@ -6,6 +6,24 @@ const generateInvoiceHandler = async (req, res) => {
     res.json({ success: true, data: invoice });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message || 'Failed to generate invoice' });
+  }
+};
+
+const regenerateInvoiceHandler = async (req, res) => {
+  try {
+    const invoice = regenerateInvoice(req.params.orderId);
+    res.json({ success: true, data: invoice });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message || 'Failed to regenerate invoice' });
+  }
+};
+
+const deleteInvoiceHandler = async (req, res) => {
+  try {
+    const result = deleteInvoice(req.params.id);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message || 'Failed to delete invoice' });
   }
 };
 
@@ -28,4 +46,10 @@ const getInvoiceHandler = (req, res) => {
   }
 };
 
-export { generateInvoiceHandler, listInvoices, getInvoiceHandler };
+export { 
+  generateInvoiceHandler, 
+  regenerateInvoiceHandler, 
+  deleteInvoiceHandler, 
+  listInvoices, 
+  getInvoiceHandler 
+};
