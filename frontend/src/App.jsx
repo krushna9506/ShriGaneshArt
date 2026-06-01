@@ -852,7 +852,7 @@ function Models() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 w-full min-w-0">
+      <div className="rounded-3xl border border-slate-200 bg-white p-3 sm:p-6 w-full min-w-0">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Models</h2>
@@ -889,8 +889,8 @@ function Models() {
         </div>
 
         {activeTab === 'catalog' ? (
-          <div className="mt-6 flex flex-col xl:grid xl:grid-cols-[1.45fr_0.55fr] gap-6 items-start">
-            <div className="rounded-3xl border border-slate-200 bg-white p-5 w-full min-w-0">
+          <div className="mt-4 sm:mt-6 flex flex-col xl:grid xl:grid-cols-[1.45fr_0.55fr] gap-4 sm:gap-6 items-start">
+            <div className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-3 sm:p-5 w-full min-w-0">
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="text-lg font-semibold">Model Master</h3>
                 <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search model code or size..." className="w-full sm:w-64 rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100" />
@@ -1006,7 +1006,7 @@ function Models() {
               </div>
             </div>
 
-            <form onSubmit={submitModel} className="rounded-3xl border border-slate-200 bg-white p-5 w-full min-w-0 xl:sticky xl:top-6 self-start">
+            <form onSubmit={submitModel} className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-3 sm:p-5 w-full min-w-0 xl:sticky xl:top-6 self-start">
               <h3 className="text-lg font-semibold">{editingId ? 'Edit Model' : 'Add Model'}</h3>
               <p className="mt-1 text-sm text-slate-500">Enter model code, size, price, and stock. Remaining is auto-calculated.</p>
               <div className="mt-4 grid gap-4">
@@ -1103,7 +1103,7 @@ function Models() {
             </form>
           </div>
         ) : (
-          <div className="mt-6 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-3 sm:p-5 w-full min-w-0">
+          <div className="mt-4 sm:mt-6 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-2 sm:p-5 w-full min-w-0">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h3 className="text-lg font-bold text-slate-900">Stock & Dispatch Ledger</h3>
               <input
