@@ -40,7 +40,7 @@ function InvoiceTemplate({ invoice }) {
     }).format(Number(amount || 0));
   };
 
-  const ITEMS_PER_PAGE = 30; // Max 30 models on a single page!
+  const ITEMS_PER_PAGE = 20; // Max 20 models on a single page to fit signature blocks and totals beautifully
   const items = invoice.items || [];
   const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE) || 1;
 
@@ -137,12 +137,12 @@ function InvoiceTemplate({ invoice }) {
                     <span className="font-black text-rose-900">{invoice.invoice_number}</span>
                   </div>
                   <div className="flex justify-between items-center mt-1 border-t border-rose-200 pt-1">
-                    <span>दिनांक / Date:</span>
-                    <span className="font-black text-rose-900">{invoice.invoice_date}</span>
+                    <span>बुकिंग दिनांक / Booking Date:</span>
+                    <span className="text-[9px] font-semibold text-rose-850">{invoice.order?.orderDate || '—'}</span>
                   </div>
-                  <div className="flex justify-between items-center mt-0.5">
-                    <span>डिलिव्हरी / Delivery:</span>
-                    <span className="text-[9px] font-semibold text-rose-800">{invoice.order?.deliveryDate || '—'}</span>
+                  <div className="flex justify-between items-center mt-0.5 border-t border-rose-100 pt-1">
+                    <span>बिल दिनांक / Invoice Date:</span>
+                    <span className="font-black text-rose-900">{invoice.invoice_date}</span>
                   </div>
                 </div>
               </div>

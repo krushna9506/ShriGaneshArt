@@ -224,3 +224,23 @@ body.printing-invoice .invoice-printable {
   size: A4 portrait;
   margin: 0;
 }
+
+/* ── Responsive Stock Ledger column adjustments for narrow screens (under 640px) ── */
+@media (max-width: 640px) {
+  .mobile-unsticky {
+    position: static !important;
+    box-shadow: none !important;
+  }
+  .mobile-compact-code {
+    min-width: 80px !important;
+    width: 80px !important;
+  }
+  .mobile-compact-total {
+    min-width: 85px !important;
+    width: 85px !important;
+  }
+  .mobile-compact-remaining {
+    min-width: 90px !important;
+    width: 90px !important;
+  }
+}

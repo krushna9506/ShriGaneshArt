@@ -228,7 +228,7 @@ function Layout({ children }) {
           </div>
         </header>
 
-        <section className="flex-1 p-4 lg:p-6 w-full max-w-[1600px] mx-auto">
+        <section className="flex-1 p-2 sm:p-4 lg:p-6 w-full max-w-[1600px] mx-auto">
           {children}
         </section>
       </main>
@@ -1103,7 +1103,7 @@ function Models() {
             </form>
           </div>
         ) : (
-          <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 w-full min-w-0">
+          <div className="mt-6 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-3 sm:p-5 w-full min-w-0">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h3 className="text-lg font-bold text-slate-900">Stock & Dispatch Ledger</h3>
               <input
@@ -1122,19 +1122,19 @@ function Models() {
                     {/* Frozen headers with inline sticky positioning */}
                     <th 
                       style={{ position: 'sticky', left: 0, zIndex: 10, minWidth: '120px', width: '120px' }}
-                      className="bg-slate-50 px-4 py-3 font-bold text-slate-700 border-r border-slate-200 shadow-[1px_0_0_0_rgba(226,232,240,1)]"
+                      className="bg-slate-50 px-4 py-3 font-bold text-slate-700 border-r border-slate-200 shadow-[1px_0_0_0_rgba(226,232,240,1)] mobile-compact-code"
                     >
                       Model Code
                     </th>
                     <th 
                       style={{ position: 'sticky', left: '120px', zIndex: 10, minWidth: '100px', width: '100px' }}
-                      className="bg-slate-50 px-4 py-3 font-bold text-slate-700 border-r border-slate-200 shadow-[1px_0_0_0_rgba(226,232,240,1)]"
+                      className="bg-slate-50 px-4 py-3 font-bold text-slate-700 border-r border-slate-200 shadow-[1px_0_0_0_rgba(226,232,240,1)] mobile-unsticky mobile-compact-total"
                     >
                       Total Stock
                     </th>
                     <th 
                       style={{ position: 'sticky', left: '220px', zIndex: 10, minWidth: '130px', width: '130px' }}
-                      className="bg-slate-50 px-4 py-3 font-bold text-slate-700 border-r-2 border-slate-300 shadow-[2px_0_0_0_rgba(203,213,225,1)]"
+                      className="bg-slate-50 px-4 py-3 font-bold text-slate-700 border-r-2 border-slate-300 shadow-[2px_0_0_0_rgba(203,213,225,1)] mobile-unsticky mobile-compact-remaining"
                     >
                       Remaining
                     </th>
@@ -1158,19 +1158,19 @@ function Models() {
                         {/* Frozen left pane cells */}
                         <td 
                           style={{ position: 'sticky', left: 0, zIndex: 5, backgroundColor: 'white', minWidth: '120px', width: '120px' }}
-                          className="px-4 py-4 font-extrabold text-slate-900 border-r border-slate-200 shadow-[1px_0_0_0_rgba(226,232,240,1)]"
+                          className="px-4 py-4 font-extrabold text-slate-900 border-r border-slate-200 shadow-[1px_0_0_0_rgba(226,232,240,1)] mobile-compact-code"
                         >
                           {model.code}
                         </td>
                         <td 
                           style={{ position: 'sticky', left: '120px', zIndex: 5, backgroundColor: 'white', minWidth: '100px', width: '100px' }}
-                          className="px-4 py-4 font-semibold text-slate-600 border-r border-slate-200 shadow-[1px_0_0_0_rgba(226,232,240,1)]"
+                          className="px-4 py-4 font-semibold text-slate-600 border-r border-slate-200 shadow-[1px_0_0_0_rgba(226,232,240,1)] mobile-unsticky mobile-compact-total"
                         >
                           {model.totalStock} units
                         </td>
                         <td 
                           style={{ position: 'sticky', left: '220px', zIndex: 5, backgroundColor: 'white', minWidth: '130px', width: '130px' }}
-                          className="px-4 py-4 border-r-2 border-slate-300 shadow-[2px_0_0_0_rgba(203,213,225,1)]"
+                          className="px-4 py-4 border-r-2 border-slate-300 shadow-[2px_0_0_0_rgba(203,213,225,1)] mobile-unsticky mobile-compact-remaining"
                         >
                           <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
                             model.remainingStock === 0 ? 'bg-rose-100 text-rose-800' :
@@ -1237,19 +1237,22 @@ function Models() {
 function Orders() {
   const navigate = useNavigate();
   const [models, setModels] = useState([]);
-  const [form, setForm] = useState({ customerName: '', mobile: '', address: '', city: '', deliveryDate: '', advance: 0, paymentMode: 'Cash', items: [{ modelId: '', quantity: 1, size: '', price: 0 }] });
+  const [form, setForm] = useState({ customerName: '', mobile: '', address: '', city: '', deliveryDate: '', advance: 0, paymentMode: 'Cash', items: [{ modelId: '', quantity: '', size: '', price: 0 }] });
   
   const [rowSearch, setRowSearch] = useState({});
   const [activeRow, setActiveRow] = useState(null);
   const [activeOpt, setActiveOpt] = useState({});
   const [successModal, setSuccessModal] = useState(null);
 
+  const [orderInputMode, setOrderInputMode] = useState('one-by-one');
+  const [checklistSearch, setChecklistSearch] = useState('');
+
   const loadData = async () => {
     try {
       await ensureSession();
       const { data } = await api.get('/models');
       setModels(data);
-      setForm((prev) => ({ ...prev, items: prev.items.length ? prev.items : [{ modelId: '', quantity: 1, size: '', price: 0 }] }));
+      setForm((prev) => ({ ...prev, items: prev.items.length ? prev.items : [{ modelId: '', quantity: '', size: '', price: 0 }] }));
     } catch (err) {
       console.error('Models load failed', err);
     }
@@ -1280,28 +1283,35 @@ function Orders() {
     }
   };
 
-  const addLineItem = () => setForm((prev) => ({ ...prev, items: [...prev.items, { modelId: '', quantity: 1, size: '', price: 0 }] }));
+  const addLineItem = () => setForm((prev) => ({ ...prev, items: [...prev.items, { modelId: '', quantity: '', size: '', price: 0 }] }));
 
   const submitOrder = async (e) => {
     e.preventDefault();
     
+    // Filter out rows that have no modelId or no quantity
+    const activeItems = form.items.filter(item => item.modelId && item.quantity !== '' && Number(item.quantity) > 0);
+    if (activeItems.length === 0) {
+      alert("Please select at least one model item with a valid quantity.");
+      return;
+    }
+
     // Strict Validation: ensure all items match a valid stock model ID
-    const invalidItem = form.items.find(item => !item.modelId || !models.some(m => String(m.id) === String(item.modelId)));
+    const invalidItem = activeItems.find(item => !models.some(m => String(m.id) === String(item.modelId)));
     if (invalidItem) {
-      alert("Invalid Model! Please search and select a valid model from our stock list for all rows.");
+      alert("Invalid Model! Please search and select a valid model from our stock list.");
       return;
     }
 
     try {
       await ensureSession();
-      const response = await api.post('/orders', form);
+      const response = await api.post('/orders', { ...form, items: activeItems });
       const createdOrder = response.data;
       
       // Open success options modal
       setSuccessModal(createdOrder);
       
       // Reset form fields
-      setForm({ customerName: '', mobile: '', address: '', city: '', deliveryDate: '', advance: 0, paymentMode: 'Cash', items: [{ modelId: '', quantity: 1, size: '', price: 0 }] });
+      setForm({ customerName: '', mobile: '', address: '', city: '', deliveryDate: '', advance: 0, paymentMode: 'Cash', items: [{ modelId: '', quantity: '', size: '', price: 0 }] });
       setRowSearch({});
     } catch (err) {
       console.error('Create order failed', err);
@@ -1382,249 +1392,419 @@ function Orders() {
                 <option value="Bank">Bank</option>
                 <option value="Cheque">Cheque</option>
               </select>
+                <div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3 mb-4 gap-2">
+              <h3 className="text-lg font-black text-slate-900">Order Items</h3>
+              <div className="flex rounded-2xl bg-slate-100 p-1 border border-slate-150 shrink-0 self-start">
+                <button
+                  type="button"
+                  onClick={() => setOrderInputMode('one-by-one')}
+                  className={`px-3.5 py-1.5 text-xs font-black rounded-xl transition-all ${
+                    orderInputMode === 'one-by-one'
+                      ? 'bg-white text-slate-950 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  One-by-One Cards
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrderInputMode('stock-checklist')}
+                  className={`px-3.5 py-1.5 text-xs font-black rounded-xl transition-all ${
+                    orderInputMode === 'stock-checklist'
+                      ? 'bg-white text-slate-950 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  Select from Stock List
+                </button>
+              </div>
             </div>
-          </div>
-          <div>
-            <h3 className="text-lg font-black text-slate-900 border-b border-slate-100 pb-2 mb-4">Order Items</h3>
             
-            {/* Header row for large screens (PhonePe style) */}
-            <div className="hidden md:grid md:grid-cols-[40px_2.2fr_1fr_1.1fr_1.1fr_1.5fr_80px] gap-3 px-4 py-2.5 text-[10px] font-black text-slate-500 bg-slate-50 border border-slate-150 rounded-2xl uppercase tracking-wider mb-3">
-              <div className="pl-1">#</div>
-              <div>Model (Search & Select)</div>
-              <div>Qty</div>
-              <div>Size</div>
-              <div>Price</div>
-              <div>Net Total</div>
-              <div className="text-center">Action</div>
-            </div>
+            {orderInputMode === 'stock-checklist' ? (
+              <div className="border border-slate-200 rounded-3xl p-3 sm:p-4 bg-slate-50/30 space-y-3">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Tick models to add to order:</span>
+                  <input
+                    type="text"
+                    placeholder="Search stock models..."
+                    value={checklistSearch}
+                    onChange={(e) => setChecklistSearch(e.target.value)}
+                    className="w-48 rounded-xl border border-slate-350 bg-white px-3 py-1.5 text-xs text-slate-800 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/20 outline-none"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-[400px] overflow-y-auto pr-1">
+                  {models
+                    .filter(m =>
+                      m.code.toLowerCase().includes(checklistSearch.toLowerCase()) ||
+                      m.size.toLowerCase().includes(checklistSearch.toLowerCase())
+                    )
+                    .map((model) => {
+                      const existingItem = form.items.find(item => String(item.modelId) === String(model.id));
+                      const isChecked = !!existingItem;
+                      const qtyValue = existingItem ? existingItem.quantity : '';
 
-            <div className="space-y-2.5 md:space-y-1 bg-white">
-              {form.items.map((item, index) => {
-                const selectedModel = models.find((m) => String(m.id) === String(item.modelId));
-                const currentSearchText = rowSearch[index] !== undefined 
-                  ? rowSearch[index] 
-                  : (selectedModel?.code || '');
-                const filteredOpts = getFilteredOptions(currentSearchText);
-
-                return (
-                  <div 
-                    key={index} 
-                    className="grid grid-cols-1 md:grid-cols-[40px_2.2fr_1fr_1.1fr_1.1fr_1.5fr_80px] gap-3 items-center bg-white border border-slate-200 md:border-transparent md:border-b md:border-slate-100 p-4 md:p-1.5 rounded-3xl md:rounded-none hover:bg-slate-50/40 transition-colors shadow-sm md:shadow-none"
-                  >
-                    {/* Index (No) */}
-                    <div className="hidden md:block text-slate-400 font-extrabold text-xs pl-2">{index + 1}</div>
-
-                    {/* Model Search Input */}
-                    <div>
-                      <label className="block md:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Model (Search & Select)</label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          id={`model-search-input-${index}`}
-                          value={currentSearchText}
-                          placeholder="Search GA-001..."
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setRowSearch((prev) => ({ ...prev, [index]: val }));
-                            setActiveRow(index);
-                            setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
-                          }}
-                          onFocus={() => {
-                            setActiveRow(index);
-                            setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
-                          }}
-                          onBlur={() => {
-                            setTimeout(() => {
-                              if (activeRow === index) {
-                                setActiveRow(null);
-                              }
-                              // Strict Auto-Correction / Reversion on Blur
-                              const query = rowSearch[index];
-                              if (query !== undefined) {
-                                const text = String(query).trim().toLowerCase();
-                                const exactMatch = models.find(m => m.code.toLowerCase() === text);
-                                if (exactMatch) {
-                                  const isDup = form.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(exactMatch.id));
-                                  if (isDup) {
-                                    alert('This model is already selected in another row.');
-                                    updateLineItem(index, 'modelId', '');
-                                  } else {
-                                    updateLineItem(index, 'modelId', exactMatch.id);
-                                  }
+                      return (
+                        <div 
+                          key={model.id} 
+                          className={`rounded-2xl border p-3 flex items-center justify-between gap-3 transition-all ${
+                            isChecked 
+                              ? 'bg-amber-50/30 border-amber-300 shadow-sm' 
+                              : 'bg-white border-slate-150 hover:bg-slate-50/40'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  // Add to form items with blank quantity
+                                  setForm(prev => ({
+                                    ...prev,
+                                    items: [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: '', size: model.size, price: model.price }]
+                                  }));
                                 } else {
-                                  const prevModel = models.find(m => String(m.id) === String(item.modelId));
-                                  if (!prevModel) {
-                                    updateLineItem(index, 'modelId', '');
-                                  }
+                                  // Remove from form items
+                                  setForm(prev => ({
+                                    ...prev,
+                                    items: prev.items.filter(item => String(item.modelId) !== String(model.id))
+                                  }));
                                 }
-                                setRowSearch(prev => {
-                                  const next = { ...prev };
-                                  delete next[index];
-                                  return next;
-                                });
-                              }
-                            }, 250);
-                          }}
-                          onKeyDown={(e) => {
-                            const options = getFilteredOptions(currentSearchText);
-                            const currentOptIdx = activeOpt[index] || 0;
+                              }}
+                              className="w-4 h-4 rounded text-amber-500 border-slate-305 focus:ring-amber-500"
+                            />
+                            <div className="min-w-0">
+                              <p className="font-extrabold text-slate-900 text-sm truncate">{model.code}</p>
+                              <p className="text-[10px] text-slate-500 mt-0.5 font-semibold leading-tight">
+                                {model.size} · ₹{model.price} · <span className={model.remainingStock > 0 ? 'text-emerald-650' : 'text-rose-650'}>{model.remainingStock} left</span>
+                              </p>
+                            </div>
+                          </div>
 
-                            if (e.key === 'ArrowDown') {
-                              if (options.length > 0) {
-                                e.preventDefault();
-                                const nextIdx = (currentOptIdx + 1) % options.length;
-                                setActiveOpt(prev => ({ ...prev, [index]: nextIdx }));
-                              } else {
-                                e.preventDefault();
-                                if (index < form.items.length - 1) {
-                                  const nextEl = document.getElementById(`model-search-input-${index + 1}`);
-                                  if (nextEl) nextEl.focus();
+                          <div>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              placeholder="Qty"
+                              value={qtyValue}
+                              onChange={(e) => {
+                                const cleanVal = e.target.value.replace(/\D/g, '');
+                                const qty = cleanVal === '' ? '' : Number(cleanVal);
+                                
+                                if (cleanVal === '') {
+                                  // If blank, keep in list but with blank qty
+                                  setForm(prev => ({
+                                    ...prev,
+                                    items: prev.items.some(item => String(item.modelId) === String(model.id))
+                                      ? prev.items.map(item => String(item.modelId) === String(model.id) ? { ...item, quantity: '' } : item)
+                                      : [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: '', size: model.size, price: model.price }]
+                                  }));
+                                } else {
+                                  // Update/Insert in list with positive quantity
+                                  setForm(prev => ({
+                                    ...prev,
+                                    items: prev.items.some(item => String(item.modelId) === String(model.id))
+                                      ? prev.items.map(item => String(item.modelId) === String(model.id) ? { ...item, quantity: qty } : item)
+                                      : [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: qty, size: model.size, price: model.price }]
+                                  }));
                                 }
-                              }
-                            } else if (e.key === 'ArrowUp') {
-                              if (options.length > 0) {
-                                e.preventDefault();
-                                const prevIdx = (currentOptIdx - 1 + options.length) % options.length;
-                                setActiveOpt(prev => ({ ...prev, [index]: prevIdx }));
-                              } else {
-                                e.preventDefault();
-                                if (index > 0) {
-                                  const prevEl = document.getElementById(`model-search-input-${index - 1}`);
-                                  if (prevEl) prevEl.focus();
-                                }
-                              }
-                            } else if (e.key === 'Enter') {
-                              e.preventDefault();
-                              if (options.length > 0 && options[currentOptIdx]) {
-                                const selected = options[currentOptIdx];
-                                updateLineItem(index, 'modelId', selected.id);
-                                setRowSearch(prev => ({ ...prev, [index]: undefined }));
-                                setActiveRow(null);
-                                setTimeout(() => {
-                                  const qtyEl = document.getElementById(`quantity-input-${index}`);
-                                  if (qtyEl) qtyEl.focus();
-                                }, 50);
-                              } else {
-                                addLineItem();
-                                const totalItems = form.items.length;
-                                setTimeout(() => {
-                                  const nextEl = document.getElementById(`model-search-input-${totalItems}`);
-                                  if (nextEl) nextEl.focus();
-                                }, 50);
-                              }
-                            } else if (e.key === 'ArrowRight') {
-                              e.preventDefault();
-                              const qtyEl = document.getElementById(`quantity-input-${index}`);
-                              if (qtyEl) qtyEl.focus();
-                            } else if (e.key === 'Escape') {
-                              e.preventDefault();
-                              setActiveRow(null);
-                            }
-                          }}
-                          className="w-full rounded-2xl border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
-                        />
+                              }}
+                              className="w-14 rounded-xl border border-slate-200 bg-white py-1 px-1.5 text-xs text-slate-800 font-black text-center focus:border-amber-450 focus:ring-1 focus:ring-amber-500/20 outline-none"
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            ) : (
+              <div>
+                {/* Header row for large screens (PhonePe style) */}
+                <div className="hidden md:grid md:grid-cols-[40px_2.2fr_1fr_1.1fr_1.1fr_1.5fr_80px] gap-3 px-4 py-2.5 text-[10px] font-black text-slate-500 bg-slate-50 border border-slate-150 rounded-2xl uppercase tracking-wider mb-3">
+                  <div className="pl-1">#</div>
+                  <div>Model (Search & Select)</div>
+                  <div>Qty</div>
+                  <div>Size</div>
+                  <div>Price</div>
+                  <div>Net Total</div>
+                  <div className="text-center">Action</div>
+                </div>
 
-                        {/* Dropdown Floating Suggestions */}
-                        {activeRow === index && filteredOpts.length > 0 && (
-                          <ul className="absolute z-50 w-full max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl mt-1 text-slate-800 text-sm">
-                            {filteredOpts.map((model, optIdx) => {
-                              const isSelected = (activeOpt[index] || 0) === optIdx;
-                              const isAlreadyChosen = form.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(model.id));
-                              
-                              return (
-                                <li
-                                  key={model.id}
-                                  onMouseDown={(e) => {
-                                    e.preventDefault(); // Prevents input blur from executing prior to mouseup/touch
-                                    if (isAlreadyChosen) {
-                                      alert('This model is already selected in another row.');
-                                      return;
-                                    }
-                                    updateLineItem(index, 'modelId', model.id);
-                                    setRowSearch(prev => ({ ...prev, [index]: undefined }));
-                                    setActiveRow(null);
-                                    setTimeout(() => {
-                                      const qtyEl = document.getElementById(`quantity-input-${index}`);
-                                      if (qtyEl) qtyEl.focus();
-                                    }, 50);
-                                  }}
-                                  className={`px-4 py-3 cursor-pointer flex justify-between items-center transition-colors border-b border-slate-50 last:border-none ${
-                                    isSelected ? 'bg-amber-100 text-slate-900 font-bold' : 'hover:bg-slate-50'
-                                  } ${isAlreadyChosen ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                >
-                                  <span>{model.code} {isAlreadyChosen ? '(Already Selected)' : ''}</span>
-                                  <span className="text-xs text-slate-400 font-normal">
-                                    {model.size} · ₹{Number(model.price || 0).toFixed(2)} · Stock: {model.remainingStock}
-                                  </span>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        )}
-                      </div>
-                    </div>
+                <div className="space-y-2.5 md:space-y-1 bg-white">
+                  {form.items.map((item, index) => {
+                    const selectedModel = models.find((m) => String(m.id) === String(item.modelId));
+                    const currentSearchText = rowSearch[index] !== undefined 
+                      ? rowSearch[index] 
+                      : (selectedModel?.code || '');
+                    const filteredOpts = getFilteredOptions(currentSearchText);
 
-                    {/* Quantity */}
-                    <div>
-                      <label className="block md:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Quantity</label>
-                      <input
-                        id={`quantity-input-${index}`}
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        value={item.quantity}
-                        onChange={(e) => updateLineItem(index, 'quantity', e.target.value)}
-                        onKeyDown={(e) => handleKeyDown(e, index, 'quantity')}
-                        className="w-full rounded-2xl border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
-                      />
-                    </div>
-
-                    {/* Size Badge */}
-                    <div className="flex justify-between md:block items-center">
-                      <label className="block md:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest">Size</label>
-                      <span className="inline-flex rounded-xl bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 md:min-w-[80px] text-center justify-center">
-                        {selectedModel?.size || '—'}
-                      </span>
-                    </div>
-
-                    {/* Unit Price Badge */}
-                    <div className="flex justify-between md:block items-center">
-                      <label className="block md:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest">Unit Price</label>
-                      <span className="inline-flex rounded-xl bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 md:min-w-[80px] text-center justify-center">
-                        {selectedModel?.price ? `₹${selectedModel.price}` : '—'}
-                      </span>
-                    </div>
-
-                    {/* Net Total Badge */}
-                    <div className="flex justify-between md:block items-center">
-                      <label className="block md:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest">Net Price</label>
-                      <span className="inline-flex rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-700 md:min-w-[100px] text-center justify-center">
-                        ₹{Number((item.quantity || 0) * (selectedModel?.price || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                      </span>
-                    </div>
-
-                    {/* Remove Action Button */}
-                    <div className="flex justify-end md:justify-center pt-2 md:pt-0">
-                      <button
-                        type="button"
-                        onClick={() => setForm((prev) => ({ ...prev, items: prev.items.filter((_, itemIndex) => itemIndex !== index) }))}
-                        className="w-full md:w-auto rounded-2xl border border-rose-250 bg-rose-50/50 hover:bg-rose-100/50 px-3 py-2 text-xs font-black text-rose-700 uppercase tracking-widest transition-colors active:scale-95 duration-100"
+                    return (
+                      <div 
+                        key={index} 
+                        className="flex flex-col md:grid md:grid-cols-[40px_2.2fr_1fr_1.1fr_1.1fr_1.5fr_80px] gap-3 items-center bg-white border border-slate-200 md:border-transparent md:border-b md:border-slate-100 p-3 md:p-1.5 rounded-2xl md:rounded-none hover:bg-slate-50/40 transition-colors shadow-sm md:shadow-none"
                       >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                        {/* Index (No) */}
+                        <div className="hidden md:block text-slate-400 font-extrabold text-xs pl-2">{index + 1}</div>
 
-            <button 
-              type="button" 
-              onClick={addLineItem} 
-              className="mt-4 rounded-2xl border border-amber-300 bg-white px-5 py-2.5 text-xs font-black text-amber-600 hover:bg-amber-50 active:scale-95 transition-all shadow-sm flex items-center gap-1"
-            >
-              <span className="text-sm font-bold">+</span> Add Line Item
-            </button>
+                        {/* Model Input & suggestions + compact mobile grid */}
+                        <div className="w-full flex flex-col gap-1.5 md:contents">
+                          {/* Model Search Input */}
+                          <div className="w-full">
+                            <label className="block md:hidden text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Model (Search & Select)</label>
+                            <div className="relative">
+                              <input
+                                type="text"
+                                id={`model-search-input-${index}`}
+                                value={currentSearchText}
+                                placeholder="Search GA-001..."
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setRowSearch((prev) => ({ ...prev, [index]: val }));
+                                  setActiveRow(index);
+                                  setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
+                                }}
+                                onFocus={() => {
+                                  setActiveRow(index);
+                                  setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
+                                }}
+                                onBlur={() => {
+                                  setTimeout(() => {
+                                    if (activeRow === index) {
+                                      setActiveRow(null);
+                                    }
+                                    // Strict Auto-Correction / Reversion on Blur
+                                    const query = rowSearch[index];
+                                    if (query !== undefined) {
+                                      const text = String(query).trim().toLowerCase();
+                                      const exactMatch = models.find(m => m.code.toLowerCase() === text);
+                                      if (exactMatch) {
+                                        const isDup = form.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(exactMatch.id));
+                                        if (isDup) {
+                                          alert('This model is already selected in another row.');
+                                          updateLineItem(index, 'modelId', '');
+                                        } else {
+                                          updateLineItem(index, 'modelId', exactMatch.id);
+                                        }
+                                      } else {
+                                        const prevModel = models.find(m => String(m.id) === String(item.modelId));
+                                        if (!prevModel) {
+                                          updateLineItem(index, 'modelId', '');
+                                        }
+                                      }
+                                      setRowSearch(prev => {
+                                        const next = { ...prev };
+                                        delete next[index];
+                                        return next;
+                                      });
+                                    }
+                                  }, 250);
+                                }}
+                                onKeyDown={(e) => {
+                                  const options = getFilteredOptions(currentSearchText);
+                                  const currentOptIdx = activeOpt[index] || 0;
+
+                                  if (e.key === 'ArrowDown') {
+                                    if (options.length > 0) {
+                                      e.preventDefault();
+                                      const nextIdx = (currentOptIdx + 1) % options.length;
+                                      setActiveOpt(prev => ({ ...prev, [index]: nextIdx }));
+                                    } else {
+                                      e.preventDefault();
+                                      if (index < form.items.length - 1) {
+                                        const nextEl = document.getElementById(`model-search-input-${index + 1}`);
+                                        if (nextEl) nextEl.focus();
+                                      }
+                                    }
+                                  } else if (e.key === 'ArrowUp') {
+                                    if (options.length > 0) {
+                                      e.preventDefault();
+                                      const prevIdx = (currentOptIdx - 1 + options.length) % options.length;
+                                      setActiveOpt(prev => ({ ...prev, [index]: prevIdx }));
+                                    } else {
+                                      e.preventDefault();
+                                      if (index > 0) {
+                                        const prevEl = document.getElementById(`model-search-input-${index - 1}`);
+                                        if (prevEl) prevEl.focus();
+                                      }
+                                    }
+                                  } else if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (options.length > 0 && options[currentOptIdx]) {
+                                      const selected = options[currentOptIdx];
+                                      updateLineItem(index, 'modelId', selected.id);
+                                      setRowSearch(prev => ({ ...prev, [index]: undefined }));
+                                      setActiveRow(null);
+                                      setTimeout(() => {
+                                        const qtyEl = document.getElementById(`quantity-input-${index}`);
+                                        if (qtyEl) qtyEl.focus();
+                                      }, 50);
+                                    } else {
+                                      addLineItem();
+                                      const totalItems = form.items.length;
+                                      setTimeout(() => {
+                                        const nextEl = document.getElementById(`model-search-input-${totalItems}`);
+                                        if (nextEl) nextEl.focus();
+                                      }, 50);
+                                    }
+                                  } else if (e.key === 'ArrowRight') {
+                                    e.preventDefault();
+                                    const qtyEl = document.getElementById(`quantity-input-${index}`);
+                                    if (qtyEl) qtyEl.focus();
+                                  } else if (e.key === 'Escape') {
+                                    e.preventDefault();
+                                    setActiveRow(null);
+                                  }
+                                }}
+                                className="w-full rounded-xl md:rounded-2xl border border-slate-300 bg-white px-3.5 py-2 text-xs md:text-sm text-slate-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
+                              />
+
+                              {/* Dropdown Floating Suggestions */}
+                              {activeRow === index && filteredOpts.length > 0 && (
+                                <ul className="absolute z-50 w-full max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl mt-1 text-slate-800 text-sm">
+                                  {filteredOpts.map((model, optIdx) => {
+                                    const isSelected = (activeOpt[index] || 0) === optIdx;
+                                    const isAlreadyChosen = form.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(model.id));
+                                    
+                                    return (
+                                      <li
+                                        key={model.id}
+                                        onMouseDown={(e) => {
+                                          e.preventDefault(); // Prevents input blur from executing prior to mouseup/touch
+                                          if (isAlreadyChosen) {
+                                            alert('This model is already selected in another row.');
+                                            return;
+                                          }
+                                          updateLineItem(index, 'modelId', model.id);
+                                          setRowSearch(prev => ({ ...prev, [index]: undefined }));
+                                          setActiveRow(null);
+                                          setTimeout(() => {
+                                            const qtyEl = document.getElementById(`quantity-input-${index}`);
+                                            if (qtyEl) qtyEl.focus();
+                                          }, 50);
+                                        }}
+                                        className={`px-4 py-3 cursor-pointer flex justify-between items-center transition-colors border-b border-slate-50 last:border-none ${
+                                          isSelected ? 'bg-amber-100 text-slate-900 font-bold' : 'hover:bg-slate-50'
+                                        } ${isAlreadyChosen ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                      >
+                                        <span>{model.code} {isAlreadyChosen ? '(Already Selected)' : ''}</span>
+                                        <span className="text-xs text-slate-400 font-normal">
+                                          {model.size} · ₹{Number(model.price || 0).toFixed(2)} · Stock: {model.remainingStock}
+                                        </span>
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Compact mobile layout row for Qty, Size, Price, Net Total and Delete Button */}
+                          <div className="flex md:hidden items-center justify-between gap-1 bg-slate-50/50 border border-slate-100 rounded-xl p-2 w-full text-xs font-semibold text-slate-655">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[8px] font-extrabold uppercase tracking-wide text-slate-400">Qty:</span>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                placeholder="0"
+                                value={item.quantity}
+                                onChange={(e) => updateLineItem(index, 'quantity', e.target.value)}
+                                onKeyDown={(e) => handleKeyDown(e, index, 'quantity')}
+                                className="w-10 text-center rounded-lg border border-slate-350 bg-white py-0.5 px-1 text-xs text-slate-800 font-black focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20 outline-none"
+                              />
+                            </div>
+
+                            <div className="text-[10px]">
+                              <span className="text-[8px] font-extrabold uppercase tracking-wide text-slate-400 block leading-none">Size</span>
+                              <span className="text-slate-800 font-bold mt-0.5 block">{selectedModel?.size || '—'}</span>
+                            </div>
+
+                            <div className="text-[10px]">
+                              <span className="text-[8px] font-extrabold uppercase tracking-wide text-slate-400 block leading-none">Price</span>
+                              <span className="text-slate-800 font-bold mt-0.5 block">₹{selectedModel?.price || '0'}</span>
+                            </div>
+
+                            <div className="text-[10px] text-right">
+                              <span className="text-[8px] font-extrabold uppercase tracking-wide text-slate-400 block leading-none">Total</span>
+                              <span className="text-emerald-700 font-black mt-0.5 block">₹{Number((item.quantity || 0) * (selectedModel?.price || 0)).toLocaleString('en-IN')}</span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => setForm((prev) => ({ ...prev, items: prev.items.filter((_, itemIndex) => itemIndex !== index) }))}
+                              className="rounded-full bg-rose-50 border border-rose-250 p-1 text-rose-600 hover:bg-rose-100 transition-colors shrink-0"
+                              title="Remove item"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5} stroke="currentColor" className="w-3.5 h-3.5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Quantity (Desktop only) */}
+                        <div className="hidden md:block w-full">
+                          <input
+                            id={`quantity-input-${index}`}
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            placeholder="0"
+                            value={item.quantity}
+                            onChange={(e) => updateLineItem(index, 'quantity', e.target.value)}
+                            onKeyDown={(e) => handleKeyDown(e, index, 'quantity')}
+                            className="w-full rounded-2xl border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
+                          />
+                        </div>
+
+                        {/* Size Badge (Desktop only) */}
+                        <div className="hidden md:flex justify-center">
+                          <span className="inline-flex rounded-xl bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 md:min-w-[80px] text-center justify-center">
+                            {selectedModel?.size || '—'}
+                          </span>
+                        </div>
+
+                        {/* Unit Price Badge (Desktop only) */}
+                        <div className="hidden md:flex justify-center">
+                          <span className="inline-flex rounded-xl bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 md:min-w-[80px] text-center justify-center">
+                            {selectedModel?.price ? `₹${selectedModel.price}` : '—'}
+                          </span>
+                        </div>
+
+                        {/* Net Total Badge (Desktop only) */}
+                        <div className="hidden md:flex justify-center">
+                          <span className="inline-flex rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-700 md:min-w-[100px] text-center justify-center">
+                            ₹{Number((item.quantity || 0) * (selectedModel?.price || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+
+                        {/* Remove Action Button (Desktop only) */}
+                        <div className="hidden md:flex justify-center">
+                          <button
+                            type="button"
+                            onClick={() => setForm((prev) => ({ ...prev, items: prev.items.filter((_, itemIndex) => itemIndex !== index) }))}
+                            className="rounded-2xl border border-rose-250 bg-rose-50/50 hover:bg-rose-100/50 px-3 py-2 text-xs font-black text-rose-700 uppercase tracking-widest transition-colors active:scale-95 duration-100"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <button 
+                  type="button" 
+                  onClick={addLineItem} 
+                  className="mt-4 rounded-2xl border border-amber-300 bg-white px-5 py-2.5 text-xs font-black text-amber-600 hover:bg-amber-50 active:scale-95 transition-all shadow-sm flex items-center gap-1"
+                >
+                  <span className="text-sm font-bold">+</span> Add Line Item
+                </button>
+              </div>
+            )}
           </div>
           <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
             <div className="grid gap-4 md:grid-cols-3">
