@@ -89,10 +89,7 @@ function InvoiceTemplate({ invoice }) {
                     श्री गणेश आर्ट <span className="text-sm font-black text-rose-700 ml-1">/ SHRI GANESH ART</span>
                   </h1>
                   <p className="invoice-brand-address font-extrabold text-rose-900 leading-none">
-                    यादव नगर, साईकमल हॉटेल समोर, संभाजीनगर बायपास रोड, धाराशिव - ४१३५०१
-                  </p>
-                  <p className="invoice-brand-address font-extrabold text-rose-900 leading-none mt-1">
-                    Yadav Nagar, Opposite Saikamal Hotel, Sambhajinagar Bypass Road, Dharashiv - 413501
+                    यादव नगर, संभाजीनगर बायपास रोड, धाराशिव - ४१३५०१ · Yadav Nagar, Bypass Road, Dharashiv, 413501
                   </p>
                 </div>
 
@@ -104,27 +101,25 @@ function InvoiceTemplate({ invoice }) {
               </div>
 
               {/* 3. Slogan Banner (Legible and space-optimized) */}
-              <div className="invoice-slogan-banner border-b border-rose-800 bg-rose-50/50 text-center font-extrabold text-rose-800 rounded-lg print:bg-transparent leading-normal py-1 px-4">
-                आमच्याकडे सर्व प्रकारचे लहान मोठे श्री गणेश मुर्ती ठोक व किरकोळ योग्य भावात मिळेल.
-                <br />
-                <span className="font-semibold text-rose-750 text-[0.9em]">All types of Ganesha Idols available in wholesale & retail at reasonable rates.</span>
+              <div className="invoice-slogan-banner border-b border-rose-800 bg-rose-50/50 text-center font-extrabold text-rose-800 rounded-lg print:bg-transparent leading-none">
+                आमच्याकडे सर्व प्रकारचे लहान मोठे श्री गणेश मुर्ती ठोक व किरकोळ योग्य भावात मिळेल. · <span className="font-semibold text-rose-700 text-[0.9em]">All Ganesha Idols available wholesale & retail.</span>
               </div>
 
               {/* 4. Customer & Invoice Details */}
               <div className="invoice-customer-details grid grid-cols-3 border-b border-rose-800">
                 {/* Customer fields */}
                 <div className="invoice-customer-info col-span-2 space-y-1">
-                  <div className="flex items-center gap-2 border-b border-dashed border-rose-800/25">
+                  <div className="flex items-center gap-2 border-b border-dashed border-rose-350">
                     <span className="font-black text-rose-800 shrink-0">नांव / Name:</span>
-                    <span className="font-extrabold text-slate-800 leading-none">{customerName || '—'}</span>
+                    <span className="font-extrabold text-slate-800 leading-none">{customerName || 'Valued Customer'}</span>
                   </div>
-                  <div className="flex items-center gap-2 border-b border-dashed border-rose-800/25">
+                  <div className="flex items-center gap-2 border-b border-dashed border-rose-350">
                     <span className="font-black text-rose-800 shrink-0">पत्ता / Address:</span>
                     <span className="font-semibold text-slate-800 leading-none">
                       {formattedAddress || '—'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 border-b border-dashed border-rose-800/25">
+                  <div className="flex items-center gap-2 border-b border-dashed border-rose-350">
                     <span className="font-black text-rose-800 shrink-0">मोबाईल / Mob:</span>
                     <span className="font-bold text-slate-800 leading-none">{customerMobile || '—'}</span>
                   </div>
@@ -136,13 +131,13 @@ function InvoiceTemplate({ invoice }) {
                     <span>नं. / Memo No:</span>
                     <span className="font-black text-rose-900">{invoice.invoice_number}</span>
                   </div>
-                  <div className="flex justify-between items-center border-t border-rose-800/30 pt-1">
-                    <span>दिनांक / Date:</span>
-                    <span className="font-black text-rose-900">{invoice.invoice_date}</span>
+                  <div className="flex justify-between items-center border-t border-rose-200 pt-1">
+                    <span>बुकिंग / Booking:</span>
+                    <span className="font-semibold text-rose-850">{invoice.order?.orderDate || '—'}</span>
                   </div>
-                  <div className="flex justify-between items-center border-t border-rose-800/30 pt-1">
-                    <span>डिलिव्हरी / Delivery:</span>
-                    <span className="font-black text-rose-900">{invoice.delivery_date || invoice.order?.deliveryDate || invoice.invoice_date}</span>
+                  <div className="flex justify-between items-center border-t border-rose-100 pt-1">
+                    <span>बिल दिनांक / Date:</span>
+                    <span className="font-black text-rose-900">{invoice.invoice_date}</span>
                   </div>
                 </div>
               </div>
@@ -310,48 +305,48 @@ const styleTag = (
     }
 
     /* ── Fixed layout typography & spacing ── */
-    .invoice-top-row { font-size: 10px !important; }
+    .invoice-top-row { font-size: 9.5px !important; }
     
-    .invoice-brand-header { margin-top: 10px !important; padding-bottom: 10px !important; }
-    .invoice-brand-logo-container { height: 56px !important; width: 56px !important; border-radius: 12px !important; }
-    .invoice-brand-title { font-size: 24px !important; }
-    .invoice-brand-title span { font-size: 13.5px !important; }
-    .invoice-brand-address { font-size: 10.5px !important; margin-top: 4px !important; }
-    .invoice-brand-contact { font-size: 10.5px !important; }
-    .invoice-brand-contact p:first-child { font-size: 9px !important; }
+    .invoice-brand-header { margin-top: 8px !important; padding-bottom: 8px !important; }
+    .invoice-brand-logo-container { height: 48px !important; width: 48px !important; border-radius: 10px !important; }
+    .invoice-brand-title { font-size: 22px !important; }
+    .invoice-brand-title span { font-size: 12.5px !important; }
+    .invoice-brand-address { font-size: 10px !important; margin-top: 4px !important; }
+    .invoice-brand-contact { font-size: 10px !important; }
+    .invoice-brand-contact p:first-child { font-size: 8.5px !important; }
     
-    .invoice-slogan-banner { font-size: 11px !important; padding: 6px 12px !important; margin-top: 10px !important; border-radius: 10px !important; }
+    .invoice-slogan-banner { font-size: 10px !important; padding: 4px 8px !important; margin-top: 8px !important; border-radius: 8px !important; }
     
-    .invoice-customer-details { margin-top: 12px !important; padding-bottom: 10px !important; gap: 14px !important; }
-    .invoice-customer-info { font-size: 13.5px !important; }
-    .invoice-customer-info > div { border-bottom-width: 1px !important; padding-bottom: 6px !important; }
-    .invoice-customer-info span:first-child { min-width: 80px !important; font-size: 12.5px !important; }
+    .invoice-customer-details { margin-top: 10px !important; padding-bottom: 8px !important; gap: 12px !important; }
+    .invoice-customer-info { font-size: 12.5px !important; }
+    .invoice-customer-info > div { border-bottom-width: 1px !important; padding-bottom: 4px !important; }
+    .invoice-customer-info span:first-child { min-width: 75px !important; font-size: 11.5px !important; }
     
-    .invoice-metadata-card { font-size: 11.5px !important; padding: 10px 12px !important; border-radius: 12px !important; }
-    .invoice-metadata-card > div { margin-top: 6px !important; }
+    .invoice-metadata-card { font-size: 10.5px !important; padding: 8px 10px !important; border-radius: 10px !important; }
+    .invoice-metadata-card > div { margin-top: 4px !important; }
     
-    .invoice-table-container { margin-top: 8px !important; }
+    .invoice-table-container { margin-top: 6px !important; }
     
-    .invoice-page-totals { margin-top: 8px !important; padding: 6px 10px !important; font-size: 10px !important; border-radius: 10px !important; gap: 6px !important; }
+    .invoice-page-totals { margin-top: 6px !important; padding: 4px 8px !important; font-size: 9px !important; border-radius: 8px !important; gap: 4px !important; }
     
-    .invoice-cumulative-block { margin-top: 8px !important; gap: 8px !important; }
+    .invoice-cumulative-block { margin-top: 6px !important; gap: 6px !important; }
     
-    .invoice-installments-card { padding: 6px 8px !important; font-size: 9.5px !important; border-radius: 10px !important; }
-    .invoice-installments-card h4 { font-size: 9px !important; margin-bottom: 3px !important; }
+    .invoice-installments-card { padding: 4px 6px !important; font-size: 8.5px !important; border-radius: 8px !important; }
+    .invoice-installments-card h4 { font-size: 8px !important; margin-bottom: 2px !important; }
     
-    .invoice-blessing-text { font-size: 9.5px !important; }
+    .invoice-blessing-text { font-size: 8.5px !important; }
     
-    .invoice-totals-card { padding: 6px 8px !important; font-size: 10px !important; border-radius: 10px !important; max-width: 230px !important; }
+    .invoice-totals-card { padding: 4px 6px !important; font-size: 9px !important; border-radius: 8px !important; max-width: 210px !important; }
     
-    .invoice-status-badge { font-size: 9px !important; padding: 3px 8px !important; border-radius: 8px !important; }
+    .invoice-status-badge { font-size: 8px !important; padding: 2px 6px !important; border-radius: 6px !important; }
     
-    .invoice-terms-block { margin-top: 8px !important; font-size: 8.2px !important; line-height: 1.3 !important; }
-    .invoice-terms-block p { margin-top: 1.5px !important; }
+    .invoice-terms-block { margin-top: 6px !important; font-size: 7.2px !important; line-height: 1.25 !important; }
+    .invoice-terms-block p { margin-top: 1px !important; }
     
-    .invoice-signatures-block { margin-top: 8px !important; font-size: 9px !important; }
-    .invoice-signatures-block p { font-size: 8.5px !important; }
-    .invoice-sig-gap { height: 20px !important; }
-    .invoice-page-indicator { font-size: 9px !important; padding: 3px 10px !important; }
+    .invoice-signatures-block { margin-top: 6px !important; font-size: 8px !important; }
+    .invoice-signatures-block p { font-size: 7.5px !important; }
+    .invoice-sig-gap { height: 12px !important; }
+    .invoice-page-indicator { font-size: 8.5px !important; padding: 2px 8px !important; }
   `}</style>
 );
 
