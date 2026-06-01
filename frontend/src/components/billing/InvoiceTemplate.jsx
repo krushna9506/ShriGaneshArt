@@ -40,7 +40,7 @@ function InvoiceTemplate({ invoice }) {
     }).format(Number(amount || 0));
   };
 
-  const ITEMS_PER_PAGE = 20; // Max 20 models on a single page to fit signature blocks and totals beautifully
+  const ITEMS_PER_PAGE = 30; // Max 30 models on a single page to fit signature blocks and totals beautifully
   const items = invoice.items || [];
   const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE) || 1;
 
@@ -75,73 +75,68 @@ function InvoiceTemplate({ invoice }) {
               </div>
 
               {/* 2. Main Brand Header (Extremely space-saving) */}
-              <div className="mt-2.5 flex flex-row justify-between items-center gap-3 border-b-2 border-double border-rose-800 pb-2">
-                {/* Left Side: Ganesha Brand Logo artwork (Smaller profile h-12 w-12) */}
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-xl border border-rose-800 bg-gradient-to-br from-amber-50 to-orange-100 overflow-hidden relative flex items-center justify-center shadow-sm print:shadow-none">
+              <div className="mt-1 flex flex-row justify-between items-center gap-2 border-b-2 border-double border-rose-800 pb-1">
+                {/* Left Side: Ganesha Brand Logo artwork (Smaller profile h-9 w-9) */}
+                <div className="flex items-center gap-2">
+                  <div className="h-9 w-9 rounded-lg border border-rose-800 bg-gradient-to-br from-amber-50 to-orange-100 overflow-hidden relative flex items-center justify-center shadow-sm print:shadow-none">
                     <img src={logo} alt="Shri Ganesh Art Logo" className="absolute inset-0 w-full h-full object-contain p-0.5" />
                   </div>
                 </div>
 
                 {/* Center: Title and Address */}
                 <div className="flex-1 text-center">
-                  <h1 className="text-xl font-extrabold text-rose-800 tracking-tight leading-none">
-                    श्री गणेश आर्ट <span className="text-sm font-black text-rose-700 ml-1">/ SHRI GANESH ART</span>
+                  <h1 className="text-lg font-extrabold text-rose-800 tracking-tight leading-none">
+                    श्री गणेश आर्ट <span className="text-[11px] font-black text-rose-700 ml-1">/ SHRI GANESH ART</span>
                   </h1>
-                  <p className="mt-1 text-[10px] font-extrabold text-rose-900 leading-none">
-                    यादव नगर, साईकमल हॉटेल समोर, संभाजीनगर बायपास रोड, धाराशिव - ४१३५०१
-                  </p>
-                  <p className="text-[9px] font-semibold text-rose-700 leading-none mt-0.5">
-                    Yadav Nagar, Opposite Saikamal Hotel, Sambhajinagar Bypass Road, Dharashiv - 413501
+                  <p className="mt-0.5 text-[9px] font-extrabold text-rose-900 leading-none">
+                    यादव नगर, संभाजीनगर बायपास रोड, धाराशिव - ४१३५०१ · Yadav Nagar, Bypass Road, Dharashiv
                   </p>
                 </div>
 
                 {/* Right Side: Contact Info */}
-                <div className="text-right text-[10px] font-bold text-rose-800 leading-tight">
-                  <p className="text-rose-700 uppercase tracking-wider text-[8px]">मोबाईल नं. / Mobile:</p>
-                  <p className="font-black text-rose-900 mt-0.5">9423734355</p>
-                  <p className="font-black text-rose-900">9922743650</p>
+                <div className="text-right text-[9px] font-bold text-rose-800 leading-none space-y-0.5">
+                  <p className="text-rose-700 uppercase tracking-wider text-[7.5px] font-black">मोबाईल नं. / Mobile:</p>
+                  <p className="font-black text-rose-900">9423734355 · 9922743650</p>
                 </div>
               </div>
 
               {/* 3. Slogan Banner (Highly compressed) */}
-              <div className="mt-1.5 border-b border-rose-800 bg-rose-50/50 py-1 px-3 text-center text-[10px] font-extrabold text-rose-800 rounded-lg print:bg-transparent">
-                आमच्याकडे सर्व प्रकारचे लहान मोठे श्री गणेश मुर्ती ठोक व किरकोळ योग्य भावात मिळेल. <br />
-                <span className="text-[9px] font-semibold text-rose-700">All types of Ganesha Idols available in wholesale & retail at reasonable rates.</span>
+              <div className="mt-1 border-b border-rose-800 bg-rose-50/50 py-0.5 px-3 text-center text-[9px] font-extrabold text-rose-800 rounded-lg print:bg-transparent leading-none">
+                आमच्याकडे सर्व प्रकारचे लहान मोठे श्री गणेश मुर्ती ठोक व किरकोळ योग्य भावात मिळेल. · <span className="text-[8px] font-semibold text-rose-700">All Ganesha Idols available wholesale & retail.</span>
               </div>
 
               {/* 4. Customer & Invoice Details (Ultra-compact margins) */}
-              <div className="mt-2.5 grid grid-cols-3 gap-3 border-b border-rose-800 pb-2">
+              <div className="mt-1.5 grid grid-cols-3 gap-2.5 border-b border-rose-800 pb-1.5">
                 {/* Customer fields */}
-                <div className="col-span-2 space-y-1 text-xs">
+                <div className="col-span-2 space-y-0.5 text-[11px]">
                   <div className="flex items-center gap-2 border-b border-dashed border-rose-350 pb-0.5">
-                    <span className="text-[11px] font-black text-rose-800 min-w-[80px] shrink-0">नांव / Name:</span>
-                    <span className="font-extrabold text-slate-800">{customerName || 'Valued Customer'}</span>
+                    <span className="text-[10px] font-black text-rose-800 min-w-[70px] shrink-0">नांव / Name:</span>
+                    <span className="font-extrabold text-slate-800 leading-none">{customerName || 'Valued Customer'}</span>
                   </div>
                   <div className="flex items-center gap-2 border-b border-dashed border-rose-350 pb-0.5">
-                    <span className="text-[11px] font-black text-rose-800 min-w-[80px] shrink-0">पत्ता / Address:</span>
-                    <span className="font-semibold text-slate-800">
+                    <span className="text-[10px] font-black text-rose-800 min-w-[70px] shrink-0">पत्ता / Address:</span>
+                    <span className="font-semibold text-slate-800 leading-none">
                       {formattedAddress || '—'}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 border-b border-dashed border-rose-350 pb-0.5">
-                    <span className="text-[11px] font-black text-rose-800 min-w-[80px] shrink-0">मोबाईल / Mob:</span>
-                    <span className="font-bold text-slate-800">{customerMobile || '—'}</span>
+                    <span className="text-[10px] font-black text-rose-800 min-w-[70px] shrink-0">मोबाईल / Mob:</span>
+                    <span className="font-bold text-slate-800 leading-none">{customerMobile || '—'}</span>
                   </div>
                 </div>
 
                 {/* Invoice Metadata block */}
-                <div className="bg-rose-50/30 border border-rose-800 rounded-xl p-2 flex flex-col justify-between text-[10px] font-bold text-rose-800 print:bg-transparent">
+                <div className="bg-rose-50/30 border border-rose-800 rounded-lg p-1.5 flex flex-col justify-between text-[9px] font-bold text-rose-800 print:bg-transparent">
                   <div className="flex justify-between items-center">
                     <span>नं. / Memo No:</span>
                     <span className="font-black text-rose-900">{invoice.invoice_number}</span>
                   </div>
-                  <div className="flex justify-between items-center mt-1 border-t border-rose-200 pt-1">
-                    <span>बुकिंग दिनांक / Booking Date:</span>
-                    <span className="text-[9px] font-semibold text-rose-850">{invoice.order?.orderDate || '—'}</span>
+                  <div className="flex justify-between items-center mt-0.5 border-t border-rose-200 pt-0.5">
+                    <span>बुकिंग / Booking:</span>
+                    <span className="text-[8px] font-semibold text-rose-850">{invoice.order?.orderDate || '—'}</span>
                   </div>
-                  <div className="flex justify-between items-center mt-0.5 border-t border-rose-100 pt-1">
-                    <span>बिल दिनांक / Invoice Date:</span>
+                  <div className="flex justify-between items-center mt-0.5 border-t border-rose-100 pt-0.5">
+                    <span>बिल दिनांक / Date:</span>
                     <span className="font-black text-rose-900">{invoice.invoice_date}</span>
                   </div>
                 </div>
@@ -155,25 +150,25 @@ function InvoiceTemplate({ invoice }) {
 
             <div>
               {/* 6. Page-Specific Totals */}
-              <div className="mt-2 border border-dashed border-rose-800 rounded-xl p-2.5 bg-rose-50/10 flex flex-wrap justify-between gap-3 text-[10px] font-bold text-rose-800 print:bg-transparent">
+              <div className="mt-1 border border-dashed border-rose-800 rounded-lg p-1.5 bg-rose-50/10 flex flex-wrap justify-between gap-2 text-[9px] font-bold text-rose-800 print:bg-transparent">
                 <div>
-                  या पानावरील एकूण मॉडेल्स / Models on this page: <span className="font-extrabold text-rose-955 ml-0.5">{pageModelsCount}</span>
+                  या पानावरील एकूण मॉडेल्स: <span className="font-extrabold text-rose-955 ml-0.5">{pageModelsCount}</span>
                 </div>
                 <div>
-                  या पानावरील एकूण नग / Qty on this page: <span className="font-extrabold text-rose-955 ml-0.5">{pageQtySum}</span>
+                  या पानावरील एकूण नग: <span className="font-extrabold text-rose-955 ml-0.5">{pageQtySum}</span>
                 </div>
                 <div>
-                  या पानावरील एकूण रक्कम / Bill on this page: <span className="font-extrabold text-rose-955 ml-0.5">{formatCurrency(pageAmountSum)}</span>
+                  या पानावरील एकूण रक्कम: <span className="font-extrabold text-rose-955 ml-0.5">{formatCurrency(pageAmountSum)}</span>
                 </div>
               </div>
 
               {/* 7. Cumulative Totals and Slogans (ONLY on the last page) */}
               {isLastPage && (
-                <div className="grid grid-cols-2 gap-3 items-end mt-2">
+                <div className="grid grid-cols-2 gap-2.5 items-end mt-1.5">
                   {/* Payments / Installments History */}
-                  <div className="text-left space-y-1.5">
-                    <div className="border border-rose-800 rounded-xl p-2 bg-rose-50/20 text-[10px] font-bold text-rose-800 print:bg-transparent print:border-rose-800">
-                      <h4 className="font-extrabold text-rose-955 border-b border-rose-200 pb-0.5 mb-1 uppercase tracking-wider text-[9px]">भरणा तपशील / Payment Installments:</h4>
+                  <div className="text-left space-y-1">
+                    <div className="border border-rose-800 rounded-lg p-1.5 bg-rose-50/20 text-[9px] font-bold text-rose-800 print:bg-transparent print:border-rose-800">
+                      <h4 className="font-extrabold text-rose-955 border-b border-rose-200 pb-0.5 mb-1 uppercase tracking-wider text-[8px]">भरणा तपशील / Payments:</h4>
                       {invoice.payments && invoice.payments.length > 0 ? (
                         <div className="space-y-0.5">
                           {invoice.payments.map((p, idx) => (
@@ -184,38 +179,38 @@ function InvoiceTemplate({ invoice }) {
                           ))}
                         </div>
                       ) : (
-                        <div className="text-slate-505 italic font-semibold text-[9px]">No payments recorded yet.</div>
+                        <div className="text-slate-500 italic font-semibold text-[8px]">No payments recorded yet.</div>
                       )}
                     </div>
-                    <div className="text-left text-[9px] font-bold text-rose-700 italic pl-0.5">
+                    <div className="text-left text-[8px] font-bold text-rose-700 italic pl-0.5">
                       भगवान गणेश आपल्या घरी सुख, समृद्धी आणि आनंद घेऊन येवोत! 🙏
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-2 text-[10px] font-bold text-rose-800">
-                    <div className="w-full max-w-[280px] space-y-1 border border-rose-800 rounded-xl p-2.5 bg-rose-50/20 print:bg-transparent">
+                  <div className="flex flex-col items-end gap-1.5 text-[9px] font-bold text-rose-800">
+                    <div className="w-full max-w-[240px] space-y-0.5 border border-rose-800 rounded-lg p-1.5 bg-rose-50/20 print:bg-transparent">
                       <div className="flex justify-between text-rose-900 font-bold border-b border-rose-200 pb-0.5">
                         <span>एकूण / Total Amount:</span>
-                        <span className="font-black text-rose-950">{formatCurrency(invoice.total_amount)}</span>
+                        <span className="font-black text-rose-955">{formatCurrency(invoice.total_amount)}</span>
                       </div>
-                      <div className="flex justify-between text-rose-800 font-bold border-b border-rose-200 pb-0.5">
+                      <div className="flex justify-between text-rose-850 font-bold border-b border-rose-200 pb-0.5">
                         <span>भरलेले एकूण / Total Paid:</span>
                         <span className="font-extrabold text-rose-900">{formatCurrency(invoice.advance_paid)}</span>
                       </div>
-                      <div className={`flex justify-between font-black pt-0.5 rounded-lg ${
+                      <div className={`flex justify-between font-black pt-0.5 rounded ${
                         Number(invoice.balance_due || 0) > 0 ? 'text-rose-750' : 'text-emerald-700'
                       }`}>
                         <span>बाकी / Balance Due:</span>
-                        <span className="text-xs font-black">{formatCurrency(invoice.balance_due)}</span>
+                        <span className="text-[11px] font-black">{formatCurrency(invoice.balance_due)}</span>
                       </div>
                     </div>
 
                     {Number(invoice.balance_due || 0) === 0 ? (
-                      <span className="inline-flex items-center rounded-lg bg-emerald-100 border border-emerald-350 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-emerald-800 print:border print:border-emerald-600 print:text-emerald-700 print:bg-transparent">
+                      <span className="inline-flex items-center rounded bg-emerald-100 border border-emerald-350 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-emerald-800 print:bg-transparent">
                         ✔ FULLY PAID / पूर्ण भरणा
                       </span>
                     ) : (
-                      <span className="inline-flex items-center rounded-lg bg-amber-100 border border-amber-350 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-amber-800 print:border print:border-amber-600 print:text-amber-700 print:bg-transparent">
+                      <span className="inline-flex items-center rounded bg-amber-100 border border-amber-350 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-amber-800 print:bg-transparent">
                         ⏳ BALANCE DUE / बाकी देणे
                       </span>
                     )}
@@ -225,34 +220,34 @@ function InvoiceTemplate({ invoice }) {
 
               {/* 8. Terms Notes (ONLY on the last page) */}
               {isLastPage && (
-                <div className="mt-2 border-t border-rose-850 pt-2 text-[8px] text-rose-800 leading-snug font-semibold">
-                  <div className="space-y-0.5">
-                    <p className="font-extrabold text-rose-955 uppercase tracking-wider mb-0.5 text-[9px]">नम्र सुचना / Kindly Note:</p>
+                <div className="mt-1.5 border-t border-rose-850 pt-1.5 text-[7.5px] text-rose-800 leading-tight font-semibold">
+                  <div className="space-y-0">
+                    <p className="font-extrabold text-rose-955 uppercase tracking-wider mb-0.5 text-[8px]">नम्र सुचना / Kindly Note:</p>
                     <p>१) एकदा विकलेला माल परत घेतला जाणार नाही. / 1. Goods once sold will not be taken back.</p>
-                    <p>२) मुर्ती पाहून घेणे. मुर्तीची मोडतोड झाल्यास श्री गणेश आर्ट त्यास जबाबदार नाही. / 2. Please check the idol thoroughly. Shri Ganesh Art is not responsible for any damage or breakage afterwards.</p>
-                    <p>३) मुर्ती नेण्याची जबाबदारी शक्यतो स्वतः वाहनाबरोबर असावे. / 3. The responsibility of carrying the idol should preferably be with your own vehicle.</p>
-                    <p>४) चूक भूल देणे घ्यावी. / 4. Errors and omissions excepted.</p>
+                    <p>२) मुर्ती पाहून घेणे. मुर्तीची मोडतोड झाल्यास श्री गणेश आर्ट त्यास जबाबदार नाही. / 2. Shri Ganesh Art is not responsible for breakage after checking.</p>
+                    <p>३) मुर्ती नेण्याची जबाबदारी स्वतः असावे. / 3. Carry the idol under your own supervision.</p>
+                    <p>४) भूल देणे घ्यावी. / 4. E. & O. E.</p>
                   </div>
                 </div>
               )}
 
               {/* 9. Signatures Block and Page Indicator (On EVERY page) */}
-              <div className="mt-3 border-t border-rose-200 pt-2 flex justify-between items-end text-[8px] text-rose-800 leading-relaxed font-bold">
-                <div className="text-center w-32">
-                  <div className="h-6"></div>
+              <div className="mt-2 border-t border-rose-200 pt-1.5 flex justify-between items-end text-[7.5px] text-rose-800 leading-none font-bold">
+                <div className="text-center w-28">
+                  <div className="h-3.5"></div>
                   <div className="border-b border-rose-800"></div>
-                  <p className="mt-1 text-[8px] font-bold uppercase tracking-wider text-rose-800 leading-none">ऑर्डर दे. सही<br />Customer Signature</p>
+                  <p className="mt-0.5 text-[7.5px] font-bold uppercase tracking-wider text-rose-800">ऑर्डर दे. सही<br />Customer Signature</p>
                 </div>
                 
-                {/* Page Number indicator in Devanagari & English */}
-                <div className="text-center text-[10px] font-black text-rose-700 bg-rose-50 px-3 py-0.5 rounded-full border border-rose-200 print:bg-transparent">
+                {/* Page Number indicator */}
+                <div className="text-center text-[9px] font-black text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 print:bg-transparent">
                   पाने {pageIndex + 1} पैकी {totalPages} / Page {pageIndex + 1} of {totalPages}
                 </div>
 
-                <div className="text-center w-40">
-                  <div className="h-6"></div>
+                <div className="text-center w-36">
+                  <div className="h-3.5"></div>
                   <div className="border-b border-rose-800"></div>
-                  <p className="mt-1 text-[8px] font-bold uppercase tracking-wider text-rose-800 leading-none">श्री गणेश आर्ट करिता<br />For Shri Ganesh Art</p>
+                  <p className="mt-0.5 text-[7.5px] font-bold uppercase tracking-wider text-rose-800">श्री गणेश आर्ट करिता<br />For Shri Ganesh Art</p>
                 </div>
               </div>
             </div>
