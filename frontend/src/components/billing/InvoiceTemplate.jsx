@@ -89,6 +89,33 @@ function InvoiceTemplate({ invoice }) {
                     श्री गणेश आर्ट <span className="text-sm font-black text-rose-700 ml-1">/ SHRI GANESH ART</span>
                   </h1>
                   <p className="invoice-brand-address font-extrabold text-rose-900 leading-none">
+    
+    /* Ensure printed pages use full A4 with no browser margins */
+    @page { size: A4; margin: 0; }
+    
+    @media print {
+      html, body { margin: 0 !important; padding: 0 !important; }
+      .invoice-printable { box-shadow: none !important; border-radius: 0 !important; border: none !important; margin: 0 auto !important; }
+      .invoice-printable, .invoice-printable * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      /* Let table cells wrap in print/PDF output instead of truncating */
+      .invoice-printable table td,
+      .invoice-printable table th {
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.05 !important;
+      }
+    
+      /* Disable truncation for printed invoices so long model names wrap cleanly */
+      .invoice-printable .truncate {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+      }
+    
+      /* Avoid breaking rows across pages when possible */
+      .invoice-printable table tr { page-break-inside: avoid !important; }
+    }
                     यादव नगर, संभाजीनगर बायपास रोड, धाराशिव - ४१३५०१ · Yadav Nagar, Bypass Road, Dharashiv, 413501
                   </p>
                 </div>
