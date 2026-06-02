@@ -91,7 +91,7 @@ function InvoiceTemplate({ invoice }) {
                   <p className="invoice-brand-address font-extrabold text-rose-900 leading-none">
     
     /* Ensure printed pages use full A4 with no browser margins */
-    @page { size: A4; margin: 0; }
+    @page { size: 210mm 297mm; margin: 0; }
     
     @media print {
       html, body { margin: 0 !important; padding: 0 !important; }
