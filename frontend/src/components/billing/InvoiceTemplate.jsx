@@ -1,6 +1,5 @@
 import InvoiceTable from './InvoiceTable.jsx';
 import logo from '../../assets/logo.png';
-import './invoice-print.css';
 
 function InvoiceTemplate({ invoice }) {
   if (!invoice) return null;
@@ -90,9 +89,7 @@ function InvoiceTemplate({ invoice }) {
                     श्री गणेश आर्ट <span className="text-sm font-black text-rose-700 ml-1">/ SHRI GANESH ART</span>
                   </h1>
                   <p className="invoice-brand-address font-extrabold text-rose-900 leading-none">
-    
-    
-                    यादव नगर, संभाजीनगर बायपास रोड, धाराशिव - ४१३५०१ · Yadav Nagar,SambhajiNagar Bypass Road, Dharashiv-413501
+                    यादव नगर, संभाजीनगर बायपास रोड, धाराशिव - ४१३५०१ · Yadav Nagar, Bypass Road, Dharashiv, 413501
                   </p>
                 </div>
 
@@ -109,20 +106,22 @@ function InvoiceTemplate({ invoice }) {
               </div>
 
               {/* 4. Customer & Invoice Details */}
-              <div className="invoice-customer-details grid grid-cols-[minmax(0,1fr)_260px] gap-4 border-b border-rose-800">
+              <div className="invoice-customer-details grid grid-cols-3 border-b border-rose-800">
                 {/* Customer fields */}
-                <div className="invoice-customer-info space-y-1 min-w-0">
+                <div className="invoice-customer-info col-span-2 space-y-1">
                   <div className="flex items-center gap-2 border-b border-dashed border-rose-350">
                     <span className="font-black text-rose-800 shrink-0">नांव / Name:</span>
-                    <span className="font-extrabold text-slate-800 leading-none truncate block min-w-0 max-w-full">{customerName || 'Valued Customer'}</span>
+                    <span className="font-extrabold text-slate-800 leading-none">{customerName || 'Valued Customer'}</span>
                   </div>
                   <div className="flex items-center gap-2 border-b border-dashed border-rose-350">
                     <span className="font-black text-rose-800 shrink-0">पत्ता / Address:</span>
-                    <span className="font-semibold text-slate-800 leading-none truncate block min-w-0 max-w-full">{formattedAddress || '—'}</span>
+                    <span className="font-semibold text-slate-800 leading-none">
+                      {formattedAddress || '—'}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 border-b border-dashed border-rose-350">
                     <span className="font-black text-rose-800 shrink-0">मोबाईल / Mob:</span>
-                    <span className="font-bold text-slate-800 leading-none truncate block min-w-0 max-w-full">{customerMobile || '—'}</span>
+                    <span className="font-bold text-slate-800 leading-none">{customerMobile || '—'}</span>
                   </div>
                 </div>
 
@@ -134,11 +133,11 @@ function InvoiceTemplate({ invoice }) {
                   </div>
                   <div className="flex justify-between items-center border-t border-rose-200 pt-1">
                     <span>बुकिंग / Booking:</span>
-                    <span className="font-semibold text-rose-850">{invoice.order?.orderDate || invoice.invoice_date || '—'}</span>
+                    <span className="font-semibold text-rose-850">{invoice.order?.orderDate || '—'}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-rose-100 pt-1">
                     <span>बिल दिनांक / Date:</span>
-                    <span className="font-black text-rose-900">{invoice.invoice_date || invoice.order?.orderDate || '—'}</span>
+                    <span className="font-black text-rose-900">{invoice.invoice_date}</span>
                   </div>
                 </div>
               </div>
