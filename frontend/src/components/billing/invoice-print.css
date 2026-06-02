@@ -1,5 +1,41 @@
-/* Print-only styles for invoices */
+/* Print/export styles for invoices */
 @page { size: 210mm 297mm; margin: 0; }
+
+body.printing-invoice .invoice-printable,
+.invoice-printable {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+body.printing-invoice .invoice-printable {
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+  margin: 0 auto !important;
+}
+
+body.printing-invoice .invoice-printable table td,
+body.printing-invoice .invoice-printable table th {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.05 !important;
+}
+
+body.printing-invoice .invoice-printable .truncate {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+body.printing-invoice .invoice-customer-details {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 260px !important;
+  gap: 12px !important;
+  align-items: start !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
 
 @media print {
   html, body { margin: 0 !important; padding: 0 !important; }

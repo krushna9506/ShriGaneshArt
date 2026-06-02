@@ -20,8 +20,10 @@ const exportInvoicePDF = async (elementId, invoiceNumber) => {
   const prevPadding = element.style.padding;
   const prevBackground = element.style.background;
   const prevOverflow = element.style.overflow;
+  const hadPrintingClass = document.body.classList.contains('printing-invoice');
 
   // Force consistent capture environment
+  document.body.classList.add('printing-invoice');
   element.style.width = `${A4_PX_WIDTH}px`;
   element.style.padding = '0';
   element.style.background = '#ffffff';
@@ -36,6 +38,8 @@ const exportInvoicePDF = async (elementId, invoiceNumber) => {
     border: child.style.border,
     height: child.style.height,
     width: child.style.width,
+    overflow: child.style.overflow,
+    boxSizing: child.style.boxSizing,
   }));
 
   children.forEach((child) => {
@@ -43,8 +47,11 @@ const exportInvoicePDF = async (elementId, invoiceNumber) => {
     child.style.borderRadius = '0';
     child.style.boxShadow = 'none';
     child.style.border = 'none';
+    child.style.overflow = 'visible';
+    child.style.boxSizing = 'border-box';
     child.style.width = `${A4_PX_WIDTH}px`;
-    child.style.height = `${A4_PX_HEIGHT}px`;
+    child.style.minHeight = `${A4_PX_HEIGHT}px`;
+    child.style.height = 'auto';
   });
 
   // Wait for fonts and a short paint time to stabilise layout
@@ -68,8 +75,8 @@ const exportInvoicePDF = async (elementId, invoiceNumber) => {
       allowTaint: true,
       logging: false,
       imageTimeout: 0,
-      width: child.offsetWidth || A4_PX_WIDTH,
-      height: child.offsetHeight || A4_PX_HEIGHT,
+      scrollX: -window.scrollX,
+      scrollY: -window.scrollY,
       windowWidth: child.offsetWidth || A4_PX_WIDTH,
       windowHeight: child.offsetHeight || A4_PX_HEIGHT,
     });
@@ -87,6 +94,9 @@ const exportInvoicePDF = async (elementId, invoiceNumber) => {
   element.style.padding = prevPadding;
   element.style.background = prevBackground;
   element.style.overflow = prevOverflow;
+  if (!hadPrintingClass) {
+    document.body.classList.remove('printing-invoice');
+  }
 
   savedChildStyles.forEach((s) => {
     s.el.style.margin = s.margin;
@@ -95,6 +105,8 @@ const exportInvoicePDF = async (elementId, invoiceNumber) => {
     s.el.style.border = s.border;
     s.el.style.height = s.height;
     s.el.style.width = s.width;
+    s.el.style.overflow = s.overflow;
+    s.el.style.boxSizing = s.boxSizing;
   });
 
   pdf.save(`GA-Invoice-${invoiceNumber}.pdf`);
