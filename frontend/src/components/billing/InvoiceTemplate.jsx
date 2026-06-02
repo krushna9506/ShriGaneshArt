@@ -92,7 +92,7 @@ function InvoiceTemplate({ invoice }) {
                   <p className="invoice-brand-address font-extrabold text-rose-900 leading-none">
     
     
-                    यादव नगर, संभाजीनगर बायपास रोड, धाराशिव - ४१३५०१ · Yadav Nagar, Bypass Road, Dharashiv, 413501
+                    यादव नगर, संभाजीनगर बायपास रोड, धाराशिव - ४१३५०१ · Yadav Nagar,SambhajiNagar Bypass Road, Dharashiv-413501
                   </p>
                 </div>
 
