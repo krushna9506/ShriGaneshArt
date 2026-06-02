@@ -29,7 +29,7 @@
 /* Keep customer details and metadata on the same row; prevent metadata from dropping */
 .invoice-customer-details {
   display: grid !important;
-  grid-template-columns: 1fr 220px !important; /* flexible customer info + fixed metadata card */
+  grid-template-columns: minmax(0, 1fr) 260px !important; /* flexible customer info + fixed metadata card */
   gap: 12px !important;
   align-items: start !important;
   page-break-inside: avoid !important;
@@ -37,9 +37,15 @@
 }
 
 .invoice-customer-info { min-width: 0 !important; }
+.invoice-customer-info span {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
 .invoice-metadata-card {
   flex: none !important;
-  min-width: 200px !important;
-  max-width: 240px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
   white-space: normal !important;
 }
