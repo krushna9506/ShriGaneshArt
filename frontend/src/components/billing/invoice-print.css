@@ -25,3 +25,21 @@
   /* Avoid breaking rows across pages when possible */
   .invoice-printable table tr { page-break-inside: avoid !important; }
 }
+
+/* Keep customer details and metadata on the same row; prevent metadata from dropping */
+.invoice-customer-details {
+  display: grid !important;
+  grid-template-columns: 1fr 220px !important; /* flexible customer info + fixed metadata card */
+  gap: 12px !important;
+  align-items: start !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+.invoice-customer-info { min-width: 0 !important; }
+.invoice-metadata-card {
+  flex: none !important;
+  min-width: 200px !important;
+  max-width: 240px !important;
+  white-space: normal !important;
+}
