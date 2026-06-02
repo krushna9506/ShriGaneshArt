@@ -89,6 +89,8 @@ const regenerateInvoice = (orderId) => {
   
   // Sync details
   existing.order = order;
+  // Keep invoice date in sync with order booking date when regenerating
+  existing.invoice_date = order.orderDate;
   existing.customer = customer;
   existing.payments = orderPayments;
 

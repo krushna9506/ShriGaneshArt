@@ -136,11 +136,11 @@ function InvoiceTemplate({ invoice }) {
                   </div>
                   <div className="flex justify-between items-center border-t border-rose-200 pt-1">
                     <span>बुकिंग / Booking:</span>
-                    <span className="font-semibold text-rose-850">{invoice.order?.orderDate || '—'}</span>
+                    <span className="font-semibold text-rose-850">{invoice.order?.orderDate || invoice.invoice_date || '—'}</span>
                   </div>
                   <div className="flex justify-between items-center border-t border-rose-100 pt-1">
                     <span>बिल दिनांक / Date:</span>
-                    <span className="font-black text-rose-900">{invoice.invoice_date}</span>
+                    <span className="font-black text-rose-900">{invoice.invoice_date || invoice.order?.orderDate || '—'}</span>
                   </div>
                 </div>
               </div>
