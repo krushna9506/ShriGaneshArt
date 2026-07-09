@@ -107,10 +107,10 @@ def main():
                     cropped_img = img.crop((left, top, right, bottom))
                     
                     # Save to frontend models directory
-                    output_path = os.path.join(output_dir, f"{model_id}.jpg")
+                    output_path = os.path.join(output_dir, f"{model_code}.jpg")
                     cropped_img.save(output_path, "JPEG", quality=90)
                     
-                print(f"Page {page_idx+1}: Matched -> Saved cropped {model_code} ({matched_model['size']}) as {model_id}.jpg")
+                print(f"Page {page_idx+1}: Matched -> Saved cropped {model_code} ({matched_model['size']}) as {model_code}.jpg")
                 matched_count += 1
             except Exception as e:
                 print(f"Page {page_idx+1}: Failed to process image for {model_code}: {e}")

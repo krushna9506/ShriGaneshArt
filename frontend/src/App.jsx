@@ -290,7 +290,7 @@ function Layout({ children }) {
           </div>
           <div className="relative aspect-square w-full rounded-2xl bg-slate-50 border border-slate-100 overflow-hidden flex items-center justify-center">
             <img 
-              src={`/images/models/${previewModel.id}.jpg`} 
+              src={`/images/models/${encodeURIComponent(previewModel.code)}.jpg`} 
               alt={previewModel.name}
               className="w-full h-full object-contain"
               onError={(e) => {
