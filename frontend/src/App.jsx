@@ -41,6 +41,24 @@ function Layout({ children }) {
   const [isOnline, setIsOnline] = useState(true);
   const [pingMs, setPingMs] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [previewModel, setPreviewModel] = useState(null);
+
+  useEffect(() => {
+    const handleShowPhoto = (e) => {
+      setPreviewModel(e.detail.model);
+    };
+    window.addEventListener('show-model-photo', handleShowPhoto);
+    return () => window.removeEventListener('show-model-photo', handleShowPhoto);
+  }, []);
+
+  useEffect(() => {
+    if (!previewModel) return;
+    const handleOutsideClick = () => {
+      setPreviewModel(null);
+    };
+    window.addEventListener('click', handleOutsideClick);
+    return () => window.removeEventListener('click', handleOutsideClick);
+  }, [previewModel]);
 
   useEffect(() => {
     setActivePath(window.location.pathname);
@@ -256,6 +274,39 @@ function Layout({ children }) {
           );
         })}
       </nav>
+      {previewModel && (
+        <div 
+          className="fixed bottom-16 right-4 lg:bottom-4 lg:right-4 z-50 w-72 sm:w-80 bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200 shadow-2xl p-4 transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+            <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Model Preview</span>
+            <button 
+              onClick={() => setPreviewModel(null)} 
+              className="text-slate-400 hover:text-slate-700 font-extrabold text-sm rounded-full p-1 hover:bg-slate-100 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="relative aspect-square w-full rounded-2xl bg-slate-50 border border-slate-100 overflow-hidden flex items-center justify-center">
+            <img 
+              src={`/images/models/${previewModel.id}.jpg`} 
+              alt={previewModel.name}
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://placehold.co/400?text=No+Photo';
+              }}
+            />
+          </div>
+          <div className="mt-3">
+            <p className="text-base font-extrabold text-slate-900 leading-tight">{previewModel.code}</p>
+            <p className="text-xs text-slate-500 font-semibold mt-1">
+              Size: <span className="text-slate-800 font-bold">{previewModel.size || '—'}</span> · Price: <span className="text-slate-800 font-bold">₹{previewModel.price ?? '—'}</span>
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1082,7 +1133,18 @@ function Models() {
                       }
                       return (
                         <tr key={item.id} className="border-t border-slate-100 text-slate-800 hover:bg-slate-50/30 transition-colors">
-                          <td className="px-3 py-3 font-medium">{item.code}</td>
+                          <td className="px-3 py-3 font-medium">
+                            <span className="inline-flex items-center gap-2">
+                              {item.code}
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model: item } })); }}
+                                className="rounded-xl border border-amber-200 bg-amber-50 px-2 py-0.5 text-[9px] font-black text-amber-700 hover:bg-amber-100 transition-colors active:scale-95"
+                              >
+                                📷 Photo
+                              </button>
+                            </span>
+                          </td>
                           <td className="px-3 py-3">{item.size}</td>
                           <td className="px-3 py-3 text-slate-500">{item.price ?? '—'}</td>
                           <td className="px-3 py-3">{item.totalStock ?? 0}</td>
@@ -1575,7 +1637,16 @@ function Orders() {
                               className="w-4 h-4 rounded text-amber-500 border-slate-305 focus:ring-amber-500"
                             />
                             <div className="min-w-0">
-                              <p className="font-extrabold text-slate-900 text-sm truncate">{model.code}</p>
+                              <p className="font-extrabold text-slate-900 text-sm truncate flex items-center gap-1.5">
+                                {model.code}
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model } })); }}
+                                  className="text-[9px] font-black text-amber-600 hover:text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-1.5 py-0.5 shrink-0"
+                                >
+                                  📷 Photo
+                                </button>
+                              </p>
                               <p className="text-[10px] text-slate-500 mt-0.5 font-semibold leading-tight">
                                 {model.size} · ₹{model.price} · <span className={model.remainingStock > 0 ? 'text-emerald-650' : 'text-rose-650'}>{model.remainingStock} left</span>
                               </p>
@@ -1761,6 +1832,16 @@ function Orders() {
                                   }}
                                   className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-800 font-extrabold focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
                                 />
+                                {selectedModel && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model: selectedModel } })); }}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border border-amber-250 bg-amber-50 hover:bg-amber-100 px-1.5 py-1 text-xs active:scale-95 z-10"
+                                    title="View photo"
+                                  >
+                                    📷
+                                  </button>
+                                )}
 
                                 {/* Dropdown Floating Suggestions */}
                                 {activeRow === index && filteredOpts.length > 0 && (
@@ -1790,7 +1871,20 @@ function Orders() {
                                             isSelected ? 'bg-amber-100 text-slate-900 font-bold' : 'hover:bg-slate-50'
                                           } ${isAlreadyChosen ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
-                                          <span>{model.code} {isAlreadyChosen ? '(Already Selected)' : ''}</span>
+                                          <span className="flex items-center gap-1.5">
+                                            {model.code} {isAlreadyChosen ? '(Already Selected)' : ''}
+                                            <button
+                                              type="button"
+                                              onMouseDown={(e) => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model } }));
+                                              }}
+                                              className="text-[9px] font-black text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-1.5 py-0.5 hover:bg-amber-100"
+                                            >
+                                              📷
+                                            </button>
+                                          </span>
                                           <span className="text-xs text-slate-400 font-normal">
                                             {model.size} · ₹{Number(model.price || 0).toFixed(2)} · Stock: {model.remainingStock}
                                           </span>
@@ -1915,10 +2009,6 @@ function Orders() {
                                         if (nextEl) nextEl.focus();
                                       }, 50);
                                     }
-                                  } else if (e.key === 'ArrowRight') {
-                                    e.preventDefault();
-                                    const qtyEl = document.getElementById(`quantity-input-${index}`);
-                                    if (qtyEl) qtyEl.focus();
                                   } else if (e.key === 'Escape') {
                                     e.preventDefault();
                                     setActiveRow(null);
@@ -1926,6 +2016,16 @@ function Orders() {
                                 }}
                                 className="w-full rounded-xl md:rounded-2xl border border-slate-300 bg-white px-3.5 py-2 text-xs md:text-sm text-slate-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
                               />
+                              {selectedModel && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model: selectedModel } })); }}
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border border-amber-250 bg-amber-50 hover:bg-amber-100 px-1.5 py-1 text-xs active:scale-95 z-10"
+                                  title="View photo"
+                                >
+                                  📷
+                                </button>
+                              )}
 
                               {/* Dropdown Floating Suggestions (Desktop only wrapper query) */}
                               {activeRow === index && filteredOpts.length > 0 && (
@@ -1955,7 +2055,20 @@ function Orders() {
                                           isSelected ? 'bg-amber-100 text-slate-900 font-bold' : 'hover:bg-slate-50'
                                         } ${isAlreadyChosen ? 'opacity-50 cursor-not-allowed' : ''}`}
                                       >
-                                        <span>{model.code} {isAlreadyChosen ? '(Already Selected)' : ''}</span>
+                                        <span className="flex items-center gap-1.5">
+                                          {model.code} {isAlreadyChosen ? '(Already Selected)' : ''}
+                                          <button
+                                            type="button"
+                                            onMouseDown={(e) => {
+                                              e.stopPropagation();
+                                              e.preventDefault();
+                                              window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model } }));
+                                            }}
+                                            className="text-[9px] font-black text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-1.5 py-0.5 hover:bg-amber-100"
+                                          >
+                                            📷
+                                          </button>
+                                        </span>
                                         <span className="text-xs text-slate-400 font-normal">
                                           {model.size} · ₹{Number(model.price || 0).toFixed(2)} · Stock: {model.remainingStock}
                                         </span>
@@ -1984,6 +2097,15 @@ function Orders() {
                               <span className="text-emerald-700 font-black mt-0.5 block">₹{Number((item.quantity || 0) * (selectedModel?.price || 0)).toLocaleString('en-IN')}</span>
                             </div>
 
+                            {selectedModel && (
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model: selectedModel } })); }}
+                                className="rounded-xl border border-amber-250 bg-amber-50 px-2 py-1 text-[9px] font-black text-amber-700 hover:bg-amber-100 transition-colors active:scale-95 shrink-0"
+                              >
+                                📷 Photo
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => setForm((prev) => ({ ...prev, items: prev.items.filter((_, itemIndex) => itemIndex !== index) }))}
@@ -2768,6 +2890,16 @@ function OrdersHistory() {
                                       }}
                                       className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-800 font-extrabold focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
                                     />
+                                    {selectedModel && (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model: selectedModel } })); }}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border border-amber-250 bg-amber-50 hover:bg-amber-100 px-1.5 py-1 text-xs active:scale-95 z-10"
+                                        title="View photo"
+                                      >
+                                        📷
+                                      </button>
+                                    )}
 
                                     {activeRow === index && filteredOpts.length > 0 && (
                                       <ul className="absolute right-0 left-0 z-50 max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl mt-1 text-slate-800 text-sm">
@@ -2796,7 +2928,20 @@ function OrdersHistory() {
                                                 isSelected ? 'bg-amber-100 text-slate-900 font-bold' : 'hover:bg-slate-50'
                                               } ${isAlreadyChosen ? 'opacity-50 cursor-not-allowed' : ''}`}
                                             >
-                                              <span>{model.code} {isAlreadyChosen ? '(Already Selected)' : ''}</span>
+                                              <span className="flex items-center gap-1.5">
+                                                {model.code} {isAlreadyChosen ? '(Already Selected)' : ''}
+                                                <button
+                                                  type="button"
+                                                  onMouseDown={(e) => {
+                                                    e.stopPropagation();
+                                                    e.preventDefault();
+                                                    window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model } }));
+                                                  }}
+                                                  className="text-[9px] font-black text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-1.5 py-0.5 hover:bg-amber-100"
+                                                >
+                                                  📷
+                                                </button>
+                                              </span>
                                               <span className="text-xs text-slate-400 font-normal">
                                                 {model.size} · ₹{Number(model.price || 0).toFixed(2)} · Stock: {model.remainingStock}
                                               </span>
@@ -2929,6 +3074,16 @@ function OrdersHistory() {
                                     }}
                                     className="w-full rounded-xl md:rounded-2xl border border-slate-300 bg-white px-3.5 py-2 text-xs md:text-sm text-slate-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
                                   />
+                                  {selectedModel && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model: selectedModel } })); }}
+                                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border border-amber-250 bg-amber-50 hover:bg-amber-100 px-1.5 py-1 text-xs active:scale-95 z-10"
+                                      title="View photo"
+                                    >
+                                      📷
+                                    </button>
+                                  )}
 
                                   {activeRow === index && filteredOpts.length > 0 && (
                                     <ul className="absolute z-50 w-full max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl mt-1 text-slate-800 text-sm">
@@ -2957,7 +3112,20 @@ function OrdersHistory() {
                                               isSelected ? 'bg-amber-100 text-slate-900 font-bold' : 'hover:bg-slate-50'
                                             } ${isAlreadyChosen ? 'opacity-50 cursor-not-allowed' : ''}`}
                                           >
-                                            <span>{model.code} {isAlreadyChosen ? '(Already Selected)' : ''}</span>
+                                            <span className="flex items-center gap-1.5">
+                                              {model.code} {isAlreadyChosen ? '(Already Selected)' : ''}
+                                              <button
+                                                type="button"
+                                                onMouseDown={(e) => {
+                                                  e.stopPropagation();
+                                                  e.preventDefault();
+                                                  window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model } }));
+                                                }}
+                                                className="text-[9px] font-black text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-1.5 py-0.5 hover:bg-amber-100"
+                                              >
+                                                📷
+                                              </button>
+                                            </span>
                                             <span className="text-xs text-slate-400 font-normal">
                                               {model.size} · ₹{Number(model.price || 0).toFixed(2)} · Stock: {model.remainingStock}
                                             </span>
@@ -2985,6 +3153,15 @@ function OrdersHistory() {
                                   <span className="text-emerald-700 font-black mt-0.5 block">₹{Number((item.quantity || 0) * (selectedModel?.price || 0)).toLocaleString('en-IN')}</span>
                                 </div>
 
+                                {selectedModel && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model: selectedModel } })); }}
+                                    className="rounded-xl border border-amber-255 bg-amber-50 px-2 py-1 text-[9px] font-black text-amber-700 hover:bg-amber-100 transition-colors active:scale-95 shrink-0"
+                                  >
+                                    📷 Photo
+                                  </button>
+                                )}
                                 <button
                                   type="button"
                                   onClick={() => setEditForm((prev) => ({ ...prev, items: prev.items.filter((_, itemIndex) => itemIndex !== index) }))}
@@ -3372,19 +3549,29 @@ function PaymentsHistory() {
               })
             )}
           </div>
+        </div>
       </div>
-    </div>
   );
 }
 
 function Delivery() {
   const [orders, setOrders] = useState([]);
+  const [models, setModels] = useState([]);
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const [editOrderInputMode, setEditOrderInputMode] = useState('one-by-one');
+  const [editChecklistSearch, setEditChecklistSearch] = useState('');
+  const [rowSearch, setRowSearch] = useState({});
+  const [activeRow, setActiveRow] = useState(null);
+  const [activeOpt, setActiveOpt] = useState({});
 
   const loadData = async () => {
     try {
       await ensureSession();
-      const { data } = await api.get('/deliveries');
-      setOrders(data);
+      const deliveriesRes = await api.get('/deliveries');
+      setOrders(deliveriesRes.data);
+      const modelsRes = await api.get('/models');
+      setModels(modelsRes.data);
     } catch (err) {
       console.error('Delivery load failed', err);
     }
@@ -3403,33 +3590,889 @@ function Delivery() {
     }
   };
 
+  const startEdit = (order) => {
+    setEditingOrder(order);
+    setRowSearch({});
+    setEditOrderInputMode('one-by-one');
+    setEditChecklistSearch('');
+    setEditForm({
+      customerName: order.customerName,
+      mobile: order.mobile,
+      address: order.address,
+      city: order.city,
+      deliveryDate: order.deliveryDate || '',
+      status: order.status || 'Booked',
+      items: order.items.map(item => ({
+        modelId: item.modelId,
+        quantity: item.quantity,
+        size: item.size,
+        price: item.price
+      }))
+    });
+  };
+
+  const updateEditLineItem = (index, key, value) => {
+    if (key === 'modelId') {
+      if (value !== '') {
+        const isDuplicate = editForm.items.some((item, itemIndex) => itemIndex !== index && String(item.modelId) === String(value));
+        if (isDuplicate) {
+          alert('This model is already selected in another row.');
+          return;
+        }
+      }
+      const selectedModel = models.find((m) => String(m.id) === String(value));
+      setEditForm((prev) => ({
+        ...prev,
+        items: prev.items.map((item, itemIndex) => itemIndex === index ? { ...item, modelId: value, size: selectedModel?.size || '', price: selectedModel?.price || 0 } : item)
+      }));
+    } else if (key === 'quantity') {
+      const cleanVal = String(value).replace(/\D/g, '');
+      setEditForm((prev) => ({
+        ...prev,
+        items: prev.items.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: cleanVal === '' ? '' : Number(cleanVal) } : item)
+      }));
+    }
+  };
+
+  const addEditLineItem = () => setEditForm((prev) => ({ ...prev, items: [...prev.items, { modelId: '', quantity: '', size: '', price: 0 }] }));
+
+  const submitEdit = async (e) => {
+    e.preventDefault();
+    const activeItems = editForm.items.filter(item => item.modelId && item.quantity !== '' && Number(item.quantity) > 0);
+    if (activeItems.length === 0) {
+      alert("Please select at least one model item with a valid quantity.");
+      return;
+    }
+    const invalidItem = activeItems.find(item => !models.some(m => String(m.id) === String(item.modelId)));
+    if (invalidItem) {
+      alert("Invalid Model! Please search and select a valid model from our stock list.");
+      return;
+    }
+    try {
+      await ensureSession();
+      await api.put(`/orders/${editingOrder.id}`, { ...editForm, items: activeItems });
+      setEditingOrder(null);
+      setEditForm(null);
+      setRowSearch({});
+      alert('Order items updated successfully');
+      loadData();
+    } catch (err) {
+      console.error('Update order failed', err);
+      alert(err.response?.data?.error || 'Unable to update order');
+    }
+  };
+
+  const handleEditKeyDown = (e, index, field) => {
+    const totalItems = editForm.items.length;
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const prevEl = document.getElementById(`delivery-edit-model-search-input-${index}`);
+      if (prevEl) prevEl.focus();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (index < totalItems - 1) {
+        const nextRowEl = document.getElementById(`delivery-edit-quantity-input-${index + 1}`);
+        if (nextRowEl) nextRowEl.focus();
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (index > 0) {
+        const prevRowEl = document.getElementById(`delivery-edit-quantity-input-${index - 1}`);
+        if (prevRowEl) prevRowEl.focus();
+      }
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      addEditLineItem();
+      setTimeout(() => {
+        const nextEl = document.getElementById(`delivery-edit-model-search-input-${totalItems}`);
+        if (nextEl) nextEl.focus();
+      }, 50);
+    }
+  };
+
+  const getFilteredOptions = (searchText) => {
+    const query = String(searchText || '').toLowerCase().trim();
+    if (!query) return [];
+    return models.filter((m) =>
+      m.code.toLowerCase().includes(query) ||
+      m.size.toLowerCase().includes(query)
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="rounded-3xl border border-slate-200 bg-white p-6 w-full min-w-0">
-        <h2 className="text-2xl font-semibold">Delivery</h2>
-        <p className="mt-1 text-sm text-slate-600">Manage dispatched, delivered, and cancelled orders from one view.</p>
+        <h2 className="text-2xl font-semibold">Delivery & Dispatch Operations</h2>
+        <p className="mt-1 text-sm text-slate-655">Manage dispatches, edit items for existing orders, and update customer status.</p>
       </div>
+
       <div className="rounded-3xl border border-slate-200 bg-white p-6 w-full min-w-0">
-        <div className="space-y-3">
+        <div className="space-y-4">
           {orders.map((order) => (
-            <article key={order.id} className="rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-700 w-full min-w-0">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+            <article key={order.id} className="rounded-3xl border border-slate-200 bg-white p-5 text-sm text-slate-700 w-full min-w-0 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3 mb-3">
                 <div>
-                  <p className="font-semibold text-slate-900">{order.orderNumber}</p>
-                  <p className="text-slate-500">{order.customerName} · {order.mobile}</p>
+                  <p className="font-extrabold text-slate-900 text-base">{order.orderNumber}</p>
+                  <p className="text-slate-500 font-semibold mt-0.5">{order.customerName} · {order.mobile}</p>
                 </div>
-                <span className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs text-slate-700">{order.status}</span>
+                <span className={`rounded-full px-3 py-1 text-xs font-bold border ${
+                  order.status === 'Delivered' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' :
+                  order.status === 'Packed' ? 'bg-amber-50 border-amber-200 text-amber-800' :
+                  order.status === 'Cancelled' ? 'bg-rose-50 border-rose-200 text-rose-800' :
+                  'bg-blue-50 border-blue-200 text-blue-800'
+                }`}>{order.status}</span>
               </div>
-              <p className="mt-2 text-slate-600">Booking: {order.deliveryDate} · Balance ₹{Number(order.balance || 0).toFixed(2)}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button onClick={() => setStatus(order.id, 'Packed')} className="rounded-2xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 hover:border-amber-400 hover:bg-amber-50">Mark Packed</button>
-                <button onClick={() => setStatus(order.id, 'Delivered')} className="rounded-2xl border border-emerald-200 bg-emerald-100 px-3 py-2 text-xs text-emerald-800">Mark Delivered</button>
-                <button onClick={() => setStatus(order.id, 'Cancelled')} className="rounded-2xl border border-rose-200 bg-rose-100 px-3 py-2 text-xs text-rose-700">Cancel</button>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-semibold text-slate-600">
+                <p>Delivery: <span className="text-slate-900 font-bold">{order.deliveryDate || '—'}</span></p>
+                <p>Outstanding Balance: <span className="text-rose-600 font-black">₹{Number(order.balance || 0).toLocaleString('en-IN')}</span></p>
+              </div>
+
+              {/* Order Items Badge Summary (Clickable to preview photos!) */}
+              <div className="mt-3.5 flex flex-wrap gap-2 items-center bg-slate-50 border border-slate-100/50 rounded-2xl p-2.5">
+                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mr-1 block">Items:</span>
+                {order.items?.map((item, itemIdx) => {
+                  const matchingModel = models.find(m => String(m.id) === String(item.modelId));
+                  return (
+                    <button
+                      key={itemIdx}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (matchingModel) {
+                          window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model: matchingModel } }));
+                        }
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-white border border-slate-200 px-2.5 py-1 text-xs font-bold text-slate-800 hover:border-amber-400 hover:bg-amber-50/50 active:scale-95 transition-all"
+                    >
+                      <span>{matchingModel?.code || 'Model'}</span>
+                      <span className="text-slate-400">·</span>
+                      <span className="text-slate-500 font-semibold">{item.size}</span>
+                      <span className="text-slate-400">·</span>
+                      <span className="text-amber-800 font-extrabold">{item.quantity} qty</span>
+                      <span className="text-[9px] font-black text-amber-600 bg-amber-50 border border-amber-100 rounded px-1">📷</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2 justify-between items-center border-t border-slate-50 pt-3">
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => setStatus(order.id, 'Packed')} className="rounded-xl border border-slate-350 bg-white px-3 py-2 text-xs font-semibold text-slate-800 hover:border-amber-400 hover:bg-amber-50 transition-colors">Mark Packed</button>
+                  <button onClick={() => setStatus(order.id, 'Delivered')} className="rounded-xl border border-emerald-200 bg-emerald-100 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-200 transition-colors">Mark Delivered</button>
+                  <button onClick={() => setStatus(order.id, 'Cancelled')} className="rounded-xl border border-rose-200 bg-rose-100 px-3 py-2 text-xs font-bold text-rose-700 hover:bg-rose-200 transition-colors">Cancel</button>
+                </div>
+                
+                <button 
+                  onClick={() => startEdit(order)}
+                  className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 active:scale-95 transition-all"
+                >
+                  Edit Models & Stock
+                </button>
               </div>
             </article>
           ))}
         </div>
       </div>
+
+      {/* Editing Order Modal */}
+      {editingOrder && editForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/65 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 relative animate-in fade-in zoom-in-95 duration-200">
+            <button 
+              onClick={() => { setEditingOrder(null); setEditForm(null); }} 
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 font-extrabold text-sm p-1.5 hover:bg-slate-100 rounded-full transition-all"
+            >
+              ✕
+            </button>
+            
+            <h3 className="text-xl font-black text-slate-900 mb-1">Edit Models for Order: {editingOrder.orderNumber}</h3>
+            <p className="text-xs text-slate-500 font-semibold mb-4">Customer Details are read-only here. You can modify, add, or remove stock models below.</p>
+
+            {/* Read-only Customer Metadata Block */}
+            <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs font-bold text-slate-600">
+              <div>
+                <span className="text-[9px] uppercase tracking-wider text-slate-400 block mb-0.5">Name</span>
+                <span className="text-slate-900 text-sm font-extrabold">{editingOrder.customerName}</span>
+              </div>
+              <div>
+                <span className="text-[9px] uppercase tracking-wider text-slate-400 block mb-0.5">Mobile</span>
+                <span className="text-slate-900 text-sm font-extrabold">{editingOrder.mobile || '—'}</span>
+              </div>
+              <div>
+                <span className="text-[9px] uppercase tracking-wider text-slate-400 block mb-0.5">Address / City</span>
+                <span className="text-slate-900 truncate block">{[editingOrder.address, editingOrder.city].filter(Boolean).join(', ') || '—'}</span>
+              </div>
+              <div>
+                <span className="text-[9px] uppercase tracking-wider text-slate-400 block mb-0.5">Delivery Date</span>
+                <span className="text-slate-900 block font-black text-amber-700">{editingOrder.deliveryDate || '—'}</span>
+              </div>
+            </div>
+
+            {/* Items Editor Toggle */}
+            <div className="flex items-center justify-between gap-3 flex-wrap border-b border-slate-100 pb-4 mb-4">
+              <h4 className="font-extrabold text-slate-800 text-sm">Ordered Stock Items</h4>
+              
+              <div className="flex bg-slate-100 border border-slate-200/50 rounded-2xl p-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setEditOrderInputMode('one-by-one')}
+                  className={`px-3.5 py-1.5 text-xs font-black rounded-xl transition-all ${
+                    editOrderInputMode === 'one-by-one'
+                      ? 'bg-white text-slate-950 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  One-by-One Cards
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditOrderInputMode('stock-checklist')}
+                  className={`px-3.5 py-1.5 text-xs font-black rounded-xl transition-all ${
+                    editOrderInputMode === 'stock-checklist'
+                      ? 'bg-white text-slate-950 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  Select from Stock List
+                </button>
+              </div>
+            </div>
+
+            {/* Editor Input Mode */}
+            {editOrderInputMode === 'stock-checklist' ? (
+              <div className="border border-slate-200 rounded-3xl p-3 sm:p-4 bg-slate-50/30 space-y-3 mb-6">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Tick models to add to order:</span>
+                  <input
+                    type="text"
+                    placeholder="Search stock models..."
+                    value={editChecklistSearch}
+                    onChange={(e) => setEditChecklistSearch(e.target.value)}
+                    className="w-48 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-800 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/20 outline-none"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-[300px] overflow-y-auto pr-1">
+                  {models
+                    .filter(m =>
+                      m.code.toLowerCase().includes(editChecklistSearch.toLowerCase()) ||
+                      m.size.toLowerCase().includes(editChecklistSearch.toLowerCase())
+                    )
+                    .map((model) => {
+                      const existingItem = editForm.items.find(item => String(item.modelId) === String(model.id));
+                      const isChecked = !!existingItem;
+                      const qtyValue = existingItem ? existingItem.quantity : '';
+
+                      return (
+                        <div 
+                          key={model.id} 
+                          className={`rounded-2xl border p-3 flex items-center justify-between gap-3 transition-all ${
+                            isChecked 
+                              ? 'bg-amber-50/30 border-amber-300 shadow-sm' 
+                              : 'bg-white border-slate-150 hover:bg-slate-50/40'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setEditForm(prev => ({
+                                    ...prev,
+                                    items: [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: '', size: model.size, price: model.price }]
+                                  }));
+                                } else {
+                                  setEditForm(prev => ({
+                                    ...prev,
+                                    items: prev.items.filter(item => String(item.modelId) !== String(model.id))
+                                  }));
+                                }
+                              }}
+                              className="w-4 h-4 rounded text-amber-500 border-slate-300 focus:ring-amber-500"
+                            />
+                            <div className="min-w-0">
+                              <p className="font-extrabold text-slate-900 text-sm truncate flex items-center gap-1.5">
+                                {model.code}
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model } })); }}
+                                  className="text-[9px] font-black text-amber-600 hover:text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-1.5 py-0.5 shrink-0"
+                                >
+                                  📷 Photo
+                                </button>
+                              </p>
+                              <p className="text-[10px] text-slate-500 mt-0.5 font-semibold leading-tight">
+                                {model.size} · ₹{model.price} · <span className={model.remainingStock > 0 ? 'text-emerald-650' : 'text-rose-650'}>{model.remainingStock} left</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          <div>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              placeholder="Qty"
+                              value={qtyValue}
+                              onChange={(e) => {
+                                const cleanVal = e.target.value.replace(/\D/g, '');
+                                const qty = cleanVal === '' ? '' : Number(cleanVal);
+                                
+                                if (cleanVal === '') {
+                                  setEditForm(prev => ({
+                                    ...prev,
+                                    items: prev.items.some(item => String(item.modelId) === String(model.id))
+                                      ? prev.items.map(item => String(item.modelId) === String(model.id) ? { ...item, quantity: '' } : item)
+                                      : [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: '', size: model.size, price: model.price }]
+                                  }));
+                                } else {
+                                  setEditForm(prev => ({
+                                    ...prev,
+                                    items: prev.items.some(item => String(item.modelId) === String(model.id))
+                                      ? prev.items.map(item => String(item.modelId) === String(model.id) ? { ...item, quantity: qty } : item)
+                                      : [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: qty, size: model.size, price: model.price }]
+                                  }));
+                                }
+                              }}
+                              className="w-14 rounded-xl border border-slate-205 bg-white py-1 px-1.5 text-xs text-slate-800 font-black text-center focus:border-amber-400 focus:ring-1 focus:ring-amber-500/20 outline-none"
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            ) : (
+              <div className="mb-6">
+                <div className="hidden md:grid md:grid-cols-[40px_2.2fr_1fr_1.1fr_1.1fr_1.5fr_80px] gap-3 px-4 py-2.5 text-[10px] font-black text-slate-500 bg-slate-50 border border-slate-150 rounded-2xl uppercase tracking-wider mb-3">
+                  <div className="pl-1">#</div>
+                  <div>Model (Search & Select)</div>
+                  <div>Qty</div>
+                  <div>Size</div>
+                  <div>Price</div>
+                  <div>Net Total</div>
+                  <div className="text-center">Action</div>
+                </div>
+
+                <div className="space-y-2.5 md:space-y-1 bg-white max-h-[300px] overflow-y-auto pr-1">
+                  {editForm.items.map((item, index) => {
+                    const selectedModel = models.find((m) => String(m.id) === String(item.modelId));
+                    const currentSearchText = rowSearch[index] !== undefined 
+                      ? rowSearch[index] 
+                      : (selectedModel?.code || '');
+                    const filteredOpts = getFilteredOptions(currentSearchText);
+
+                    return (
+                      <div 
+                        key={index} 
+                        className="flex flex-col md:grid md:grid-cols-[40px_2.2fr_1fr_1.1fr_1.1fr_1.5fr_80px] gap-3 items-center bg-white border border-slate-200 md:border-transparent md:border-b md:border-slate-100 p-3 md:p-1.5 rounded-2xl md:rounded-none hover:bg-slate-50/40 transition-colors shadow-sm md:shadow-none"
+                      >
+                        <div className="hidden md:block text-slate-400 font-extrabold text-xs pl-2">{index + 1}</div>
+
+                        <div className="w-full flex flex-col gap-2 md:contents">
+                          <div className="flex md:hidden gap-2 items-end w-full">
+                            <div className="flex-1 min-w-0">
+                              <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 pl-0.5">Model (Search & Select)</label>
+                              <div className="relative">
+                                <input
+                                  type="text"
+                                  id={`delivery-edit-model-search-input-${index}`}
+                                  value={currentSearchText}
+                                  placeholder="Search GA-001..."
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setRowSearch((prev) => ({ ...prev, [index]: val }));
+                                    setActiveRow(index);
+                                    setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
+                                  }}
+                                  onFocus={() => {
+                                    setActiveRow(index);
+                                    setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
+                                  }}
+                                  onBlur={() => {
+                                    setTimeout(() => {
+                                      if (activeRow === index) {
+                                        setActiveRow(null);
+                                      }
+                                      const query = rowSearch[index];
+                                      if (query !== undefined) {
+                                        const text = String(query).trim().toLowerCase();
+                                        const exactMatch = models.find(m => m.code.toLowerCase() === text);
+                                        if (exactMatch) {
+                                          const isDup = editForm.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(exactMatch.id));
+                                          if (isDup) {
+                                            alert('This model is already selected in another row.');
+                                            updateEditLineItem(index, 'modelId', '');
+                                          } else {
+                                            updateEditLineItem(index, 'modelId', exactMatch.id);
+                                          }
+                                        } else {
+                                          const prevModel = models.find(m => String(m.id) === String(item.modelId));
+                                          if (!prevModel) {
+                                            updateEditLineItem(index, 'modelId', '');
+                                          }
+                                        }
+                                        setRowSearch(prev => {
+                                          const next = { ...prev };
+                                          delete next[index];
+                                          return next;
+                                        });
+                                      }
+                                    }, 250);
+                                  }}
+                                  onKeyDown={(e) => {
+                                    const options = getFilteredOptions(currentSearchText);
+                                    const currentOptIdx = activeOpt[index] || 0;
+
+                                    if (e.key === 'ArrowDown') {
+                                      if (options.length > 0) {
+                                        e.preventDefault();
+                                        const nextIdx = (currentOptIdx + 1) % options.length;
+                                        setActiveOpt(prev => ({ ...prev, [index]: nextIdx }));
+                                      } else {
+                                        e.preventDefault();
+                                        if (index < editForm.items.length - 1) {
+                                          const nextEl = document.getElementById(`delivery-edit-model-search-input-${index + 1}`);
+                                          if (nextEl) nextEl.focus();
+                                        }
+                                      }
+                                    } else if (e.key === 'ArrowUp') {
+                                      if (options.length > 0) {
+                                        e.preventDefault();
+                                        const prevIdx = (currentOptIdx - 1 + options.length) % options.length;
+                                        setActiveOpt(prev => ({ ...prev, [index]: prevIdx }));
+                                      } else {
+                                        e.preventDefault();
+                                        if (index > 0) {
+                                          const prevEl = document.getElementById(`delivery-edit-model-search-input-${index - 1}`);
+                                          if (prevEl) prevEl.focus();
+                                        }
+                                      }
+                                    } else if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      if (options.length > 0 && options[currentOptIdx]) {
+                                        const selected = options[currentOptIdx];
+                                        updateEditLineItem(index, 'modelId', selected.id);
+                                        setRowSearch(prev => ({ ...prev, [index]: undefined }));
+                                        setActiveRow(null);
+                                        setTimeout(() => {
+                                          const qtyEl = document.getElementById(`delivery-edit-quantity-input-${index}`);
+                                          if (qtyEl) qtyEl.focus();
+                                        }, 50);
+                                      } else {
+                                        addEditLineItem();
+                                        const totalItems = editForm.items.length;
+                                        setTimeout(() => {
+                                          const nextEl = document.getElementById(`delivery-edit-model-search-input-${totalItems}`);
+                                          if (nextEl) nextEl.focus();
+                                        }, 50);
+                                      }
+                                    } else if (e.key === 'ArrowRight') {
+                                      e.preventDefault();
+                                      const qtyEl = document.getElementById(`delivery-edit-quantity-input-${index}`);
+                                      if (qtyEl) qtyEl.focus();
+                                    } else if (e.key === 'Escape') {
+                                      e.preventDefault();
+                                      setActiveRow(null);
+                                    }
+                                  }}
+                                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-800 font-extrabold focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
+                                />
+                                {selectedModel && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model: selectedModel } })); }}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border border-amber-250 bg-amber-50 hover:bg-amber-100 px-1.5 py-1 text-xs active:scale-95 z-10"
+                                    title="View photo"
+                                  >
+                                    📷
+                                  </button>
+                                )}
+
+                                {activeRow === index && filteredOpts.length > 0 && (
+                                  <ul className="absolute right-0 left-0 z-50 max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl mt-1 text-slate-800 text-sm">
+                                    {filteredOpts.map((model, optIdx) => {
+                                      const isSelected = (activeOpt[index] || 0) === optIdx;
+                                      const isAlreadyChosen = editForm.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(model.id));
+                                      
+                                      return (
+                                        <li
+                                          key={model.id}
+                                          onMouseDown={(e) => {
+                                            e.preventDefault();
+                                            if (isAlreadyChosen) {
+                                              alert('This model is already selected in another row.');
+                                              return;
+                                            }
+                                            updateEditLineItem(index, 'modelId', model.id);
+                                            setRowSearch(prev => ({ ...prev, [index]: undefined }));
+                                            setActiveRow(null);
+                                            setTimeout(() => {
+                                              const qtyEl = document.getElementById(`delivery-edit-quantity-input-${index}`);
+                                              if (qtyEl) qtyEl.focus();
+                                            }, 50);
+                                          }}
+                                          className={`px-4 py-3 cursor-pointer flex justify-between items-center transition-colors border-b border-slate-50 last:border-none ${
+                                            isSelected ? 'bg-amber-100 text-slate-900 font-bold' : 'hover:bg-slate-50'
+                                          } ${isAlreadyChosen ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        >
+                                          <span className="flex items-center gap-1.5">
+                                            {model.code} {isAlreadyChosen ? '(Already Selected)' : ''}
+                                            <button
+                                              type="button"
+                                              onMouseDown={(e) => {
+                                                e.stopPropagation();
+                                                e.preventDefault();
+                                                window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model } }));
+                                              }}
+                                              className="text-[9px] font-black text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-1.5 py-0.5 hover:bg-amber-100"
+                                            >
+                                              📷
+                                            </button>
+                                          </span>
+                                          <span className="text-xs text-slate-400 font-normal">
+                                            {model.size} · ₹{Number(model.price || 0).toFixed(2)} · Stock: {model.remainingStock}
+                                          </span>
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="w-28 shrink-0">
+                              <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 text-center">Quantity</label>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                placeholder="Qty"
+                                value={item.quantity}
+                                onChange={(e) => updateEditLineItem(index, 'quantity', e.target.value)}
+                                onKeyDown={(e) => handleEditKeyDown(e, index, 'quantity')}
+                                className="w-full text-center rounded-2xl border border-slate-300 bg-white py-3 px-2 text-base text-slate-950 font-black focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="hidden md:block w-full">
+                            <div className="relative">
+                              <input
+                                type="text"
+                                id={`delivery-edit-model-search-input-${index}`}
+                                value={currentSearchText}
+                                placeholder="Search GA-001..."
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setRowSearch((prev) => ({ ...prev, [index]: val }));
+                                  setActiveRow(index);
+                                  setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
+                                }}
+                                onFocus={() => {
+                                  setActiveRow(index);
+                                  setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
+                                }}
+                                onBlur={() => {
+                                  setTimeout(() => {
+                                    if (activeRow === index) {
+                                      setActiveRow(null);
+                                    }
+                                    const query = rowSearch[index];
+                                    if (query !== undefined) {
+                                      const text = String(query).trim().toLowerCase();
+                                      const exactMatch = models.find(m => m.code.toLowerCase() === text);
+                                      if (exactMatch) {
+                                        const isDup = editForm.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(exactMatch.id));
+                                        if (isDup) {
+                                          alert('This model is already selected in another row.');
+                                          updateEditLineItem(index, 'modelId', '');
+                                        } else {
+                                          updateEditLineItem(index, 'modelId', exactMatch.id);
+                                        }
+                                      } else {
+                                        const prevModel = models.find(m => String(m.id) === String(item.modelId));
+                                        if (!prevModel) {
+                                          updateEditLineItem(index, 'modelId', '');
+                                        }
+                                      }
+                                      setRowSearch(prev => {
+                                        const next = { ...prev };
+                                        delete next[index];
+                                        return next;
+                                      });
+                                    }
+                                  }, 250);
+                                }}
+                                onKeyDown={(e) => {
+                                  const options = getFilteredOptions(currentSearchText);
+                                  const currentOptIdx = activeOpt[index] || 0;
+
+                                  if (e.key === 'ArrowDown') {
+                                    if (options.length > 0) {
+                                      e.preventDefault();
+                                      const nextIdx = (currentOptIdx + 1) % options.length;
+                                      setActiveOpt(prev => ({ ...prev, [index]: nextIdx }));
+                                    } else {
+                                      e.preventDefault();
+                                      if (index < editForm.items.length - 1) {
+                                        const nextEl = document.getElementById(`delivery-edit-model-search-input-${index + 1}`);
+                                        if (nextEl) nextEl.focus();
+                                      }
+                                    }
+                                  } else if (e.key === 'ArrowUp') {
+                                    if (options.length > 0) {
+                                      e.preventDefault();
+                                      const prevIdx = (currentOptIdx - 1 + options.length) % options.length;
+                                      setActiveOpt(prev => ({ ...prev, [index]: prevIdx }));
+                                    } else {
+                                      e.preventDefault();
+                                      if (index > 0) {
+                                        const prevEl = document.getElementById(`delivery-edit-model-search-input-${index - 1}`);
+                                        if (prevEl) prevEl.focus();
+                                      }
+                                    }
+                                  } else if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (options.length > 0 && options[currentOptIdx]) {
+                                      const selected = options[currentOptIdx];
+                                      updateEditLineItem(index, 'modelId', selected.id);
+                                      setRowSearch(prev => ({ ...prev, [index]: undefined }));
+                                      setActiveRow(null);
+                                      setTimeout(() => {
+                                        const qtyEl = document.getElementById(`delivery-edit-quantity-input-${index}`);
+                                        if (qtyEl) qtyEl.focus();
+                                      }, 50);
+                                    } else {
+                                      addEditLineItem();
+                                      const totalItems = editForm.items.length;
+                                      setTimeout(() => {
+                                        const nextEl = document.getElementById(`delivery-edit-model-search-input-${totalItems}`);
+                                        if (nextEl) nextEl.focus();
+                                      }, 50);
+                                    }
+                                  } else if (e.key === 'ArrowRight') {
+                                    e.preventDefault();
+                                    const qtyEl = document.getElementById(`delivery-edit-quantity-input-${index}`);
+                                    if (qtyEl) qtyEl.focus();
+                                  } else if (e.key === 'Escape') {
+                                    e.preventDefault();
+                                    setActiveRow(null);
+                                  }
+                                }}
+                                className="w-full rounded-xl md:rounded-2xl border border-slate-300 bg-white px-3.5 py-2 text-xs md:text-sm text-slate-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
+                              />
+                              {selectedModel && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model: selectedModel } })); }}
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border border-amber-250 bg-amber-50 hover:bg-amber-100 px-1.5 py-1 text-xs active:scale-95 z-10"
+                                  title="View photo"
+                                >
+                                  📷
+                                </button>
+                              )}
+
+                              {activeRow === index && filteredOpts.length > 0 && (
+                                <ul className="absolute z-50 w-full max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl mt-1 text-slate-800 text-sm">
+                                  {filteredOpts.map((model, optIdx) => {
+                                    const isSelected = (activeOpt[index] || 0) === optIdx;
+                                    const isAlreadyChosen = editForm.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(model.id));
+                                    
+                                    return (
+                                      <li
+                                        key={model.id}
+                                        onMouseDown={(e) => {
+                                          e.preventDefault();
+                                          if (isAlreadyChosen) {
+                                            alert('This model is already selected in another row.');
+                                            return;
+                                          }
+                                          updateEditLineItem(index, 'modelId', model.id);
+                                          setRowSearch(prev => ({ ...prev, [index]: undefined }));
+                                          setActiveRow(null);
+                                          setTimeout(() => {
+                                            const qtyEl = document.getElementById(`delivery-edit-quantity-input-${index}`);
+                                            if (qtyEl) qtyEl.focus();
+                                          }, 50);
+                                        }}
+                                        className={`px-4 py-3 cursor-pointer flex justify-between items-center transition-colors border-b border-slate-50 last:border-none ${
+                                          isSelected ? 'bg-amber-100 text-slate-900 font-bold' : 'hover:bg-slate-50'
+                                        } ${isAlreadyChosen ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                      >
+                                        <span className="flex items-center gap-1.5">
+                                          {model.code} {isAlreadyChosen ? '(Already Selected)' : ''}
+                                          <button
+                                            type="button"
+                                            onMouseDown={(e) => {
+                                              e.stopPropagation();
+                                              e.preventDefault();
+                                              window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model } }));
+                                            }}
+                                            className="text-[9px] font-black text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-1.5 py-0.5 hover:bg-amber-100"
+                                          >
+                                            📷
+                                          </button>
+                                        </span>
+                                        <span className="text-xs text-slate-400 font-normal">
+                                          {model.size} · ₹{Number(model.price || 0).toFixed(2)} · Stock: {model.remainingStock}
+                                        </span>
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex md:hidden items-center justify-between gap-1 bg-slate-50/50 border border-slate-100 rounded-2xl p-2.5 w-full text-xs font-semibold text-slate-655 mt-0.5">
+                            <div className="text-[10px] pl-1">
+                              <span className="text-[8px] font-extrabold uppercase tracking-wide text-slate-400 block leading-none">Size</span>
+                              <span className="text-slate-800 font-bold mt-0.5 block">{selectedModel?.size || '—'}</span>
+                            </div>
+
+                            <div className="text-[10px]">
+                              <span className="text-[8px] font-extrabold uppercase tracking-wide text-slate-400 block leading-none">Price</span>
+                              <span className="text-slate-800 font-bold mt-0.5 block">₹{selectedModel?.price || '0'}</span>
+                            </div>
+
+                            <div className="text-[10px] text-right">
+                              <span className="text-[8px] font-extrabold uppercase tracking-wide text-slate-400 block leading-none">Total</span>
+                              <span className="text-emerald-700 font-black mt-0.5 block">₹{Number((item.quantity || 0) * (selectedModel?.price || 0)).toLocaleString('en-IN')}</span>
+                            </div>
+
+                            {selectedModel && (
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('show-model-photo', { detail: { model: selectedModel } })); }}
+                                className="rounded-xl border border-amber-255 bg-amber-50 px-2 py-1 text-[9px] font-black text-amber-700 hover:bg-amber-100 transition-colors active:scale-95 shrink-0"
+                              >
+                                📷 Photo
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setEditForm((prev) => ({ ...prev, items: prev.items.filter((_, itemIndex) => itemIndex !== index) }))}
+                              className="rounded-full bg-rose-50 border border-rose-200 p-1.5 text-rose-600 hover:bg-rose-100 transition-colors shrink-0"
+                              title="Remove item"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5} stroke="currentColor" className="w-3.5 h-3.5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Quantity (Desktop only) */}
+                        <div className="hidden md:block w-full">
+                          <input
+                            id={`delivery-edit-quantity-input-${index}`}
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            placeholder="0"
+                            value={item.quantity}
+                            onChange={(e) => updateEditLineItem(index, 'quantity', e.target.value)}
+                            onKeyDown={(e) => handleEditKeyDown(e, index, 'quantity')}
+                            className="w-full rounded-2xl border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
+                          />
+                        </div>
+
+                        {/* Size Badge (Desktop only) */}
+                        <div className="hidden md:flex justify-center">
+                          <span className="inline-flex rounded-xl bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 md:min-w-[80px] text-center justify-center">
+                            {selectedModel?.size || '—'}
+                          </span>
+                        </div>
+
+                        {/* Unit Price Badge (Desktop only) */}
+                        <div className="hidden md:flex justify-center">
+                          <span className="inline-flex rounded-xl bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 md:min-w-[80px] text-center justify-center">
+                            {selectedModel?.price ? `₹${selectedModel.price}` : '—'}
+                          </span>
+                        </div>
+
+                        {/* Net Total Badge (Desktop only) */}
+                        <div className="hidden md:flex justify-center">
+                          <span className="inline-flex rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-800 md:min-w-[80px] text-center justify-center">
+                            ₹{Number((item.quantity || 0) * (selectedModel?.price || 0)).toLocaleString('en-IN')}
+                          </span>
+                        </div>
+
+                        {/* Action column (Desktop only) */}
+                        <div className="hidden md:flex justify-center">
+                          <button
+                            type="button"
+                            onClick={() => setEditForm((prev) => ({ ...prev, items: prev.items.filter((_, itemIndex) => itemIndex !== index) }))}
+                            className="rounded-full bg-rose-50 border border-rose-200 p-2 text-rose-600 hover:bg-rose-100 transition-colors shrink-0"
+                            title="Remove item"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={addEditLineItem}
+                  className="mt-4 rounded-xl border border-dashed border-slate-350 bg-slate-50 hover:bg-slate-100/50 py-3 text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5 w-full transition-all active:scale-[0.99]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                  Add Another Model Line [Enter]
+                </button>
+              </div>
+            )}
+
+            {/* Calculations Summary Section */}
+            <div className="border-t border-slate-200 pt-4 mb-6">
+              <div className="bg-slate-50 border border-slate-100 rounded-3xl p-4 flex flex-wrap gap-6 justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <div>
+                  Subtotal: <span className="text-slate-900 text-sm font-extrabold">{
+                    editForm.items.reduce((sum, item) => sum + (Number(item.quantity || 0) * Number(item.price || 0)), 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+                  }</span>
+                </div>
+                <div>
+                  Advance Paid: <span className="text-slate-900 text-sm font-extrabold">{
+                    Number(editingOrder.advance || 0).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+                  }</span>
+                </div>
+                <div>
+                  Balance Due: <span className="text-rose-600 text-sm font-black">{
+                    (editForm.items.reduce((sum, item) => sum + (Number(item.quantity || 0) * Number(item.price || 0)), 0) - Number(editingOrder.advance || 0)).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+                  }</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
+              <button
+                type="button"
+                onClick={() => { setEditingOrder(null); setEditForm(null); }}
+                className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                onClick={submitEdit}
+                className="rounded-xl bg-blue-600 px-6 py-2.5 text-xs font-bold text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md"
+              >
+                Save Items & Sync Everywhere
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
