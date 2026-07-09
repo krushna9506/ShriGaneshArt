@@ -118,9 +118,7 @@ body.printing-invoice,
 body.printing-invoice #root,
 body.printing-invoice #root > div,
 body.printing-invoice main,
-body.printing-invoice section,
-body.printing-invoice .grid,
-body.printing-invoice [class*="grid"] {
+body.printing-invoice section {
   padding: 0 !important;
   margin: 0 !important;
   max-width: none !important;
@@ -139,9 +137,7 @@ body.printing-invoice [class*="grid"] {
   #root,
   #root > div,
   main,
-  section,
-  .grid,
-  [class*="grid"] {
+  section {
     padding: 0 !important;
     margin: 0 !important;
     max-width: none !important;
@@ -186,14 +182,16 @@ body.printing-invoice .invoice-printable {
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
-  width: 210mm !important;
-  min-height: 297mm !important;
-  height: auto !important;
+  width: 100% !important;
+  min-height: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
   margin: 0 !important;
-  padding: 8mm !important;
+  padding: 6mm !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   page-break-after: always !important;
+  page-break-inside: avoid !important;
   border: 2px solid #881337 !important;
   background: #ffffff !important;
   box-sizing: border-box !important;
@@ -205,14 +203,16 @@ body.printing-invoice .invoice-printable {
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
-    width: 210mm !important;
-    min-height: 297mm !important;
-    height: auto !important;
+    width: 100% !important;
+    min-height: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
     margin: 0 !important;
-    padding: 8mm !important;
+    padding: 6mm !important;
     border-radius: 0 !important;
     box-shadow: none !important;
     page-break-after: always !important;
+    page-break-inside: avoid !important;
     border: 2px solid #881337 !important;
     background: #ffffff !important;
     box-sizing: border-box !important;
@@ -222,7 +222,7 @@ body.printing-invoice .invoice-printable {
 
 @page {
   size: A4 portrait;
-  margin: 0;
+  margin: 8mm;
 }
 
 /* ── Responsive Stock Ledger column adjustments for narrow screens (under 640px) ── */

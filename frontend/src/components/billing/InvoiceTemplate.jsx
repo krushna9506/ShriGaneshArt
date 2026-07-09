@@ -106,9 +106,9 @@ function InvoiceTemplate({ invoice }) {
               </div>
 
               {/* 4. Customer & Invoice Details */}
-              <div className="invoice-customer-details grid grid-cols-3 border-b border-rose-800">
+              <div className="invoice-customer-details border-b border-rose-800">
                 {/* Customer fields */}
-                <div className="invoice-customer-info col-span-2 space-y-1">
+                <div className="invoice-customer-info space-y-1">
                   <div className="flex items-center gap-2 border-b border-dashed border-rose-350">
                     <span className="font-black text-rose-800 shrink-0">नांव / Name:</span>
                     <span className="font-extrabold text-slate-800 leading-none">{customerName || 'Valued Customer'}</span>
@@ -300,7 +300,7 @@ const styleTag = (
     @media print {
       body.printing-invoice .invoice-printable,
       .invoice-printable {
-        padding: 5mm !important;
+        padding: 6mm !important;
       }
     }
 
@@ -317,12 +317,29 @@ const styleTag = (
     
     .invoice-slogan-banner { font-size: 10px !important; padding: 4px 8px !important; margin-top: 8px !important; border-radius: 8px !important; }
     
-    .invoice-customer-details { margin-top: 10px !important; padding-bottom: 8px !important; gap: 12px !important; }
-    .invoice-customer-info { font-size: 12.5px !important; }
+    .invoice-customer-details {
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: stretch !important;
+      margin-top: 10px !important;
+      padding-bottom: 8px !important;
+      gap: 16px !important;
+    }
+    .invoice-customer-info {
+      flex: 1 !important;
+      font-size: 12.5px !important;
+    }
     .invoice-customer-info > div { border-bottom-width: 1px !important; padding-bottom: 4px !important; }
     .invoice-customer-info span:first-child { min-width: 75px !important; font-size: 11.5px !important; }
     
-    .invoice-metadata-card { font-size: 10.5px !important; padding: 8px 10px !important; border-radius: 10px !important; }
+    .invoice-metadata-card {
+      width: 240px !important;
+      flex-shrink: 0 !important;
+      font-size: 10.5px !important;
+      padding: 8px 10px !important;
+      border-radius: 10px !important;
+    }
     .invoice-metadata-card > div { margin-top: 4px !important; }
     
     .invoice-table-container { margin-top: 6px !important; }

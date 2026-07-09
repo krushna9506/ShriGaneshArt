@@ -2167,6 +2167,34 @@ function OrdersHistory() {
   const [activeRow, setActiveRow] = useState(null);
   const [activeOpt, setActiveOpt] = useState({});
 
+  const [editOrderInputMode, setEditOrderInputMode] = useState('one-by-one');
+  const [editChecklistSearch, setEditChecklistSearch] = useState('');
+
+  const updateEditLineItem = (index, key, value) => {
+    if (key === 'modelId') {
+      if (value !== '') {
+        const isDuplicate = editForm.items.some((item, itemIndex) => itemIndex !== index && String(item.modelId) === String(value));
+        if (isDuplicate) {
+          alert('This model is already selected in another row.');
+          return;
+        }
+      }
+      const selectedModel = models.find((m) => String(m.id) === String(value));
+      setEditForm((prev) => ({
+        ...prev,
+        items: prev.items.map((item, itemIndex) => itemIndex === index ? { ...item, modelId: value, size: selectedModel?.size || '', price: selectedModel?.price || 0 } : item)
+      }));
+    } else if (key === 'quantity') {
+      const cleanVal = String(value).replace(/\D/g, '');
+      setEditForm((prev) => ({
+        ...prev,
+        items: prev.items.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: cleanVal === '' ? '' : Number(cleanVal) } : item)
+      }));
+    }
+  };
+
+  const addEditLineItem = () => setEditForm((prev) => ({ ...prev, items: [...prev.items, { modelId: '', quantity: '', size: '', price: 0 }] }));
+
   const handleGenerateInvoice = async (order) => {
     try {
       await ensureSession();
@@ -2222,6 +2250,8 @@ function OrdersHistory() {
   const startEdit = (order) => {
     setEditingOrder(order);
     setRowSearch({});
+    setEditOrderInputMode('one-by-one');
+    setEditChecklistSearch('');
     setEditForm({
       customerName: order.customerName,
       mobile: order.mobile,
@@ -2241,16 +2271,23 @@ function OrdersHistory() {
   const submitEdit = async (e) => {
     e.preventDefault();
     
+    // Filter out rows that have no modelId or no quantity
+    const activeItems = editForm.items.filter(item => item.modelId && item.quantity !== '' && Number(item.quantity) > 0);
+    if (activeItems.length === 0) {
+      alert("Please select at least one model item with a valid quantity.");
+      return;
+    }
+
     // Strict Validation: ensure all items match a valid stock model ID
-    const invalidItem = editForm.items.find(item => !item.modelId || !models.some(m => String(m.id) === String(item.modelId)));
+    const invalidItem = activeItems.find(item => !models.some(m => String(m.id) === String(item.modelId)));
     if (invalidItem) {
-      alert("Invalid Model! Please search and select a valid model from our stock list for all rows.");
+      alert("Invalid Model! Please search and select a valid model from our stock list.");
       return;
     }
 
     try {
       await ensureSession();
-      await api.put(`/orders/${editingOrder.id}`, editForm);
+      await api.put(`/orders/${editingOrder.id}`, { ...editForm, items: activeItems });
       setEditingOrder(null);
       setEditForm(null);
       setRowSearch({});
@@ -2282,10 +2319,7 @@ function OrdersHistory() {
       }
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      setEditForm(prev => ({
-        ...prev,
-        items: [...prev.items, { modelId: '', quantity: 1, size: '', price: 0 }]
-      }));
+      addEditLineItem();
       setTimeout(() => {
         const nextEl = document.getElementById(`edit-model-search-input-${totalItems}`);
         if (nextEl) nextEl.focus();
@@ -2472,225 +2506,553 @@ function OrdersHistory() {
 
               {/* Order Items */}
               <div>
-                <h4 className="text-sm font-semibold text-slate-800 uppercase tracking-wider">Order Items</h4>
-                <div className="mt-3 space-y-3 max-h-60 overflow-y-auto p-1">
-                  {editForm.items.map((item, index) => {
-                    const selectedModel = models.find((m) => String(m.id) === String(item.modelId));
-                    const currentSearchText = rowSearch[index] !== undefined 
-                      ? rowSearch[index] 
-                      : (selectedModel?.code || '');
-                    const filteredOpts = getFilteredOptions(currentSearchText);
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3 mb-4 gap-2">
+                  <h4 className="text-sm font-semibold text-slate-800 uppercase tracking-wider">Order Items</h4>
+                  <div className="flex rounded-2xl bg-slate-100 p-1 border border-slate-150 shrink-0 self-start">
+                    <button
+                      type="button"
+                      onClick={() => setEditOrderInputMode('one-by-one')}
+                      className={`px-3.5 py-1.5 text-xs font-black rounded-xl transition-all ${
+                        editOrderInputMode === 'one-by-one'
+                          ? 'bg-white text-slate-950 shadow-sm'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      One-by-One Cards
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditOrderInputMode('stock-checklist')}
+                      className={`px-3.5 py-1.5 text-xs font-black rounded-xl transition-all ${
+                        editOrderInputMode === 'stock-checklist'
+                          ? 'bg-white text-slate-950 shadow-sm'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      Select from Stock List
+                    </button>
+                  </div>
+                </div>
 
-                    return (
-                      <div key={index} className="grid gap-2 md:grid-cols-[1.5fr_0.6fr_0.8fr_0.8fr_auto] items-center rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                        <div>
-                          <div className="relative">
-                            <input
-                              type="text"
-                              id={`edit-model-search-input-${index}`}
-                              value={currentSearchText}
-                              placeholder="Type model code (e.g. A60)..."
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setRowSearch((prev) => ({ ...prev, [index]: val }));
-                                setActiveRow(index);
-                                setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
-                              }}
-                              onFocus={() => {
-                                setActiveRow(index);
-                                setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
-                              }}
-                              onBlur={() => {
-                                setTimeout(() => {
-                                  if (activeRow === index) {
-                                    setActiveRow(null);
-                                  }
-                                  // Strict Auto-Correction / Reversion on Blur
-                                  const query = rowSearch[index];
-                                  if (query !== undefined) {
-                                    const text = String(query).trim().toLowerCase();
-                                    const exactMatch = models.find(m => m.code.toLowerCase() === text);
-                                    if (exactMatch) {
-                                      const isDup = editForm.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(exactMatch.id));
-                                      if (isDup) {
-                                        alert('This model is already selected in another row.');
-                                        setEditForm({
-                                          ...editForm,
-                                          items: editForm.items.map((line, lineIdx) => lineIdx === index ? { ...line, modelId: '' } : line)
-                                        });
-                                      } else {
-                                        setEditForm({
-                                          ...editForm,
-                                          items: editForm.items.map((line, lineIdx) => lineIdx === index ? { ...line, modelId: exactMatch.id, size: exactMatch.size || '', price: exactMatch.price || 0 } : line)
-                                        });
-                                      }
+                {editOrderInputMode === 'stock-checklist' ? (
+                  <div className="border border-slate-200 rounded-3xl p-3 sm:p-4 bg-slate-50/30 space-y-3">
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Tick models to add to order:</span>
+                      <input
+                        type="text"
+                        placeholder="Search stock models..."
+                        value={editChecklistSearch}
+                        onChange={(e) => setEditChecklistSearch(e.target.value)}
+                        className="w-48 rounded-xl border border-slate-355 bg-white px-3 py-1.5 text-xs text-slate-800 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/20 outline-none"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-60 overflow-y-auto pr-1">
+                      {models
+                        .filter(m =>
+                          m.code.toLowerCase().includes(editChecklistSearch.toLowerCase()) ||
+                          m.size.toLowerCase().includes(editChecklistSearch.toLowerCase())
+                        )
+                        .map((model) => {
+                          const existingItem = editForm.items.find(item => String(item.modelId) === String(model.id));
+                          const isChecked = !!existingItem;
+                          const qtyValue = existingItem ? existingItem.quantity : '';
+
+                          return (
+                            <div 
+                              key={model.id} 
+                              className={`rounded-2xl border p-3 flex items-center justify-between gap-3 transition-all ${
+                                isChecked 
+                                  ? 'bg-amber-50/30 border-amber-300 shadow-sm' 
+                                  : 'bg-white border-slate-150 hover:bg-slate-50/40'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setEditForm(prev => ({
+                                        ...prev,
+                                        items: [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: '', size: model.size, price: model.price }]
+                                      }));
                                     } else {
-                                      const prevModel = models.find(m => String(m.id) === String(item.modelId));
-                                      if (!prevModel) {
-                                        setEditForm({
-                                          ...editForm,
-                                          items: editForm.items.map((line, lineIdx) => lineIdx === index ? { ...line, modelId: '' } : line)
-                                        });
-                                      }
+                                      setEditForm(prev => ({
+                                        ...prev,
+                                        items: prev.items.filter(item => String(item.modelId) !== String(model.id))
+                                      }));
                                     }
-                                    setRowSearch(prev => {
-                                      const next = { ...prev };
-                                      delete next[index];
-                                      return next;
-                                    });
-                                  }
-                                }, 250);
-                              }}
-                              onKeyDown={(e) => {
-                                const options = getFilteredOptions(currentSearchText);
-                                const currentOptIdx = activeOpt[index] || 0;
+                                  }}
+                                  className="w-4 h-4 rounded text-amber-500 border-slate-305 focus:ring-amber-500"
+                                />
+                                <div className="min-w-0">
+                                  <p className="font-extrabold text-slate-900 text-sm truncate">{model.code}</p>
+                                  <p className="text-[10px] text-slate-500 mt-0.5 font-semibold leading-tight">
+                                    {model.size} · ₹{model.price} · <span className={model.remainingStock > 0 ? 'text-emerald-650' : 'text-rose-650'}>{model.remainingStock} left</span>
+                                  </p>
+                                </div>
+                              </div>
 
-                                if (e.key === 'ArrowDown') {
-                                  if (options.length > 0) {
-                                    e.preventDefault();
-                                    const nextIdx = (currentOptIdx + 1) % options.length;
-                                    setActiveOpt(prev => ({ ...prev, [index]: nextIdx }));
-                                  } else {
-                                    e.preventDefault();
-                                    if (index < editForm.items.length - 1) {
-                                      const nextEl = document.getElementById(`edit-model-search-input-${index + 1}`);
-                                      if (nextEl) nextEl.focus();
-                                    }
-                                  }
-                                } else if (e.key === 'ArrowUp') {
-                                  if (options.length > 0) {
-                                    e.preventDefault();
-                                    const prevIdx = (currentOptIdx - 1 + options.length) % options.length;
-                                    setActiveOpt(prev => ({ ...prev, [index]: prevIdx }));
-                                  } else {
-                                    e.preventDefault();
-                                    if (index > 0) {
-                                      const prevEl = document.getElementById(`edit-model-search-input-${index - 1}`);
-                                      if (prevEl) prevEl.focus();
-                                    }
-                                  }
-                                } else if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  if (options.length > 0 && options[currentOptIdx]) {
-                                    const selected = options[currentOptIdx];
+                              <div>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
+                                  placeholder="Qty"
+                                  value={qtyValue}
+                                  onChange={(e) => {
+                                    const cleanVal = e.target.value.replace(/\D/g, '');
+                                    const qty = cleanVal === '' ? '' : Number(cleanVal);
                                     
-                                    const isDup = editForm.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(selected.id));
-                                    if (isDup) {
-                                      alert('This model is already selected.');
-                                      return;
+                                    if (cleanVal === '') {
+                                      setEditForm(prev => ({
+                                        ...prev,
+                                        items: prev.items.some(item => String(item.modelId) === String(model.id))
+                                          ? prev.items.map(item => String(item.modelId) === String(model.id) ? { ...item, quantity: '' } : item)
+                                          : [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: '', size: model.size, price: model.price }]
+                                      }));
+                                    } else {
+                                      setEditForm(prev => ({
+                                        ...prev,
+                                        items: prev.items.some(item => String(item.modelId) === String(model.id))
+                                          ? prev.items.map(item => String(item.modelId) === String(model.id) ? { ...item, quantity: qty } : item)
+                                          : [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: qty, size: model.size, price: model.price }]
+                                      }));
                                     }
+                                  }}
+                                  className="w-14 rounded-xl border border-slate-205 bg-white py-1 px-1.5 text-xs text-slate-800 font-black text-center focus:border-amber-455 focus:ring-1 focus:ring-amber-500/20 outline-none"
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    {/* Header row for large screens */}
+                    <div className="hidden md:grid md:grid-cols-[40px_2.2fr_1fr_1.1fr_1.1fr_1.5fr_80px] gap-3 px-4 py-2.5 text-[10px] font-black text-slate-500 bg-slate-50 border border-slate-150 rounded-2xl uppercase tracking-wider mb-3">
+                      <div className="pl-1">#</div>
+                      <div>Model (Search & Select)</div>
+                      <div>Qty</div>
+                      <div>Size</div>
+                      <div>Price</div>
+                      <div>Net Total</div>
+                      <div className="text-center">Action</div>
+                    </div>
 
-                                    setEditForm({
-                                      ...editForm,
-                                      items: editForm.items.map((line, lineIdx) => lineIdx === index ? { ...line, modelId: selected.id, size: selected.size || '', price: selected.price || 0 } : line)
-                                    });
-                                    setRowSearch(prev => ({ ...prev, [index]: undefined }));
-                                    setActiveRow(null);
-                                    
-                                    setTimeout(() => {
-                                      const qtyEl = document.getElementById(`edit-quantity-input-${index}`);
-                                      if (qtyEl) qtyEl.focus();
-                                    }, 50);
-                                  } else {
-                                    setEditForm(prev => ({
-                                      ...prev,
-                                      items: [...prev.items, { modelId: '', quantity: 1, size: '', price: 0 }]
-                                    }));
-                                    const totalItems = editForm.items.length;
-                                    setTimeout(() => {
-                                      const nextEl = document.getElementById(`edit-model-search-input-${totalItems}`);
-                                      if (nextEl) nextEl.focus();
-                                    }, 50);
-                                  }
-                                } else if (e.key === 'ArrowRight') {
-                                  e.preventDefault();
-                                  const qtyEl = document.getElementById(`edit-quantity-input-${index}`);
-                                  if (qtyEl) qtyEl.focus();
-                                } else if (e.key === 'Escape') {
-                                  e.preventDefault();
-                                  setActiveRow(null);
-                                }
-                              }}
-                              className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
-                            />
+                    <div className="space-y-2.5 md:space-y-1 bg-white max-h-60 overflow-y-auto pr-1">
+                      {editForm.items.map((item, index) => {
+                        const selectedModel = models.find((m) => String(m.id) === String(item.modelId));
+                        const currentSearchText = rowSearch[index] !== undefined 
+                          ? rowSearch[index] 
+                          : (selectedModel?.code || '');
+                        const filteredOpts = getFilteredOptions(currentSearchText);
 
-                            {/* Dropdown Suggestions */}
-                            {activeRow === index && filteredOpts.length > 0 && (
-                              <ul className="absolute z-50 w-full max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl mt-1 text-slate-800 text-sm">
-                                {filteredOpts.map((model, optIdx) => {
-                                  const isSelected = (activeOpt[index] || 0) === optIdx;
-                                  const isAlreadyChosen = editForm.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(model.id));
-                                  
-                                  return (
-                                    <li
-                                      key={model.id}
-                                      onMouseDown={(e) => {
-                                        e.preventDefault(); // Prevents input blur from executing prior to mouseup/touch
-                                        if (isAlreadyChosen) {
-                                          alert('This model is already selected in another row.');
-                                          return;
-                                        }
-                                        setEditForm({
-                                          ...editForm,
-                                          items: editForm.items.map((line, lineIdx) => lineIdx === index ? { ...line, modelId: model.id, size: model.size || '', price: model.price || 0 } : line)
-                                        });
-                                        setRowSearch(prev => ({ ...prev, [index]: undefined }));
-                                        setActiveRow(null);
+                        return (
+                          <div 
+                            key={index} 
+                            className="flex flex-col md:grid md:grid-cols-[40px_2.2fr_1fr_1.1fr_1.1fr_1.5fr_80px] gap-3 items-center bg-white border border-slate-200 md:border-transparent md:border-b md:border-slate-100 p-3 md:p-1.5 rounded-2xl md:rounded-none hover:bg-slate-50/40 transition-colors shadow-sm md:shadow-none"
+                          >
+                            {/* Index */}
+                            <div className="hidden md:block text-slate-400 font-extrabold text-xs pl-2">{index + 1}</div>
+
+                            {/* Model input & suggestions */}
+                            <div className="w-full flex flex-col gap-2 md:contents">
+                              <div className="flex md:hidden gap-2 items-end w-full">
+                                <div className="flex-1 min-w-0">
+                                  <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 pl-0.5">Model (Search & Select)</label>
+                                  <div className="relative">
+                                    <input
+                                      type="text"
+                                      id={`edit-model-search-input-${index}`}
+                                      value={currentSearchText}
+                                      placeholder="Search GA-001..."
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setRowSearch((prev) => ({ ...prev, [index]: val }));
+                                        setActiveRow(index);
+                                        setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
+                                      }}
+                                      onFocus={() => {
+                                        setActiveRow(index);
+                                        setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
+                                      }}
+                                      onBlur={() => {
                                         setTimeout(() => {
+                                          if (activeRow === index) {
+                                            setActiveRow(null);
+                                          }
+                                          const query = rowSearch[index];
+                                          if (query !== undefined) {
+                                            const text = String(query).trim().toLowerCase();
+                                            const exactMatch = models.find(m => m.code.toLowerCase() === text);
+                                            if (exactMatch) {
+                                              const isDup = editForm.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(exactMatch.id));
+                                              if (isDup) {
+                                                alert('This model is already selected in another row.');
+                                                updateEditLineItem(index, 'modelId', '');
+                                              } else {
+                                                updateEditLineItem(index, 'modelId', exactMatch.id);
+                                              }
+                                            } else {
+                                              const prevModel = models.find(m => String(m.id) === String(item.modelId));
+                                              if (!prevModel) {
+                                                updateEditLineItem(index, 'modelId', '');
+                                              }
+                                            }
+                                          }
+                                          setRowSearch(prev => {
+                                            const next = { ...prev };
+                                            delete next[index];
+                                            return next;
+                                          });
+                                        }, 250);
+                                      }}
+                                      onKeyDown={(e) => {
+                                        const options = getFilteredOptions(currentSearchText);
+                                        const currentOptIdx = activeOpt[index] || 0;
+
+                                        if (e.key === 'ArrowDown') {
+                                          if (options.length > 0) {
+                                            e.preventDefault();
+                                            const nextIdx = (currentOptIdx + 1) % options.length;
+                                            setActiveOpt(prev => ({ ...prev, [index]: nextIdx }));
+                                          } else {
+                                            e.preventDefault();
+                                            if (index < editForm.items.length - 1) {
+                                              const nextEl = document.getElementById(`edit-model-search-input-${index + 1}`);
+                                              if (nextEl) nextEl.focus();
+                                            }
+                                          }
+                                        } else if (e.key === 'ArrowUp') {
+                                          if (options.length > 0) {
+                                            e.preventDefault();
+                                            const prevIdx = (currentOptIdx - 1 + options.length) % options.length;
+                                            setActiveOpt(prev => ({ ...prev, [index]: prevIdx }));
+                                          } else {
+                                            e.preventDefault();
+                                            if (index > 0) {
+                                              const prevEl = document.getElementById(`edit-model-search-input-${index - 1}`);
+                                              if (prevEl) prevEl.focus();
+                                            }
+                                          }
+                                        } else if (e.key === 'Enter') {
+                                          e.preventDefault();
+                                          if (options.length > 0 && options[currentOptIdx]) {
+                                            const selected = options[currentOptIdx];
+                                            updateEditLineItem(index, 'modelId', selected.id);
+                                            setRowSearch(prev => ({ ...prev, [index]: undefined }));
+                                            setActiveRow(null);
+                                            setTimeout(() => {
+                                              const qtyEl = document.getElementById(`edit-quantity-input-${index}`);
+                                              if (qtyEl) qtyEl.focus();
+                                            }, 50);
+                                          } else {
+                                            addEditLineItem();
+                                            const totalItems = editForm.items.length;
+                                            setTimeout(() => {
+                                              const nextEl = document.getElementById(`edit-model-search-input-${totalItems}`);
+                                              if (nextEl) nextEl.focus();
+                                            }, 50);
+                                          }
+                                        } else if (e.key === 'ArrowRight') {
+                                          e.preventDefault();
                                           const qtyEl = document.getElementById(`edit-quantity-input-${index}`);
                                           if (qtyEl) qtyEl.focus();
-                                        }, 50);
+                                        } else if (e.key === 'Escape') {
+                                          e.preventDefault();
+                                          setActiveRow(null);
+                                        }
                                       }}
-                                      className={`px-4 py-3 cursor-pointer flex justify-between items-center transition-colors border-b border-slate-50 last:border-none ${
-                                        isSelected ? 'bg-amber-100 text-slate-900 font-bold' : 'hover:bg-slate-50'
-                                      } ${isAlreadyChosen ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    >
-                                      <span>{model.code} {isAlreadyChosen ? '(Already Selected)' : ''}</span>
-                                      <span className="text-xs text-slate-400 font-normal">
-                                        {model.size} · ₹{Number(model.price || 0).toFixed(2)} · Stock: {model.remainingStock}
-                                      </span>
-                                    </li>
-                                  );
-                                })}
-                              </ul>
-                            )}
+                                      className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-800 font-extrabold focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
+                                    />
+
+                                    {activeRow === index && filteredOpts.length > 0 && (
+                                      <ul className="absolute right-0 left-0 z-50 max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl mt-1 text-slate-800 text-sm">
+                                        {filteredOpts.map((model, optIdx) => {
+                                          const isSelected = (activeOpt[index] || 0) === optIdx;
+                                          const isAlreadyChosen = editForm.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(model.id));
+                                          
+                                          return (
+                                            <li
+                                              key={model.id}
+                                              onMouseDown={(e) => {
+                                                e.preventDefault();
+                                                if (isAlreadyChosen) {
+                                                  alert('This model is already selected in another row.');
+                                                  return;
+                                                }
+                                                updateEditLineItem(index, 'modelId', model.id);
+                                                setRowSearch(prev => ({ ...prev, [index]: undefined }));
+                                                setActiveRow(null);
+                                                setTimeout(() => {
+                                                  const qtyEl = document.getElementById(`edit-quantity-input-${index}`);
+                                                  if (qtyEl) qtyEl.focus();
+                                                }, 50);
+                                              }}
+                                              className={`px-4 py-3 cursor-pointer flex justify-between items-center transition-colors border-b border-slate-50 last:border-none ${
+                                                isSelected ? 'bg-amber-100 text-slate-900 font-bold' : 'hover:bg-slate-50'
+                                              } ${isAlreadyChosen ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                              <span>{model.code} {isAlreadyChosen ? '(Already Selected)' : ''}</span>
+                                              <span className="text-xs text-slate-400 font-normal">
+                                                {model.size} · ₹{Number(model.price || 0).toFixed(2)} · Stock: {model.remainingStock}
+                                              </span>
+                                            </li>
+                                          );
+                                        })}
+                                      </ul>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="w-28 shrink-0">
+                                  <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 text-center">Quantity</label>
+                                  <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    placeholder="Qty"
+                                    value={item.quantity}
+                                    onChange={(e) => updateEditLineItem(index, 'quantity', e.target.value)}
+                                    onKeyDown={(e) => handleEditKeyDown(e, index, 'quantity')}
+                                    className="w-full text-center rounded-2xl border border-slate-300 bg-white py-3 px-2 text-base text-slate-955 font-black focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="hidden md:block w-full">
+                                <div className="relative">
+                                  <input
+                                    type="text"
+                                    id={`edit-model-search-input-${index}`}
+                                    value={currentSearchText}
+                                    placeholder="Search GA-001..."
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setRowSearch((prev) => ({ ...prev, [index]: val }));
+                                      setActiveRow(index);
+                                      setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
+                                    }}
+                                    onFocus={() => {
+                                      setActiveRow(index);
+                                      setActiveOpt((prev) => ({ ...prev, [index]: 0 }));
+                                    }}
+                                    onBlur={() => {
+                                      setTimeout(() => {
+                                        if (activeRow === index) {
+                                          setActiveRow(null);
+                                        }
+                                        const query = rowSearch[index];
+                                        if (query !== undefined) {
+                                          const text = String(query).trim().toLowerCase();
+                                          const exactMatch = models.find(m => m.code.toLowerCase() === text);
+                                          if (exactMatch) {
+                                            const isDup = editForm.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(exactMatch.id));
+                                            if (isDup) {
+                                              alert('This model is already selected in another row.');
+                                              updateEditLineItem(index, 'modelId', '');
+                                            } else {
+                                              updateEditLineItem(index, 'modelId', exactMatch.id);
+                                            }
+                                          } else {
+                                            const prevModel = models.find(m => String(m.id) === String(item.modelId));
+                                            if (!prevModel) {
+                                              updateEditLineItem(index, 'modelId', '');
+                                            }
+                                          }
+                                        }
+                                        setRowSearch(prev => {
+                                          const next = { ...prev };
+                                          delete next[index];
+                                          return next;
+                                        });
+                                      }, 250);
+                                    }}
+                                    onKeyDown={(e) => {
+                                      const options = getFilteredOptions(currentSearchText);
+                                      const currentOptIdx = activeOpt[index] || 0;
+
+                                      if (e.key === 'ArrowDown') {
+                                        if (options.length > 0) {
+                                          e.preventDefault();
+                                          const nextIdx = (currentOptIdx + 1) % options.length;
+                                          setActiveOpt(prev => ({ ...prev, [index]: nextIdx }));
+                                        } else {
+                                          e.preventDefault();
+                                          if (index < editForm.items.length - 1) {
+                                            const nextEl = document.getElementById(`edit-model-search-input-${index + 1}`);
+                                            if (nextEl) nextEl.focus();
+                                          }
+                                        }
+                                      } else if (e.key === 'ArrowUp') {
+                                        if (options.length > 0) {
+                                          e.preventDefault();
+                                          const prevIdx = (currentOptIdx - 1 + options.length) % options.length;
+                                          setActiveOpt(prev => ({ ...prev, [index]: prevIdx }));
+                                        } else {
+                                          e.preventDefault();
+                                          if (index > 0) {
+                                            const prevEl = document.getElementById(`edit-model-search-input-${index - 1}`);
+                                            if (prevEl) prevEl.focus();
+                                          }
+                                        }
+                                      } else if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        if (options.length > 0 && options[currentOptIdx]) {
+                                          const selected = options[currentOptIdx];
+                                          updateEditLineItem(index, 'modelId', selected.id);
+                                          setRowSearch(prev => ({ ...prev, [index]: undefined }));
+                                          setActiveRow(null);
+                                          setTimeout(() => {
+                                            const qtyEl = document.getElementById(`edit-quantity-input-${index}`);
+                                            if (qtyEl) qtyEl.focus();
+                                          }, 50);
+                                        } else {
+                                          addEditLineItem();
+                                          const totalItems = editForm.items.length;
+                                          setTimeout(() => {
+                                            const nextEl = document.getElementById(`edit-model-search-input-${totalItems}`);
+                                            if (nextEl) nextEl.focus();
+                                          }, 50);
+                                        }
+                                      } else if (e.key === 'ArrowRight') {
+                                        e.preventDefault();
+                                        const qtyEl = document.getElementById(`edit-quantity-input-${index}`);
+                                        if (qtyEl) qtyEl.focus();
+                                      } else if (e.key === 'Escape') {
+                                        e.preventDefault();
+                                        setActiveRow(null);
+                                      }
+                                    }}
+                                    className="w-full rounded-xl md:rounded-2xl border border-slate-300 bg-white px-3.5 py-2 text-xs md:text-sm text-slate-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
+                                  />
+
+                                  {activeRow === index && filteredOpts.length > 0 && (
+                                    <ul className="absolute z-50 w-full max-h-60 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl mt-1 text-slate-800 text-sm">
+                                      {filteredOpts.map((model, optIdx) => {
+                                        const isSelected = (activeOpt[index] || 0) === optIdx;
+                                        const isAlreadyChosen = editForm.items.some((line, lineIdx) => lineIdx !== index && String(line.modelId) === String(model.id));
+                                        
+                                        return (
+                                          <li
+                                            key={model.id}
+                                            onMouseDown={(e) => {
+                                              e.preventDefault();
+                                              if (isAlreadyChosen) {
+                                                alert('This model is already selected in another row.');
+                                                return;
+                                              }
+                                              updateEditLineItem(index, 'modelId', model.id);
+                                              setRowSearch(prev => ({ ...prev, [index]: undefined }));
+                                              setActiveRow(null);
+                                              setTimeout(() => {
+                                                const qtyEl = document.getElementById(`edit-quantity-input-${index}`);
+                                                if (qtyEl) qtyEl.focus();
+                                              }, 50);
+                                            }}
+                                            className={`px-4 py-3 cursor-pointer flex justify-between items-center transition-colors border-b border-slate-50 last:border-none ${
+                                              isSelected ? 'bg-amber-100 text-slate-900 font-bold' : 'hover:bg-slate-50'
+                                            } ${isAlreadyChosen ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                          >
+                                            <span>{model.code} {isAlreadyChosen ? '(Already Selected)' : ''}</span>
+                                            <span className="text-xs text-slate-400 font-normal">
+                                              {model.size} · ₹{Number(model.price || 0).toFixed(2)} · Stock: {model.remainingStock}
+                                            </span>
+                                          </li>
+                                        );
+                                      })}
+                                    </ul>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="flex md:hidden items-center justify-between gap-1 bg-slate-50/50 border border-slate-100 rounded-2xl p-2.5 w-full text-xs font-semibold text-slate-655 mt-0.5">
+                                <div className="text-[10px] pl-1">
+                                  <span className="text-[8px] font-extrabold uppercase tracking-wide text-slate-400 block leading-none">Size</span>
+                                  <span className="text-slate-800 font-bold mt-0.5 block">{selectedModel?.size || '—'}</span>
+                                </div>
+
+                                <div className="text-[10px]">
+                                  <span className="text-[8px] font-extrabold uppercase tracking-wide text-slate-400 block leading-none">Price</span>
+                                  <span className="text-slate-800 font-bold mt-0.5 block">₹{selectedModel?.price || '0'}</span>
+                                </div>
+
+                                <div className="text-[10px] text-right">
+                                  <span className="text-[8px] font-extrabold uppercase tracking-wide text-slate-400 block leading-none">Total</span>
+                                  <span className="text-emerald-700 font-black mt-0.5 block">₹{Number((item.quantity || 0) * (selectedModel?.price || 0)).toLocaleString('en-IN')}</span>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setEditForm((prev) => ({ ...prev, items: prev.items.filter((_, itemIndex) => itemIndex !== index) }))}
+                                  className="rounded-full bg-rose-50 border border-rose-200 p-1.5 text-rose-600 hover:bg-rose-100 transition-colors shrink-0"
+                                  title="Remove item"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3.5} stroke="currentColor" className="w-3.5 h-3.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="hidden md:block w-full">
+                              <input
+                                id={`edit-quantity-input-${index}`}
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                placeholder="0"
+                                value={item.quantity}
+                                onChange={(e) => updateEditLineItem(index, 'quantity', e.target.value)}
+                                onKeyDown={(e) => handleEditKeyDown(e, index, 'quantity')}
+                                className="w-full rounded-2xl border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none"
+                              />
+                            </div>
+
+                            <div className="hidden md:flex justify-center">
+                              <span className="inline-flex rounded-xl bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 md:min-w-[80px] text-center justify-center">
+                                {selectedModel?.size || '—'}
+                              </span>
+                            </div>
+
+                            <div className="hidden md:flex justify-center">
+                              <span className="inline-flex rounded-xl bg-slate-50 border border-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 md:min-w-[80px] text-center justify-center">
+                                {selectedModel?.price ? `₹${selectedModel.price}` : '—'}
+                              </span>
+                            </div>
+
+                            <div className="hidden md:flex justify-center">
+                              <span className="inline-flex rounded-xl bg-emerald-50 border border-emerald-100 px-3 py-1.5 text-xs font-black text-emerald-700 md:min-w-[100px] text-center justify-center">
+                                ₹{Number((item.quantity || 0) * (selectedModel?.price || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                              </span>
+                            </div>
+
+                            <div className="hidden md:flex justify-center">
+                              <button
+                                type="button"
+                                onClick={() => setEditForm((prev) => ({ ...prev, items: prev.items.filter((_, itemIndex) => itemIndex !== index) }))}
+                                className="rounded-2xl border border-rose-250 bg-rose-50/50 hover:bg-rose-100/50 px-3 py-2 text-xs font-black text-rose-700 uppercase tracking-widest transition-colors active:scale-95 duration-100"
+                              >
+                                Remove
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                        <div>
-                          <input
-                            id={`edit-quantity-input-${index}`}
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            value={item.quantity}
-                            onChange={(e) => {
-                              const cleanVal = e.target.value.replace(/\D/g, '');
-                              setEditForm({
-                                ...editForm,
-                                items: editForm.items.map((line, lineIdx) => lineIdx === index ? { ...line, quantity: cleanVal === '' ? '' : Number(cleanVal) } : line)
-                              });
-                            }}
-                            onKeyDown={(e) => handleEditKeyDown(e, index, 'quantity')}
-                            className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
-                          />
-                        </div>
-                        <div className="text-xs text-slate-500 px-2 font-medium">Size: {item.size || '—'}</div>
-                        <div className="text-xs text-slate-500 px-2 font-medium">Price: ₹{Number(item.price || 0).toFixed(2)}</div>
-                        <div className="text-xs text-slate-900 px-2 font-black">Total: ₹{(Number(item.price || 0) * Number(item.quantity || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-                        <div>
-                          <button type="button" onClick={() => setEditForm({
-                            ...editForm,
-                            items: editForm.items.filter((_, lineIdx) => lineIdx !== index)
-                          })} className="rounded-2xl border border-rose-200 bg-rose-100 px-3 py-1.5 text-xs text-rose-700">Remove</button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <button type="button" onClick={() => setEditForm({
-                    ...editForm,
-                    items: [...editForm.items, { modelId: '', quantity: 1, size: '', price: 0 }]
-                  })} className="rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 hover:border-amber-400 hover:bg-amber-50">+ Add Item</button>
-                </div>
+                        );
+                      })}
+                    </div>
+
+                    <button 
+                      type="button" 
+                      onClick={addEditLineItem} 
+                      className="mt-4 rounded-2xl border border-amber-300 bg-white px-5 py-2.5 text-xs font-black text-amber-600 hover:bg-amber-50 active:scale-95 transition-all shadow-sm flex items-center gap-1"
+                    >
+                      <span className="text-sm font-bold">+</span> Add Line Item
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Summary & Save */}

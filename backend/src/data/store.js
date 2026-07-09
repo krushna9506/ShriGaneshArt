@@ -227,6 +227,69 @@ export async function saveInvoices() {
   }
 }
 
+async function healCustomerMappings() {
+  let changed = false;
+  orders.forEach(order => {
+    const customer = customers.find(c => String(c.id) === String(order.customerId));
+    const isDummy = !order.mobile || ['-', '—', '', '0000000000'].includes(String(order.mobile).trim());
+    
+    // If the customer is not found, OR the customer name differs from the order's customer name
+    if (!customer || customer.name !== order.customerName) {
+      // Find or create a proper customer matching the order details
+      let properCustomer = null;
+      if (!isDummy) {
+        properCustomer = customers.find(c => String(c.mobile) === String(order.mobile));
+      }
+      
+      if (properCustomer) {
+        // Found a matching customer record with correct phone, let's link it
+        // Ensure details are updated
+        if (order.customerName) properCustomer.name = order.customerName;
+        if (order.address) properCustomer.address = order.address;
+        if (order.city) properCustomer.city = order.city;
+        order.customerId = properCustomer.id;
+        changed = true;
+        console.log(`[Self-healing] Relinked order ${order.orderNumber} to customer ${properCustomer.name} (ID: ${properCustomer.id})`);
+      } else {
+        // Create a new distinct customer record for this order
+        properCustomer = {
+          id: Date.now() + Math.floor(Math.random() * 10000),
+          name: order.customerName || 'Walk-in Customer',
+          mobile: order.mobile || '—',
+          address: order.address || '',
+          city: order.city || '',
+          notes: ''
+        };
+        customers.push(properCustomer);
+        order.customerId = properCustomer.id;
+        changed = true;
+        console.log(`[Self-healing] Created new customer record for order ${order.orderNumber} (Name: ${order.customerName}, ID: ${properCustomer.id})`);
+      }
+    }
+  });
+
+  if (changed) {
+    await saveCustomers();
+    await saveOrders();
+    
+    let invoicesChanged = false;
+    invoices.forEach(inv => {
+      const order = orders.find(o => String(o.id) === String(inv.order_id));
+      if (order && String(inv.customer_id) !== String(order.customerId)) {
+        inv.customer_id = order.customerId;
+        const cust = customers.find(c => String(c.id) === String(order.customerId));
+        if (cust) {
+          inv.customer = cust;
+        }
+        invoicesChanged = true;
+      }
+    });
+    if (invoicesChanged) {
+      await saveInvoices();
+    }
+  }
+}
+
 // ─── Load from Local JSON ─────────────────────────────────────────────────────
 function loadModels() {
   try {
@@ -245,7 +308,7 @@ function loadModels() {
   models.push(...initialModels);
 }
 
-export function loadStoreData() {
+export async function loadStoreData() {
   loadModels();
 
   try {
@@ -280,6 +343,8 @@ export function loadStoreData() {
   } catch (err) {
     console.error('[Store] Failed to load customers from JSON:', err);
   }
+
+  await healCustomerMappings();
 }
 
 // ─── Sync from Neon Postgres ──────────────────────────────────────────────────
@@ -407,6 +472,7 @@ export async function syncFromPostgres() {
     })));
     console.log(`[Postgres Sync] Loaded ${invoices.length} invoices from Neon.`);
 
+    await healCustomerMappings();
   } catch (err) {
     console.error('[Postgres Sync] Sync failed:', err.message);
   }
@@ -414,9 +480,21 @@ export async function syncFromPostgres() {
 
 // ─── Business Logic ───────────────────────────────────────────────────────────
 const createCustomer = (payload) => {
-  const existing = customers.find((item) => String(item.mobile) === String(payload.mobile));
-  if (existing) return existing;
-  const customer = { id: Date.now(), ...payload };
+  const mobile = payload.mobile;
+  const isDummy = !mobile || ['-', '—', '', '0000000000'].includes(String(mobile).trim());
+  
+  if (!isDummy) {
+    const existing = customers.find((item) => String(item.mobile) === String(mobile));
+    if (existing) {
+      if (payload.name && payload.name !== 'Walk-in Customer') existing.name = payload.name;
+      if (payload.address) existing.address = payload.address;
+      if (payload.city) existing.city = payload.city;
+      if (payload.notes) existing.notes = payload.notes;
+      return existing;
+    }
+  }
+  
+  const customer = { id: Date.now() + Math.floor(Math.random() * 1000), ...payload };
   customers.push(customer);
   return customer;
 };
@@ -636,18 +714,28 @@ const updateOrder = (orderId, payload) => {
   order.balance = Math.max(0, totalAmount - Number(order.advance || 0));
   order.items = newItems;
 
+  const customer = createCustomer({
+    name: order.customerName,
+    mobile: order.mobile,
+    address: order.address,
+    city: order.city,
+    notes: ''
+  });
+  order.customerId = customer.id;
+
   if (newStatus !== 'Cancelled') {
     deductOrderStock(order);
   }
 
   saveModels();
   saveOrders();
+  saveCustomers();
 
   return order;
 };
 
 // ─── Initial Load (called after all arrays are declared) ─────────────────────
-loadStoreData();
+loadStoreData().catch(err => console.error('[Store] loadStoreData failed:', err));
 
 // ─── Exports ──────────────────────────────────────────────────────────────────
 export {
@@ -665,5 +753,6 @@ export {
   formatDate,
   loadModels,
   deleteOrder,
-  updateOrder
+  updateOrder,
+  healCustomerMappings
 };
