@@ -99,7 +99,33 @@ const nextOrderNumber = () => {
 };
 
 // ─── Local JSON Persistence ───────────────────────────────────────────────────
+function reconcileStockLevels() {
+  // Reset soldStock for all models
+  models.forEach(m => {
+    m.soldStock = 0;
+  });
+
+  // Sum quantities from all active orders
+  orders.forEach(order => {
+    if (order.status !== 'Cancelled') {
+      order.items?.forEach(item => {
+        const modelIdToFind = item.modelId || item.id;
+        const model = models.find(m => String(m.id) === String(modelIdToFind));
+        if (model) {
+          model.soldStock = (model.soldStock || 0) + Number(item.quantity || 0);
+        }
+      });
+    }
+  });
+
+  // Recompute remainingStock
+  models.forEach(m => {
+    m.remainingStock = Number(m.totalStock || 0) - Number(m.soldStock || 0);
+  });
+}
+
 export async function saveModels() {
+  reconcileStockLevels();
   try {
     fs.writeFileSync(modelsJsonPath, JSON.stringify(models, null, 2), 'utf8');
     console.log('[Store] Saved models to models.json');
@@ -345,6 +371,7 @@ export async function loadStoreData() {
   }
 
   await healCustomerMappings();
+  await saveModels();
 }
 
 // ─── Sync from Neon Postgres ──────────────────────────────────────────────────
@@ -473,6 +500,7 @@ export async function syncFromPostgres() {
     console.log(`[Postgres Sync] Loaded ${invoices.length} invoices from Neon.`);
 
     await healCustomerMappings();
+    await saveModels();
   } catch (err) {
     console.error('[Postgres Sync] Sync failed:', err.message);
   }
@@ -752,5 +780,6 @@ export {
   loadModels,
   deleteOrder,
   updateOrder,
-  healCustomerMappings
+  healCustomerMappings,
+  reconcileStockLevels
 };
