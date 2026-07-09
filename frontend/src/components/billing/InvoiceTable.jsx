@@ -2,7 +2,7 @@ function InvoiceTable({ items = [], startIndex = 0 }) {
   const cleanModelName = (name) => {
     if (!name) return '';
     return String(name)
-      .replace(/^ganesh\s+mod+el\s*[-:\s]\s*/i, '')
+      .replace(/^ganesh\s+mod+el\s*(-|:|\s)\s*/i, '')
       .replace(/^ganesh\s+mod+el\s*/i, '')
       .trim();
   };

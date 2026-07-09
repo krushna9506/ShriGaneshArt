@@ -2550,7 +2550,7 @@ function OrdersHistory() {
                     <div className="mt-2 flex flex-wrap gap-2">
                       {order.items?.map((item, idx) => (
                         <span key={idx} className="inline-flex items-center rounded-xl bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-800 border border-slate-100">
-                          {String(item.name || '').replace(/^ganesh\s+mod+el\s*[-:\s]\s*/i, '').replace(/^ganesh\s+mod+el\s*/i, '')} <strong className="ml-1 text-amber-600">x{item.quantity}</strong>
+                          {String(item.name || '').replace(/^ganesh\s+mod+el\s*(-|:|\s)\s*/i, '').replace(/^ganesh\s+mod+el\s*/i, '')} <strong className="ml-1 text-amber-600">x{item.quantity}</strong>
                         </span>
                       ))}
                     </div>
