@@ -533,8 +533,6 @@ const createOrder = (payload) => {
     if (!model) throw new Error('Model not found');
     const quantity = Number(item.quantity || 0);
     if (quantity <= 0) throw new Error('Quantity must be greater than zero');
-    const available = Number(model.remainingStock ?? model.totalStock ?? 0);
-    if (quantity > available) throw new Error(`Only ${available} units available for ${model.name}`);
     const price = Number(model.price ?? item.price ?? 0);
     return {
       modelId: Number(model.id),
