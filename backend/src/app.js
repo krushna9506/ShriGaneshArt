@@ -33,8 +33,23 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, curl, Render health checks)
     if (!origin) return callback(null, true);
-    // Allow any vercel.app subdomain (covers preview deployments too)
-    if (origin.endsWith('.vercel.app') || allowedOrigins.includes(origin)) {
+    
+    // Allow any localhost origin (any port)
+    if (/^https?:\/\/localhost(:\d+)?$/.test(origin) || /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow any local network IP address (e.g. 192.168.x.x, 172.16.x.x to 172.31.x.x, 10.x.x.x)
+    if (/^https?:\/\/(192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow any vercel.app subdomain, onrender.com subdomain, or pre-configured origins
+    if (
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.onrender.com') ||
+      allowedOrigins.includes(origin)
+    ) {
       return callback(null, true);
     }
     callback(new Error('Not allowed by CORS'));
