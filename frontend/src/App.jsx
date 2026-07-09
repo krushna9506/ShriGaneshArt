@@ -1343,6 +1343,10 @@ function Orders() {
 
   const [orderInputMode, setOrderInputMode] = useState('one-by-one');
   const [checklistSearch, setChecklistSearch] = useState('');
+  const filteredChecklistModels = models.filter(m =>
+    m.code.toLowerCase().includes(checklistSearch.toLowerCase()) ||
+    m.size.toLowerCase().includes(checklistSearch.toLowerCase())
+  );
 
   const loadData = async () => {
     try {
@@ -1534,89 +1538,108 @@ function Orders() {
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-[400px] overflow-y-auto pr-1">
-                  {models
-                    .filter(m =>
-                      m.code.toLowerCase().includes(checklistSearch.toLowerCase()) ||
-                      m.size.toLowerCase().includes(checklistSearch.toLowerCase())
-                    )
-                    .map((model) => {
-                      const existingItem = form.items.find(item => String(item.modelId) === String(model.id));
-                      const isChecked = !!existingItem;
-                      const qtyValue = existingItem ? existingItem.quantity : '';
+                  {filteredChecklistModels.map((model, index) => {
+                    const existingItem = form.items.find(item => String(item.modelId) === String(model.id));
+                    const isChecked = !!existingItem;
+                    const qtyValue = existingItem ? existingItem.quantity : '';
 
-                      return (
-                        <div 
-                          key={model.id} 
-                          className={`rounded-2xl border p-3 flex items-center justify-between gap-3 transition-all ${
-                            isChecked 
-                              ? 'bg-amber-50/30 border-amber-300 shadow-sm' 
-                              : 'bg-white border-slate-150 hover:bg-slate-50/40'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  // Add to form items with blank quantity
-                                  setForm(prev => ({
-                                    ...prev,
-                                    items: [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: '', size: model.size, price: model.price }]
-                                  }));
-                                } else {
-                                  // Remove from form items
-                                  setForm(prev => ({
-                                    ...prev,
-                                    items: prev.items.filter(item => String(item.modelId) !== String(model.id))
-                                  }));
-                                }
-                              }}
-                              className="w-4 h-4 rounded text-amber-500 border-slate-305 focus:ring-amber-500"
-                            />
-                            <div className="min-w-0">
-                              <p className="font-extrabold text-slate-900 text-sm truncate">{model.code}</p>
-                              <p className="text-[10px] text-slate-500 mt-0.5 font-semibold leading-tight">
-                                {model.size} · ₹{model.price} · <span className={model.remainingStock > 0 ? 'text-emerald-650' : 'text-rose-650'}>{model.remainingStock} left</span>
-                              </p>
-                            </div>
-                          </div>
-
-                          <div>
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              placeholder="Qty"
-                              value={qtyValue}
-                              onChange={(e) => {
-                                const cleanVal = e.target.value.replace(/\D/g, '');
-                                const qty = cleanVal === '' ? '' : Number(cleanVal);
-                                
-                                if (cleanVal === '') {
-                                  // If blank, keep in list but with blank qty
-                                  setForm(prev => ({
-                                    ...prev,
-                                    items: prev.items.some(item => String(item.modelId) === String(model.id))
-                                      ? prev.items.map(item => String(item.modelId) === String(model.id) ? { ...item, quantity: '' } : item)
-                                      : [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: '', size: model.size, price: model.price }]
-                                  }));
-                                } else {
-                                  // Update/Insert in list with positive quantity
-                                  setForm(prev => ({
-                                    ...prev,
-                                    items: prev.items.some(item => String(item.modelId) === String(model.id))
-                                      ? prev.items.map(item => String(item.modelId) === String(model.id) ? { ...item, quantity: qty } : item)
-                                      : [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: qty, size: model.size, price: model.price }]
-                                  }));
-                                }
-                              }}
-                              className="w-14 rounded-xl border border-slate-200 bg-white py-1 px-1.5 text-xs text-slate-800 font-black text-center focus:border-amber-450 focus:ring-1 focus:ring-amber-500/20 outline-none"
-                            />
+                    return (
+                      <div 
+                        key={model.id} 
+                        className={`rounded-2xl border p-3 flex items-center justify-between gap-3 transition-all ${
+                          isChecked 
+                            ? 'bg-amber-50/30 border-amber-300 shadow-sm' 
+                            : 'bg-white border-slate-150 hover:bg-slate-50/40'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                // Add to form items with blank quantity
+                                setForm(prev => ({
+                                  ...prev,
+                                  items: [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: '', size: model.size, price: model.price }]
+                                }));
+                              } else {
+                                // Remove from form items
+                                setForm(prev => ({
+                                  ...prev,
+                                  items: prev.items.filter(item => String(item.modelId) !== String(model.id))
+                                }));
+                              }
+                            }}
+                            className="w-4 h-4 rounded text-amber-500 border-slate-305 focus:ring-amber-500"
+                          />
+                          <div className="min-w-0">
+                            <p className="font-extrabold text-slate-900 text-sm truncate">{model.code}</p>
+                            <p className="text-[10px] text-slate-500 mt-0.5 font-semibold leading-tight">
+                              {model.size} · ₹{model.price} · <span className={model.remainingStock > 0 ? 'text-emerald-650' : 'text-rose-650'}>{model.remainingStock} left</span>
+                            </p>
                           </div>
                         </div>
-                      );
-                    })}
+
+                        <div>
+                          <input
+                            id={`create-checklist-qty-${model.id}`}
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            placeholder="Qty"
+                            value={qtyValue}
+                            onChange={(e) => {
+                              const cleanVal = e.target.value.replace(/\D/g, '');
+                              const qty = cleanVal === '' ? '' : Number(cleanVal);
+                              
+                              if (cleanVal === '') {
+                                // If blank, keep in list but with blank qty
+                                setForm(prev => ({
+                                  ...prev,
+                                  items: prev.items.some(item => String(item.modelId) === String(model.id))
+                                    ? prev.items.map(item => String(item.modelId) === String(model.id) ? { ...item, quantity: '' } : item)
+                                    : [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: '', size: model.size, price: model.price }]
+                                }));
+                              } else {
+                                // Update/Insert in list with positive quantity
+                                setForm(prev => ({
+                                  ...prev,
+                                  items: prev.items.some(item => String(item.modelId) === String(model.id))
+                                    ? prev.items.map(item => String(item.modelId) === String(model.id) ? { ...item, quantity: qty } : item)
+                                    : [...prev.items.filter(item => item.modelId), { modelId: model.id, quantity: qty, size: model.size, price: model.price }]
+                                }));
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+                                e.preventDefault();
+                                let cols = 1;
+                                if (window.innerWidth >= 1024) cols = 3;
+                                else if (window.innerWidth >= 640) cols = 2;
+
+                                let targetIndex = index;
+                                if (e.key === 'ArrowLeft') targetIndex = index - 1;
+                                else if (e.key === 'ArrowRight') targetIndex = index + 1;
+                                else if (e.key === 'ArrowUp') targetIndex = index - cols;
+                                else if (e.key === 'ArrowDown') targetIndex = index + cols;
+
+                                if (targetIndex >= 0 && targetIndex < filteredChecklistModels.length) {
+                                  const targetModel = filteredChecklistModels[targetIndex];
+                                  const targetInput = document.getElementById(`create-checklist-qty-${targetModel.id}`);
+                                  if (targetInput) {
+                                    targetInput.focus();
+                                    targetInput.select();
+                                  }
+                                }
+                              }
+                            }}
+                            className="w-14 rounded-xl border border-slate-200 bg-white py-1 px-1.5 text-xs text-slate-800 font-black text-center focus:border-amber-450 focus:ring-1 focus:ring-amber-500/20 outline-none"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ) : (
@@ -2169,6 +2192,10 @@ function OrdersHistory() {
 
   const [editOrderInputMode, setEditOrderInputMode] = useState('one-by-one');
   const [editChecklistSearch, setEditChecklistSearch] = useState('');
+  const filteredEditChecklistModels = models.filter(m =>
+    m.code.toLowerCase().includes(editChecklistSearch.toLowerCase()) ||
+    m.size.toLowerCase().includes(editChecklistSearch.toLowerCase())
+  );
 
   const updateEditLineItem = (index, key, value) => {
     if (key === 'modelId') {
